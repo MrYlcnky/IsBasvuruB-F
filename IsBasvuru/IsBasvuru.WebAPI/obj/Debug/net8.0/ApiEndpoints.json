@@ -1,0 +1,2423 @@
+[
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.BilgisayarBilgisiController",
+    "Method": "GetAll",
+    "RelativePath": "api/BilgisayarBilgisi",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.BilgisayarBilgisiController",
+    "Method": "Create",
+    "RelativePath": "api/BilgisayarBilgisi",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.BilgisayarBilgisiDtos.BilgisayarBilgisiCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.BilgisayarBilgisiController",
+    "Method": "Update",
+    "RelativePath": "api/BilgisayarBilgisi",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.BilgisayarBilgisiDtos.BilgisayarBilgisiUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.BilgisayarBilgisiController",
+    "Method": "GetById",
+    "RelativePath": "api/BilgisayarBilgisi/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.BilgisayarBilgisiController",
+    "Method": "Delete",
+    "RelativePath": "api/BilgisayarBilgisi/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.BilgisayarBilgisiController",
+    "Method": "GetByPersonelId",
+    "RelativePath": "api/BilgisayarBilgisi/Personel/{personelId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "personelId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DepartmanController",
+    "Method": "GetAll",
+    "RelativePath": "api/Departman",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DepartmanController",
+    "Method": "Create",
+    "RelativePath": "api/Departman",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketYapisiDtos.DepartmanDtos.DepartmanCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DepartmanController",
+    "Method": "Update",
+    "RelativePath": "api/Departman",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketYapisiDtos.DepartmanDtos.DepartmanUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DepartmanController",
+    "Method": "GetById",
+    "RelativePath": "api/Departman/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DepartmanController",
+    "Method": "Delete",
+    "RelativePath": "api/Departman/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DepartmanPozisyonController",
+    "Method": "GetAll",
+    "RelativePath": "api/DepartmanPozisyon",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DepartmanPozisyonController",
+    "Method": "Create",
+    "RelativePath": "api/DepartmanPozisyon",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketYapisiDtos.DepartmanPozisyonDtos.DepartmanPozisyonCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DepartmanPozisyonController",
+    "Method": "Update",
+    "RelativePath": "api/DepartmanPozisyon",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketYapisiDtos.DepartmanPozisyonDtos.DepartmanPozisyonUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DepartmanPozisyonController",
+    "Method": "GetById",
+    "RelativePath": "api/DepartmanPozisyon/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DepartmanPozisyonController",
+    "Method": "Delete",
+    "RelativePath": "api/DepartmanPozisyon/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DigerKisiselBilgilerController",
+    "Method": "GetAll",
+    "RelativePath": "api/DigerKisiselBilgiler",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DigerKisiselBilgilerController",
+    "Method": "Create",
+    "RelativePath": "api/DigerKisiselBilgiler",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.DigerKisiselBilgilerDtos.DigerKisiselBilgilerCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DigerKisiselBilgilerController",
+    "Method": "Update",
+    "RelativePath": "api/DigerKisiselBilgiler",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.DigerKisiselBilgilerDtos.DigerKisiselBilgilerUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DigerKisiselBilgilerController",
+    "Method": "GetById",
+    "RelativePath": "api/DigerKisiselBilgiler/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DigerKisiselBilgilerController",
+    "Method": "Delete",
+    "RelativePath": "api/DigerKisiselBilgiler/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DigerKisiselBilgilerController",
+    "Method": "GetByPersonelId",
+    "RelativePath": "api/DigerKisiselBilgiler/Personel/{personelId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "personelId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DilController",
+    "Method": "GetAll",
+    "RelativePath": "api/Dil",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DilController",
+    "Method": "Create",
+    "RelativePath": "api/Dil",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.TanimlamalarDtos.DilDtos.DilCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DilController",
+    "Method": "Update",
+    "RelativePath": "api/Dil",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.TanimlamalarDtos.DilDtos.DilUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DilController",
+    "Method": "GetById",
+    "RelativePath": "api/Dil/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.DilController",
+    "Method": "Delete",
+    "RelativePath": "api/Dil/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.EgitimBilgisiController",
+    "Method": "GetAll",
+    "RelativePath": "api/EgitimBilgisi",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.EgitimBilgisiController",
+    "Method": "Create",
+    "RelativePath": "api/EgitimBilgisi",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.EgitimBilgisiDtos.EgitimBilgisiCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.EgitimBilgisiController",
+    "Method": "Update",
+    "RelativePath": "api/EgitimBilgisi",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.EgitimBilgisiDtos.EgitimBilgisiUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.EgitimBilgisiController",
+    "Method": "GetById",
+    "RelativePath": "api/EgitimBilgisi/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.EgitimBilgisiController",
+    "Method": "Delete",
+    "RelativePath": "api/EgitimBilgisi/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.EgitimBilgisiController",
+    "Method": "GetByPersonelId",
+    "RelativePath": "api/EgitimBilgisi/Personel/{personelId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "personelId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.EhliyetTuruController",
+    "Method": "GetAll",
+    "RelativePath": "api/EhliyetTuru",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.EhliyetTuruController",
+    "Method": "Create",
+    "RelativePath": "api/EhliyetTuru",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.TanimlamalarDtos.EhliyetTuruDtos.EhliyetTuruCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.EhliyetTuruController",
+    "Method": "Update",
+    "RelativePath": "api/EhliyetTuru",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.TanimlamalarDtos.EhliyetTuruDtos.EhliyetTuruUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.EhliyetTuruController",
+    "Method": "GetById",
+    "RelativePath": "api/EhliyetTuru/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.EhliyetTuruController",
+    "Method": "Delete",
+    "RelativePath": "api/EhliyetTuru/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.IlceController",
+    "Method": "GetAll",
+    "RelativePath": "api/Ilce",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.IlceController",
+    "Method": "Create",
+    "RelativePath": "api/Ilce",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.TanimlamalarDtos.IlceDtos.IlceCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.IlceController",
+    "Method": "Update",
+    "RelativePath": "api/Ilce",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.TanimlamalarDtos.IlceDtos.IlceUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.IlceController",
+    "Method": "GetById",
+    "RelativePath": "api/Ilce/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.IlceController",
+    "Method": "Delete",
+    "RelativePath": "api/Ilce/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.IsDeneyimiController",
+    "Method": "GetAll",
+    "RelativePath": "api/IsDeneyimi",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.IsDeneyimiController",
+    "Method": "Create",
+    "RelativePath": "api/IsDeneyimi",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.IsDeneyimiDtos.IsDeneyimiCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.IsDeneyimiController",
+    "Method": "Update",
+    "RelativePath": "api/IsDeneyimi",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.IsDeneyimiDtos.IsDeneyimiUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.IsDeneyimiController",
+    "Method": "GetById",
+    "RelativePath": "api/IsDeneyimi/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.IsDeneyimiController",
+    "Method": "Delete",
+    "RelativePath": "api/IsDeneyimi/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.IsDeneyimiController",
+    "Method": "GetByPersonelId",
+    "RelativePath": "api/IsDeneyimi/Personel/{personelId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "personelId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.KktcBelgeController",
+    "Method": "GetAll",
+    "RelativePath": "api/KktcBelge",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.KktcBelgeController",
+    "Method": "Create",
+    "RelativePath": "api/KktcBelge",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.TanimlamalarDtos.KktcBelgeDtos.KktcBelgeCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.KktcBelgeController",
+    "Method": "Update",
+    "RelativePath": "api/KktcBelge",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.TanimlamalarDtos.KktcBelgeDtos.KktcBelgeUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.KktcBelgeController",
+    "Method": "GetById",
+    "RelativePath": "api/KktcBelge/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.KktcBelgeController",
+    "Method": "Delete",
+    "RelativePath": "api/KktcBelge/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.KvkkController",
+    "Method": "GetAll",
+    "RelativePath": "api/Kvkk",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.KvkkController",
+    "Method": "Create",
+    "RelativePath": "api/Kvkk",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.TanimlamalarDtos.KvkkDtos.KvkkCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.KvkkController",
+    "Method": "Update",
+    "RelativePath": "api/Kvkk",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.TanimlamalarDtos.KvkkDtos.KvkkUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.KvkkController",
+    "Method": "GetById",
+    "RelativePath": "api/Kvkk/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.KvkkController",
+    "Method": "Delete",
+    "RelativePath": "api/Kvkk/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.LogController",
+    "Method": "GetBasvuruLogs",
+    "RelativePath": "api/Log/basvuru-logs/{masterBasvuruId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "masterBasvuruId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.LogController",
+    "Method": "GetCvLogs",
+    "RelativePath": "api/Log/cv-logs/{personelId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "personelId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterBasvuruController",
+    "Method": "GetAll",
+    "RelativePath": "api/MasterBasvuru",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterBasvuruController",
+    "Method": "Create",
+    "RelativePath": "api/MasterBasvuru",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.MasterBasvuruDtos.MasterBasvuruCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterBasvuruController",
+    "Method": "Update",
+    "RelativePath": "api/MasterBasvuru",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.MasterBasvuruDtos.MasterBasvuruUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterBasvuruController",
+    "Method": "GetById",
+    "RelativePath": "api/MasterBasvuru/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterBasvuruController",
+    "Method": "Delete",
+    "RelativePath": "api/MasterBasvuru/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterBasvuruController",
+    "Method": "GetByPersonelId",
+    "RelativePath": "api/MasterBasvuru/Personel/{personelId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "personelId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.OyunBilgisiController",
+    "Method": "GetAll",
+    "RelativePath": "api/OyunBilgisi",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.OyunBilgisiController",
+    "Method": "Create",
+    "RelativePath": "api/OyunBilgisi",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketYapisiDtos.OyunBilgisiDtos.OyunBilgisiCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.OyunBilgisiController",
+    "Method": "Update",
+    "RelativePath": "api/OyunBilgisi",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketYapisiDtos.OyunBilgisiDtos.OyunBilgisiUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.OyunBilgisiController",
+    "Method": "GetById",
+    "RelativePath": "api/OyunBilgisi/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.OyunBilgisiController",
+    "Method": "Delete",
+    "RelativePath": "api/OyunBilgisi/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PanelKullaniciController",
+    "Method": "GetAll",
+    "RelativePath": "api/PanelKullanici",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PanelKullaniciController",
+    "Method": "Create",
+    "RelativePath": "api/PanelKullanici",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.AdminDtos.PanelKullaniciDtos.PanelKullaniciCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PanelKullaniciController",
+    "Method": "Update",
+    "RelativePath": "api/PanelKullanici",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.AdminDtos.PanelKullaniciDtos.PanelKullaniciUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PanelKullaniciController",
+    "Method": "GetById",
+    "RelativePath": "api/PanelKullanici/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PanelKullaniciController",
+    "Method": "Delete",
+    "RelativePath": "api/PanelKullanici/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PanelKullaniciController",
+    "Method": "Login",
+    "RelativePath": "api/PanelKullanici/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.AdminDtos.AdminLoginDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PersonelController",
+    "Method": "GetAll",
+    "RelativePath": "api/Personel",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PersonelController",
+    "Method": "Create",
+    "RelativePath": "api/Personel",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "SubeId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "SubeAlanId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "DepartmanId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "DepartmanPozisyonId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "VesikalikFotograf",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "VesikalikDosyasi",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Ad",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Soyadi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Email",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Telefon",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.TelefonWhatsapp",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Adres",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumTarihi",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Cinsiyet",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.MedeniDurum",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.CocukSayisi",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.VesikalikFotograf",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumUlkeId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumUlkeAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumSehirId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumSehirAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumIlceId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumIlceAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.IkametgahUlkeId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.IkametgahUlkeAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.IkametgahSehirId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.IkametgahSehirAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.IkametgahIlceId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.IkametgahIlceAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.UyrukId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.UyrukAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PersonelController",
+    "Method": "Update",
+    "RelativePath": "api/Personel",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "SubeId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "SubeAlanId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "DepartmanId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "DepartmanPozisyonId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "VesikalikFotograf",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "VesikalikDosyasi",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Ad",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Soyadi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Email",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Telefon",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.TelefonWhatsapp",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Adres",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumTarihi",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Cinsiyet",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.MedeniDurum",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.CocukSayisi",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.VesikalikFotograf",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumUlkeId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumUlkeAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumSehirId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumSehirAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumIlceId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumIlceAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.IkametgahUlkeId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.IkametgahUlkeAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.IkametgahSehirId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.IkametgahSehirAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.IkametgahIlceId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.IkametgahIlceAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.UyrukId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.UyrukAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PersonelController",
+    "Method": "GetById",
+    "RelativePath": "api/Personel/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PersonelController",
+    "Method": "Delete",
+    "RelativePath": "api/Personel/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PersonelEhliyetController",
+    "Method": "GetAll",
+    "RelativePath": "api/PersonelEhliyet",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PersonelEhliyetController",
+    "Method": "Create",
+    "RelativePath": "api/PersonelEhliyet",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketYapisiDtos.PersonelEhliyetDtos.PersonelEhliyetCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PersonelEhliyetController",
+    "Method": "Update",
+    "RelativePath": "api/PersonelEhliyet",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketYapisiDtos.PersonelEhliyetDtos.PersonelEhliyetUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PersonelEhliyetController",
+    "Method": "GetById",
+    "RelativePath": "api/PersonelEhliyet/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PersonelEhliyetController",
+    "Method": "Delete",
+    "RelativePath": "api/PersonelEhliyet/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PersonelEhliyetController",
+    "Method": "GetByPersonelId",
+    "RelativePath": "api/PersonelEhliyet/Personel/{personelId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "personelId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.ProgramBilgisiController",
+    "Method": "GetAll",
+    "RelativePath": "api/ProgramBilgisi",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.ProgramBilgisiController",
+    "Method": "Create",
+    "RelativePath": "api/ProgramBilgisi",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketYapisiDtos.ProgramBilgisiDtos.ProgramBilgisiCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.ProgramBilgisiController",
+    "Method": "Update",
+    "RelativePath": "api/ProgramBilgisi",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketYapisiDtos.ProgramBilgisiDtos.ProgramBilgisiUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.ProgramBilgisiController",
+    "Method": "GetById",
+    "RelativePath": "api/ProgramBilgisi/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.ProgramBilgisiController",
+    "Method": "Delete",
+    "RelativePath": "api/ProgramBilgisi/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.ReferansBilgisiController",
+    "Method": "GetAll",
+    "RelativePath": "api/ReferansBilgisi",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.ReferansBilgisiController",
+    "Method": "Create",
+    "RelativePath": "api/ReferansBilgisi",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.ReferansBilgisiDtos.ReferansBilgisiCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.ReferansBilgisiController",
+    "Method": "Update",
+    "RelativePath": "api/ReferansBilgisi",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.ReferansBilgisiDtos.ReferansBilgisiUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.ReferansBilgisiController",
+    "Method": "GetById",
+    "RelativePath": "api/ReferansBilgisi/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.ReferansBilgisiController",
+    "Method": "Delete",
+    "RelativePath": "api/ReferansBilgisi/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.ReferansBilgisiController",
+    "Method": "GetByPersonelId",
+    "RelativePath": "api/ReferansBilgisi/Personel/{personelId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "personelId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.RolController",
+    "Method": "GetAll",
+    "RelativePath": "api/Rol",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.RolController",
+    "Method": "Create",
+    "RelativePath": "api/Rol",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.AdminDtos.RolDtos.RolCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.RolController",
+    "Method": "Update",
+    "RelativePath": "api/Rol",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.AdminDtos.RolDtos.RolUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.RolController",
+    "Method": "GetById",
+    "RelativePath": "api/Rol/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.RolController",
+    "Method": "Delete",
+    "RelativePath": "api/Rol/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SehirController",
+    "Method": "GetAll",
+    "RelativePath": "api/Sehir",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SehirController",
+    "Method": "Create",
+    "RelativePath": "api/Sehir",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.TanimlamalarDtos.SehirDtos.SehirCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SehirController",
+    "Method": "Update",
+    "RelativePath": "api/Sehir",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.TanimlamalarDtos.SehirDtos.SehirUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SehirController",
+    "Method": "GetById",
+    "RelativePath": "api/Sehir/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SehirController",
+    "Method": "Delete",
+    "RelativePath": "api/Sehir/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SertifikaBilgisiController",
+    "Method": "GetAll",
+    "RelativePath": "api/SertifikaBilgisi",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SertifikaBilgisiController",
+    "Method": "Create",
+    "RelativePath": "api/SertifikaBilgisi",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.SertifikaBilgisiDtos.SertifikaBilgisiCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SertifikaBilgisiController",
+    "Method": "Update",
+    "RelativePath": "api/SertifikaBilgisi",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.SertifikaBilgisiDtos.SertifikaBilgisiUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SertifikaBilgisiController",
+    "Method": "GetById",
+    "RelativePath": "api/SertifikaBilgisi/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SertifikaBilgisiController",
+    "Method": "Delete",
+    "RelativePath": "api/SertifikaBilgisi/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SertifikaBilgisiController",
+    "Method": "GetByPersonelId",
+    "RelativePath": "api/SertifikaBilgisi/Personel/{personelId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "personelId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SubeController",
+    "Method": "GetAll",
+    "RelativePath": "api/Sube",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SubeController",
+    "Method": "Create",
+    "RelativePath": "api/Sube",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "createDto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketYapisiDtos.SubeDtos.SubeCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SubeController",
+    "Method": "Update",
+    "RelativePath": "api/Sube",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "updateDto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketYapisiDtos.SubeDtos.SubeUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SubeController",
+    "Method": "GetById",
+    "RelativePath": "api/Sube/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SubeController",
+    "Method": "Delete",
+    "RelativePath": "api/Sube/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SubeAlanController",
+    "Method": "GetAll",
+    "RelativePath": "api/SubeAlan",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SubeAlanController",
+    "Method": "Create",
+    "RelativePath": "api/SubeAlan",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketYapisiDtos.SubeAlanDtos.SubeAlanCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SubeAlanController",
+    "Method": "Update",
+    "RelativePath": "api/SubeAlan",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketYapisiDtos.SubeAlanDtos.SubeAlanUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SubeAlanController",
+    "Method": "GetById",
+    "RelativePath": "api/SubeAlan/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SubeAlanController",
+    "Method": "Delete",
+    "RelativePath": "api/SubeAlan/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.UlkeController",
+    "Method": "GetAll",
+    "RelativePath": "api/Ulke",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.UlkeController",
+    "Method": "Create",
+    "RelativePath": "api/Ulke",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.TanimlamalarDtos.UlkeDtos.UlkeCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.UlkeController",
+    "Method": "Update",
+    "RelativePath": "api/Ulke",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.TanimlamalarDtos.UlkeDtos.UlkeUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.UlkeController",
+    "Method": "GetById",
+    "RelativePath": "api/Ulke/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.UlkeController",
+    "Method": "Delete",
+    "RelativePath": "api/Ulke/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.UyrukController",
+    "Method": "GetAll",
+    "RelativePath": "api/Uyruk",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.UyrukController",
+    "Method": "Create",
+    "RelativePath": "api/Uyruk",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.TanimlamalarDtos.UyrukDtos.UyrukCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.UyrukController",
+    "Method": "Update",
+    "RelativePath": "api/Uyruk",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.TanimlamalarDtos.UyrukDtos.UyrukUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.UyrukController",
+    "Method": "GetById",
+    "RelativePath": "api/Uyruk/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.UyrukController",
+    "Method": "Delete",
+    "RelativePath": "api/Uyruk/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.YabanciDilBilgisiController",
+    "Method": "GetAll",
+    "RelativePath": "api/YabanciDilBilgisi",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.YabanciDilBilgisiController",
+    "Method": "Create",
+    "RelativePath": "api/YabanciDilBilgisi",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.YabanciDilBilgisiDtos.YabanciDilBilgisiCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.YabanciDilBilgisiController",
+    "Method": "Update",
+    "RelativePath": "api/YabanciDilBilgisi",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.YabanciDilBilgisiDtos.YabanciDilBilgisiUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.YabanciDilBilgisiController",
+    "Method": "GetById",
+    "RelativePath": "api/YabanciDilBilgisi/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.YabanciDilBilgisiController",
+    "Method": "Delete",
+    "RelativePath": "api/YabanciDilBilgisi/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.YabanciDilBilgisiController",
+    "Method": "GetByPersonelId",
+    "RelativePath": "api/YabanciDilBilgisi/Personel/{personelId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "personelId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
