@@ -37,10 +37,10 @@ namespace IsBasvuru.WebAPI.Validators.PersonelValidators
 
             // --- Fiziksel Özellikler ---
             RuleFor(x => x.Boy)
-                .InclusiveBetween(100, 250).WithMessage("Boy bilgisi 100 ile 250 cm arasında olmalıdır.");
+                .InclusiveBetween(50, 250).WithMessage("Boy bilgisi 50 ile 250 cm arasında olmalıdır.");
 
             RuleFor(x => x.Kilo)
-                .InclusiveBetween(30, 200).WithMessage("Kilo bilgisi 30 ile 200 kg arasında olmalıdır.");
+                .InclusiveBetween(20, 300).WithMessage("Kilo bilgisi 20 ile 200 kg arasında olmalıdır.");
         }
     }
 }

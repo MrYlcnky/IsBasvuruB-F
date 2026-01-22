@@ -15,10 +15,12 @@ namespace IsBasvuru.Domain.DTOs.PersonelDtos
     public class PersonelCreateDto
     {
         // Başvuru Tercihleri 
-        public int SubeId { get; set; }
-        public int? SubeAlanId { get; set; }
-        public int DepartmanId { get; set; }
-        public int DepartmanPozisyonId { get; set; }
+        public List<int> SubeIds { get; set; } = new();
+        public List<int> SubeAlanIds { get; set; } = new();
+        public List<int> DepartmanIds { get; set; } = new();
+        public List<int> DepartmanPozisyonIds { get; set; } = new();
+        public List<int> ProgramIds { get; set; } = new();
+        public List<int> OyunIds { get; set; } = new();
         public string? NedenBiz { get; set; } 
 
         // Dosya İşlemleri

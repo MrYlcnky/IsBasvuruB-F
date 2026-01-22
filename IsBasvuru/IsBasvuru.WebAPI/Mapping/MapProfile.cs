@@ -37,6 +37,8 @@ using IsBasvuru.Domain.Entities.PersonelBilgileri;
 using IsBasvuru.Domain.Entities.SirketYapisi;
 using IsBasvuru.Domain.Entities.SirketYapisi.SirketTanimYapisi;
 using IsBasvuru.Domain.Entities.Tanimlamalar;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace IsBasvuru.WebAPI.Mapping
 {
@@ -170,6 +172,33 @@ namespace IsBasvuru.WebAPI.Mapping
                 .ForMember(dest => dest.IkametgahUlkeAdi, opt => opt.MapFrom(src => src.IkametgahUlke != null ? src.IkametgahUlke.UlkeAdi : src.IkametgahUlkeAdi))
                 .ForMember(dest => dest.IkametgahSehirAdi, opt => opt.MapFrom(src => src.IkametgahSehir != null ? src.IkametgahSehir.SehirAdi : src.IkametgahSehirAdi))
                 .ForMember(dest => dest.IkametgahIlceAdi, opt => opt.MapFrom(src => src.IkametgahIlce != null ? src.IkametgahIlce.IlceAdi : src.IkametgahIlceAdi));
+
+            CreateMap<PersonelCreateDto, IsBasvuruDetay>()
+               .ForMember(dest => dest.NedenBiz, opt => opt.MapFrom(src => src.NedenBiz ?? string.Empty))
+               .ForMember(dest => dest.BasvuruSubeler,
+                   opt => opt.MapFrom(src => (src.SubeIds ?? new List<int>())
+                       .Distinct()
+                       .Select(id => new IsBasvuruDetaySube { SubeId = id })))
+               .ForMember(dest => dest.BasvuruAlanlar,
+                   opt => opt.MapFrom(src => (src.SubeAlanIds ?? new List<int>())
+                       .Distinct()
+                       .Select(id => new IsBasvuruDetayAlan { SubeAlanId = id })))
+               .ForMember(dest => dest.BasvuruDepartmanlar,
+                   opt => opt.MapFrom(src => (src.DepartmanIds ?? new List<int>())
+                       .Distinct()
+                       .Select(id => new IsBasvuruDetayDepartman { DepartmanId = id })))
+               .ForMember(dest => dest.BasvuruPozisyonlar,
+                   opt => opt.MapFrom(src => (src.DepartmanPozisyonIds ?? new List<int>())
+                       .Distinct()
+                       .Select(id => new IsBasvuruDetayPozisyon { DepartmanPozisyonId = id })))
+               .ForMember(dest => dest.BasvuruProgramlar,
+                   opt => opt.MapFrom(src => (src.ProgramIds ?? new List<int>())
+                       .Distinct()
+                       .Select(id => new IsBasvuruDetayProgram { ProgramBilgisiId = id })))
+               .ForMember(dest => dest.BasvuruOyunlar,
+                   opt => opt.MapFrom(src => (src.OyunIds ?? new List<int>())
+                       .Distinct()
+                       .Select(id => new IsBasvuruDetayOyun { OyunBilgisiId = id })));
 
             CreateMap<PersonelCreateDto, Personel>()
                 .ForMember(dest => dest.KisiselBilgiler, opt => opt.MapFrom(src => src.KisiselBilgiler))

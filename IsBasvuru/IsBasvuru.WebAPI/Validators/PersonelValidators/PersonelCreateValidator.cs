@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.KisiselBilgilerDtos;
 using IsBasvuru.Domain.DTOs.PersonelDtos;
+using IsBasvuru.Domain.Enums;
 
 namespace IsBasvuru.WebAPI.Validators.PersonelValidators
 {
@@ -8,22 +9,46 @@ namespace IsBasvuru.WebAPI.Validators.PersonelValidators
     {
         public PersonelCreateValidator()
         {
-            // --- 1. Organizasyon ve Şirket Yapısı Kontrolleri ---
+            // 1. Organizasyon ve Şirket Yapısı Kontrolleri 
 
-            RuleFor(x => x.SubeId)
-                .GreaterThan(0).WithMessage("Şube seçimi zorunludur.");
+            RuleFor(x => x.SubeIds)
+              .NotNull().WithMessage("Şube seçimi zorunludur.")
+              .NotEmpty().WithMessage("Şube seçimi zorunludur.");
 
-            RuleFor(x => x.DepartmanId)
-                .GreaterThan(0).WithMessage("Departman seçimi zorunludur.");
+            RuleFor(x => x.DepartmanIds)
+                .NotNull().WithMessage("Departman seçimi zorunludur.")
+                .NotEmpty().WithMessage("Departman seçimi zorunludur.");
 
-            RuleFor(x => x.DepartmanPozisyonId)
-                .GreaterThan(0).WithMessage("Pozisyon seçimi zorunludur.");
+            RuleFor(x => x.DepartmanPozisyonIds)
+                .NotNull().WithMessage("Pozisyon seçimi zorunludur.")
+                .NotEmpty().WithMessage("Pozisyon seçimi zorunludur.");
 
-            RuleFor(x => x.SubeAlanId)
-                .GreaterThan(0).When(x => x.SubeAlanId.HasValue)
-                .WithMessage("Geçersiz Alan seçimi.");
+            RuleFor(x => x.SubeAlanIds)
+                .NotNull().WithMessage("Alan seçimi zorunludur.")
+                .NotEmpty().WithMessage("Alan seçimi zorunludur.");
 
-            // --- 2. Kişisel Bilgiler Validasyonu (Alt Validatör) ---
+            RuleFor(x => x.ProgramIds)
+                .NotNull().WithMessage("Program seçimi zorunludur.")
+                .NotEmpty().WithMessage("Program seçimi zorunludur.");
+
+            RuleFor(x => x.OyunIds)
+                .NotNull().WithMessage("Oyun seçimi zorunludur.")
+                .NotEmpty().WithMessage("Oyun seçimi zorunludur.");
+
+            RuleForEach(x => x.SubeIds)
+                .GreaterThan(0).WithMessage("Geçersiz Şube seçimi.");
+            RuleForEach(x => x.SubeAlanIds)
+                .GreaterThan(0).WithMessage("Geçersiz Alan seçimi.");
+            RuleForEach(x => x.DepartmanIds)
+                .GreaterThan(0).WithMessage("Geçersiz Departman seçimi.");
+            RuleForEach(x => x.DepartmanPozisyonIds)
+                .GreaterThan(0).WithMessage("Geçersiz Pozisyon seçimi.");
+            RuleForEach(x => x.ProgramIds)
+                .GreaterThan(0).WithMessage("Geçersiz Program seçimi.");
+            RuleForEach(x => x.OyunIds)
+                .GreaterThan(0).WithMessage("Geçersiz Oyun seçimi.");
+
+            // 2. Kişisel Bilgiler Validasyonu 
 
             RuleFor(x => x.KisiselBilgiler)
                 .NotNull().WithMessage("Kişisel bilgiler eksik.")
@@ -32,6 +57,12 @@ namespace IsBasvuru.WebAPI.Validators.PersonelValidators
             RuleFor(x => x.DigerKisiselBilgiler)
                 .NotNull().WithMessage("Diğer kişisel bilgiler eksik.")
                 .SetValidator(new DigerKisiselBilgilerValidator());
+
+            RuleFor(x => x.PersonelEhliyetler)
+           .NotEmpty()
+           .When(x => x.DigerKisiselBilgiler != null && x.DigerKisiselBilgiler.EhliyetDurumu == SecimDurumu.Evet)
+           .WithMessage("Ehliyet durumu 'Evet' ise en az bir ehliyet seçmelisiniz.");
+
 
             RuleForEach(x => x.EgitimBilgileri).SetValidator(new EgitimBilgisiValidator());
             RuleForEach(x => x.IsDeneyimleri).SetValidator(new IsDeneyimiValidator());

@@ -94,23 +94,7 @@ namespace IsBasvuru.Infrastructure.Services
                 }
 
                 // DTO'da gelen string null ise boş string'e çeviriyoruz
-                string nedenBiz = dto.NedenBiz ?? string.Empty;
-
-                var basvuruDetay = new IsBasvuruDetay
-                {
-                    NedenBiz = nedenBiz,
-                    BasvuruSubeler = new List<IsBasvuruDetaySube> { new IsBasvuruDetaySube { SubeId = dto.SubeId } },
-                    BasvuruDepartmanlar = new List<IsBasvuruDetayDepartman> { new IsBasvuruDetayDepartman { DepartmanId = dto.DepartmanId } },
-                    BasvuruPozisyonlar = new List<IsBasvuruDetayPozisyon> { new IsBasvuruDetayPozisyon { DepartmanPozisyonId = dto.DepartmanPozisyonId } },
-                    BasvuruAlanlar = new List<IsBasvuruDetayAlan>(),
-                    BasvuruProgramlar = new List<IsBasvuruDetayProgram>(),
-                    BasvuruOyunlar = new List<IsBasvuruDetayOyun>()
-                };
-
-                if (dto.SubeAlanId.HasValue)
-                {
-                    basvuruDetay.BasvuruAlanlar.Add(new IsBasvuruDetayAlan { SubeAlanId = dto.SubeAlanId.Value });
-                }
+                var basvuruDetay = _mapper.Map<IsBasvuruDetay>(dto);
 
                 personel.IsBasvuruDetay = basvuruDetay;
 

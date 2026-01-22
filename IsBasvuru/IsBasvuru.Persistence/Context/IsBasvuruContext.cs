@@ -49,6 +49,7 @@ namespace IsBasvuru.Persistence.Context
         public DbSet<IsBasvuruDetaySube> IsBasvuruDetaySubeler { get; set; }
         public DbSet<PersonelEhliyet> PersonelEhliyetleri { get; set; }
 
+
         // 4.2-SirketTanimYapisi
         public DbSet<Departman> Departmanlar { get; set; }
         public DbSet<DepartmanPozisyon> DepartmanPozisyonlar { get; set; }
@@ -102,7 +103,7 @@ namespace IsBasvuru.Persistence.Context
                 entity.HasIndex(e => e.SubeAdi).IsUnique();
             });
 
-            // --- 4. 1-1 İlişki Güvenliği (Personel ID'si tekrar etmesin) ---
+            //4. 1-1 İlişki Güvenliği (Personel ID'si tekrar etmesin)
             // Bu tablolar Personel tablosuna göbekten bağlıdır, her personel için sadece 1 tane olabilirler.
             modelBuilder.Entity<MasterBasvuru>()
                 .HasIndex(e => e.PersonelId).IsUnique();
@@ -115,6 +116,25 @@ namespace IsBasvuru.Persistence.Context
 
             modelBuilder.Entity<DigerKisiselBilgiler>()
                 .HasIndex(e => e.PersonelId).IsUnique();
+
+            modelBuilder.Entity<IsBasvuruDetaySube>()
+                .HasIndex(e => new { e.IsBasvuruDetayId, e.SubeId }).IsUnique();
+
+            modelBuilder.Entity<IsBasvuruDetayAlan>()
+                .HasIndex(e => new { e.IsBasvuruDetayId, e.SubeAlanId }).IsUnique();
+
+            modelBuilder.Entity<IsBasvuruDetayDepartman>()
+                .HasIndex(e => new { e.IsBasvuruDetayId, e.DepartmanId }).IsUnique();
+
+            modelBuilder.Entity<IsBasvuruDetayPozisyon>()
+                .HasIndex(e => new { e.IsBasvuruDetayId, e.DepartmanPozisyonId }).IsUnique();
+
+            modelBuilder.Entity<IsBasvuruDetayProgram>()
+                .HasIndex(e => new { e.IsBasvuruDetayId, e.ProgramBilgisiId }).IsUnique();
+
+            modelBuilder.Entity<IsBasvuruDetayOyun>()
+                .HasIndex(e => new { e.IsBasvuruDetayId, e.OyunBilgisiId }).IsUnique();
+
         }
 
     }
