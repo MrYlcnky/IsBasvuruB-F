@@ -1,5 +1,6 @@
 ﻿using IsBasvuru.Domain.DTOs.SirketYapisiDtos.SubeDtos;
 using IsBasvuru.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -7,6 +8,7 @@ namespace IsBasvuru.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class SubeController : BaseController // 1. BaseController'dan miras al
     {
         private readonly ISubeService _service;

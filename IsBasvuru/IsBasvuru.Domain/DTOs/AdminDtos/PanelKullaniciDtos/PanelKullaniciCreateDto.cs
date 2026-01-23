@@ -9,6 +9,7 @@
 
         public int RolId { get; set; }
         public int? SubeId { get; set; }
+        public int? SubeAlanId { get; set; }
         public int? DepartmanId { get; set; }
     }
 }

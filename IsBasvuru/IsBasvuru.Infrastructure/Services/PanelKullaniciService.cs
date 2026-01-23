@@ -49,6 +49,9 @@ namespace IsBasvuru.Infrastructure.Services
             var list = await _context.PanelKullanicilari
                 .AsNoTracking()
                 .Include(x => x.Rol)
+                .Include(x => x.Sube)       
+                .Include(x => x.Departman)  
+                .Include(x => x.SubeAlan)
                 .ToListAsync();
 
             var map = _mapper.Map<List<PanelKullaniciListDto>>(list);
@@ -60,6 +63,9 @@ namespace IsBasvuru.Infrastructure.Services
             var entity = await _context.PanelKullanicilari
                 .AsNoTracking()
                 .Include(x => x.Rol)
+                .Include(x => x.Sube)
+                .Include(x => x.Departman)
+                .Include(x => x.SubeAlan)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (entity == null)
@@ -111,6 +117,7 @@ namespace IsBasvuru.Infrastructure.Services
             entity.KullaniciAdi = dto.KullaniciAdi;
             entity.RolId = dto.RolId;
             entity.SubeId = dto.SubeId;
+            entity.SubeAlanId = dto.SubeAlanId;
             entity.DepartmanId = dto.DepartmanId;
 
             if (!string.IsNullOrEmpty(dto.YeniKullaniciSifre))

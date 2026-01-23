@@ -1,5 +1,6 @@
 ﻿using IsBasvuru.Domain.DTOs.MasterBasvuruDtos;
 using IsBasvuru.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -38,6 +39,7 @@ namespace IsBasvuru.WebAPI.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Create(MasterBasvuruCreateDto dto)
         {
             var response = await _service.CreateAsync(dto);

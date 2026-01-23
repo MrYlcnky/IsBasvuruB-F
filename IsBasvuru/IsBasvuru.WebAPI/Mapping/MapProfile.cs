@@ -290,6 +290,9 @@ namespace IsBasvuru.WebAPI.Mapping
                 // Sube null olabilir
                 .ForMember(dest => dest.SubeAdi,
                            opt => opt.MapFrom(src => src.Sube != null ? src.Sube.SubeAdi : string.Empty))
+                // SubeAlan null olabilir
+                .ForMember(dest => dest.SubeAlanAdi,
+                           opt => opt.MapFrom(src => src.SubeAlan != null ? src.SubeAlan.SubeAlanAdi : string.Empty))
                 // Departman null olabilir
                 .ForMember(dest => dest.DepartmanAdi,
                            opt => opt.MapFrom(src => src.Departman != null ? src.Departman.DepartmanAdi : string.Empty));

@@ -11,6 +11,7 @@ namespace IsBasvuru.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    
     public class PersonelController(IPersonelService service, IImageService imageService) : BaseController
     {
         private readonly IPersonelService _service = service;
@@ -31,6 +32,7 @@ namespace IsBasvuru.WebAPI.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Create([FromForm] PersonelCreateDto dto)
         {
             // 1. DTO içindeki path'i temizle

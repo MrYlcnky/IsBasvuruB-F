@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "IsBasvuru.WebAPI",
-    "version": "1.0"
+    "title": "IsBasvuru API",
+    "version": "v1"
   },
   "paths": {
     "/api/BilgisayarBilgisi": {
@@ -1123,6 +1123,99 @@
         }
       }
     },
+    "/api/KimlikDogrulama/login": {
+      "post": {
+        "tags": [
+          "KimlikDogrulama"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLoginDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLoginDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/KimlikDogrulama/kod-gonder": {
+      "post": {
+        "tags": [
+          "KimlikDogrulama"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KodGonderDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KodGonderDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/KodGonderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/KimlikDogrulama/kod-dogrula": {
+      "post": {
+        "tags": [
+          "KimlikDogrulama"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KodDogrulaDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KodDogrulaDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/KodDogrulaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/KktcBelge": {
       "get": {
         "tags": [
@@ -1798,6 +1891,24 @@
         "tags": [
           "Personel"
         ],
+        "parameters": [
+          {
+            "name": "PageNumber",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -1812,30 +1923,73 @@
           "content": {
             "multipart/form-data": {
               "schema": {
+                "required": [
+                  "KisiselBilgiler.Ad",
+                  "KisiselBilgiler.Adres",
+                  "KisiselBilgiler.Email",
+                  "KisiselBilgiler.Soyadi",
+                  "KisiselBilgiler.Telefon",
+                  "KisiselBilgiler.TelefonWhatsapp",
+                  "KisiselBilgiler.VesikalikFotograf"
+                ],
                 "type": "object",
                 "properties": {
-                  "SubeId": {
-                    "type": "integer",
-                    "format": "int32"
+                  "SubeIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
                   },
-                  "SubeAlanId": {
-                    "type": "integer",
-                    "format": "int32"
+                  "SubeAlanIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
                   },
-                  "DepartmanId": {
-                    "type": "integer",
-                    "format": "int32"
+                  "DepartmanIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
                   },
-                  "DepartmanPozisyonId": {
-                    "type": "integer",
-                    "format": "int32"
+                  "DepartmanPozisyonIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
                   },
-                  "VesikalikFotograf": {
+                  "ProgramIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
+                  },
+                  "OyunIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
+                  },
+                  "NedenBiz": {
                     "type": "string"
                   },
                   "VesikalikDosyasi": {
                     "type": "string",
                     "format": "binary"
+                  },
+                  "KisiselBilgiler.Id": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "KisiselBilgiler.PersonelId": {
+                    "type": "integer",
+                    "format": "int32"
                   },
                   "KisiselBilgiler.Ad": {
                     "type": "string"
@@ -1920,26 +2074,117 @@
                   },
                   "KisiselBilgiler.UyrukAdi": {
                     "type": "string"
+                  },
+                  "DigerKisiselBilgiler.PersonelId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "DigerKisiselBilgiler.KktcBelgeId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "DigerKisiselBilgiler.DavaDurumu": {
+                    "$ref": "#/components/schemas/SecimDurumu"
+                  },
+                  "DigerKisiselBilgiler.DavaNedeni": {
+                    "type": "string"
+                  },
+                  "DigerKisiselBilgiler.SigaraKullanimi": {
+                    "$ref": "#/components/schemas/SecimDurumu"
+                  },
+                  "DigerKisiselBilgiler.AskerlikDurumu": {
+                    "$ref": "#/components/schemas/AskerlikDurumu"
+                  },
+                  "DigerKisiselBilgiler.KaliciRahatsizlik": {
+                    "$ref": "#/components/schemas/SecimDurumu"
+                  },
+                  "DigerKisiselBilgiler.KaliciRahatsizlikAciklama": {
+                    "type": "string"
+                  },
+                  "DigerKisiselBilgiler.EhliyetDurumu": {
+                    "$ref": "#/components/schemas/SecimDurumu"
+                  },
+                  "DigerKisiselBilgiler.Boy": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "DigerKisiselBilgiler.Kilo": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "EgitimBilgileri": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/EgitimBilgisiCreateDto"
+                    }
+                  },
+                  "IsDeneyimleri": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/IsDeneyimiCreateDto"
+                    }
+                  },
+                  "YabanciDilBilgileri": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/YabanciDilBilgisiCreateDto"
+                    }
+                  },
+                  "BilgisayarBilgileri": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/BilgisayarBilgisiCreateDto"
+                    }
+                  },
+                  "SertifikaBilgileri": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/SertifikaBilgisiCreateDto"
+                    }
+                  },
+                  "ReferansBilgileri": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ReferansBilgisiCreateDto"
+                    }
+                  },
+                  "PersonelEhliyetler": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PersonelEhliyetCreateDto"
+                    }
                   }
                 }
               },
               "encoding": {
-                "SubeId": {
+                "SubeIds": {
                   "style": "form"
                 },
-                "SubeAlanId": {
+                "SubeAlanIds": {
                   "style": "form"
                 },
-                "DepartmanId": {
+                "DepartmanIds": {
                   "style": "form"
                 },
-                "DepartmanPozisyonId": {
+                "DepartmanPozisyonIds": {
                   "style": "form"
                 },
-                "VesikalikFotograf": {
+                "ProgramIds": {
+                  "style": "form"
+                },
+                "OyunIds": {
+                  "style": "form"
+                },
+                "NedenBiz": {
                   "style": "form"
                 },
                 "VesikalikDosyasi": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.Id": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.PersonelId": {
                   "style": "form"
                 },
                 "KisiselBilgiler.Ad": {
@@ -2016,6 +2261,60 @@
                 },
                 "KisiselBilgiler.UyrukAdi": {
                   "style": "form"
+                },
+                "DigerKisiselBilgiler.PersonelId": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.KktcBelgeId": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.DavaDurumu": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.DavaNedeni": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.SigaraKullanimi": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.AskerlikDurumu": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.KaliciRahatsizlik": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.KaliciRahatsizlikAciklama": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.EhliyetDurumu": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.Boy": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.Kilo": {
+                  "style": "form"
+                },
+                "EgitimBilgileri": {
+                  "style": "form"
+                },
+                "IsDeneyimleri": {
+                  "style": "form"
+                },
+                "YabanciDilBilgileri": {
+                  "style": "form"
+                },
+                "BilgisayarBilgileri": {
+                  "style": "form"
+                },
+                "SertifikaBilgileri": {
+                  "style": "form"
+                },
+                "ReferansBilgileri": {
+                  "style": "form"
+                },
+                "PersonelEhliyetler": {
+                  "style": "form"
                 }
               }
             }
@@ -2035,6 +2334,15 @@
           "content": {
             "multipart/form-data": {
               "schema": {
+                "required": [
+                  "KisiselBilgiler.Ad",
+                  "KisiselBilgiler.Adres",
+                  "KisiselBilgiler.Email",
+                  "KisiselBilgiler.Soyadi",
+                  "KisiselBilgiler.Telefon",
+                  "KisiselBilgiler.TelefonWhatsapp",
+                  "KisiselBilgiler.VesikalikFotograf"
+                ],
                 "type": "object",
                 "properties": {
                   "Id": {
@@ -2064,6 +2372,14 @@
                     "type": "string",
                     "format": "binary"
                   },
+                  "KisiselBilgiler.Id": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "KisiselBilgiler.PersonelId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
                   "KisiselBilgiler.Ad": {
                     "type": "string"
                   },
@@ -2147,6 +2463,89 @@
                   },
                   "KisiselBilgiler.UyrukAdi": {
                     "type": "string"
+                  },
+                  "DigerKisiselBilgiler.Id": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "DigerKisiselBilgiler.PersonelId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "DigerKisiselBilgiler.KktcBelgeId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "DigerKisiselBilgiler.DavaDurumu": {
+                    "$ref": "#/components/schemas/SecimDurumu"
+                  },
+                  "DigerKisiselBilgiler.DavaNedeni": {
+                    "type": "string"
+                  },
+                  "DigerKisiselBilgiler.SigaraKullanimi": {
+                    "$ref": "#/components/schemas/SecimDurumu"
+                  },
+                  "DigerKisiselBilgiler.AskerlikDurumu": {
+                    "$ref": "#/components/schemas/AskerlikDurumu"
+                  },
+                  "DigerKisiselBilgiler.KaliciRahatsizlik": {
+                    "$ref": "#/components/schemas/SecimDurumu"
+                  },
+                  "DigerKisiselBilgiler.KaliciRahatsizlikAciklama": {
+                    "type": "string"
+                  },
+                  "DigerKisiselBilgiler.EhliyetDurumu": {
+                    "$ref": "#/components/schemas/SecimDurumu"
+                  },
+                  "DigerKisiselBilgiler.Boy": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "DigerKisiselBilgiler.Kilo": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "EgitimBilgileri": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/EgitimBilgisiCreateDto"
+                    }
+                  },
+                  "IsDeneyimleri": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/IsDeneyimiCreateDto"
+                    }
+                  },
+                  "YabanciDilBilgileri": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/YabanciDilBilgisiCreateDto"
+                    }
+                  },
+                  "BilgisayarBilgileri": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/BilgisayarBilgisiCreateDto"
+                    }
+                  },
+                  "SertifikaBilgileri": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/SertifikaBilgisiCreateDto"
+                    }
+                  },
+                  "ReferansBilgileri": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ReferansBilgisiCreateDto"
+                    }
+                  },
+                  "PersonelEhliyetler": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PersonelEhliyetCreateDto"
+                    }
                   }
                 }
               },
@@ -2170,6 +2569,12 @@
                   "style": "form"
                 },
                 "VesikalikDosyasi": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.Id": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.PersonelId": {
                   "style": "form"
                 },
                 "KisiselBilgiler.Ad": {
@@ -2245,6 +2650,63 @@
                   "style": "form"
                 },
                 "KisiselBilgiler.UyrukAdi": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.Id": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.PersonelId": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.KktcBelgeId": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.DavaDurumu": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.DavaNedeni": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.SigaraKullanimi": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.AskerlikDurumu": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.KaliciRahatsizlik": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.KaliciRahatsizlikAciklama": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.EhliyetDurumu": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.Boy": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.Kilo": {
+                  "style": "form"
+                },
+                "EgitimBilgileri": {
+                  "style": "form"
+                },
+                "IsDeneyimleri": {
+                  "style": "form"
+                },
+                "YabanciDilBilgileri": {
+                  "style": "form"
+                },
+                "BilgisayarBilgileri": {
+                  "style": "form"
+                },
+                "SertifikaBilgileri": {
+                  "style": "form"
+                },
+                "ReferansBilgileri": {
+                  "style": "form"
+                },
+                "PersonelEhliyetler": {
                   "style": "form"
                 }
               }
@@ -2294,6 +2756,18 @@
               "format": "int32"
             }
           }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Personel/basvurumu-getir": {
+      "get": {
+        "tags": [
+          "Personel"
         ],
         "responses": {
           "200": {
@@ -3652,6 +4126,10 @@
   "components": {
     "schemas": {
       "AdminLoginDto": {
+        "required": [
+          "kullaniciAdi",
+          "kullaniciSifre"
+        ],
         "type": "object",
         "properties": {
           "kullaniciAdi": {
@@ -3697,6 +4175,9 @@
         "format": "int32"
       },
       "BilgisayarBilgisiCreateDto": {
+        "required": [
+          "programAdi"
+        ],
         "type": "object",
         "properties": {
           "personelId": {
@@ -3714,6 +4195,9 @@
         "additionalProperties": false
       },
       "BilgisayarBilgisiUpdateDto": {
+        "required": [
+          "programAdi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -3744,6 +4228,9 @@
         "format": "int32"
       },
       "DepartmanCreateDto": {
+        "required": [
+          "departmanAdi"
+        ],
         "type": "object",
         "properties": {
           "subeAlanId": {
@@ -3761,6 +4248,9 @@
         "additionalProperties": false
       },
       "DepartmanPozisyonCreateDto": {
+        "required": [
+          "departmanPozisyonAdi"
+        ],
         "type": "object",
         "properties": {
           "departmanId": {
@@ -3778,6 +4268,9 @@
         "additionalProperties": false
       },
       "DepartmanPozisyonUpdateDto": {
+        "required": [
+          "departmanPozisyonAdi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -3799,6 +4292,9 @@
         "additionalProperties": false
       },
       "DepartmanUpdateDto": {
+        "required": [
+          "departmanAdi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -3914,6 +4410,9 @@
         "additionalProperties": false
       },
       "DilCreateDto": {
+        "required": [
+          "dilAdi"
+        ],
         "type": "object",
         "properties": {
           "dilAdi": {
@@ -3937,6 +4436,9 @@
         "format": "int32"
       },
       "DilUpdateDto": {
+        "required": [
+          "dilAdi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -3962,6 +4464,10 @@
         "format": "int32"
       },
       "EgitimBilgisiCreateDto": {
+        "required": [
+          "bolum",
+          "okulAdi"
+        ],
         "type": "object",
         "properties": {
           "personelId": {
@@ -4003,6 +4509,10 @@
         "additionalProperties": false
       },
       "EgitimBilgisiUpdateDto": {
+        "required": [
+          "bolum",
+          "okulAdi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4061,6 +4571,9 @@
         "format": "int32"
       },
       "EhliyetTuruCreateDto": {
+        "required": [
+          "ehliyetTuruAdi"
+        ],
         "type": "object",
         "properties": {
           "ehliyetTuruAdi": {
@@ -4071,6 +4584,9 @@
         "additionalProperties": false
       },
       "EhliyetTuruUpdateDto": {
+        "required": [
+          "ehliyetTuruAdi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4085,6 +4601,9 @@
         "additionalProperties": false
       },
       "IlceCreateDto": {
+        "required": [
+          "ilceAdi"
+        ],
         "type": "object",
         "properties": {
           "sehirId": {
@@ -4099,6 +4618,9 @@
         "additionalProperties": false
       },
       "IlceUpdateDto": {
+        "required": [
+          "ilceAdi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4117,6 +4639,13 @@
         "additionalProperties": false
       },
       "IsDeneyimiCreateDto": {
+        "required": [
+          "departman",
+          "gorev",
+          "pozisyon",
+          "sirketAdi",
+          "ucret"
+        ],
         "type": "object",
         "properties": {
           "personelId": {
@@ -4178,6 +4707,12 @@
         "additionalProperties": false
       },
       "IsDeneyimiUpdateDto": {
+        "required": [
+          "departman",
+          "gorev",
+          "pozisyon",
+          "sirketAdi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4243,6 +4778,9 @@
         "additionalProperties": false
       },
       "KktcBelgeCreateDto": {
+        "required": [
+          "belgeAdi"
+        ],
         "type": "object",
         "properties": {
           "belgeAdi": {
@@ -4253,6 +4791,9 @@
         "additionalProperties": false
       },
       "KktcBelgeUpdateDto": {
+        "required": [
+          "belgeAdi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4266,7 +4807,44 @@
         },
         "additionalProperties": false
       },
+      "KodDogrulaDto": {
+        "required": [
+          "eposta",
+          "kod"
+        ],
+        "type": "object",
+        "properties": {
+          "eposta": {
+            "type": "string",
+            "nullable": true
+          },
+          "kod": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "KodGonderDto": {
+        "required": [
+          "eposta"
+        ],
+        "type": "object",
+        "properties": {
+          "eposta": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "KvkkCreateDto": {
+        "required": [
+          "dogrulukAciklama",
+          "kvkkAciklama",
+          "kvkkVersiyon",
+          "referansAciklama"
+        ],
         "type": "object",
         "properties": {
           "dogrulukAciklama": {
@@ -4289,6 +4867,12 @@
         "additionalProperties": false
       },
       "KvkkUpdateDto": {
+        "required": [
+          "dogrulukAciklama",
+          "kvkkAciklama",
+          "kvkkVersiyon",
+          "referansAciklama"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4369,6 +4953,9 @@
         "format": "int32"
       },
       "OyunBilgisiCreateDto": {
+        "required": [
+          "oyunAdi"
+        ],
         "type": "object",
         "properties": {
           "oyunAdi": {
@@ -4379,6 +4966,9 @@
         "additionalProperties": false
       },
       "OyunBilgisiUpdateDto": {
+        "required": [
+          "oyunAdi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4393,6 +4983,12 @@
         "additionalProperties": false
       },
       "PanelKullaniciCreateDto": {
+        "required": [
+          "adi",
+          "kullaniciAdi",
+          "kullaniciSifre",
+          "soyadi"
+        ],
         "type": "object",
         "properties": {
           "kullaniciAdi": {
@@ -4429,6 +5025,11 @@
         "additionalProperties": false
       },
       "PanelKullaniciUpdateDto": {
+        "required": [
+          "adi",
+          "kullaniciAdi",
+          "soyadi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4501,6 +5102,9 @@
         "additionalProperties": false
       },
       "ProgramBilgisiCreateDto": {
+        "required": [
+          "programAdi"
+        ],
         "type": "object",
         "properties": {
           "departmanId": {
@@ -4515,6 +5119,9 @@
         "additionalProperties": false
       },
       "ProgramBilgisiUpdateDto": {
+        "required": [
+          "programAdi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4533,6 +5140,13 @@
         "additionalProperties": false
       },
       "ReferansBilgisiCreateDto": {
+        "required": [
+          "gorev",
+          "isYeri",
+          "referansAdi",
+          "referansSoyadi",
+          "referansTelefon"
+        ],
         "type": "object",
         "properties": {
           "personelId": {
@@ -4566,6 +5180,13 @@
         "additionalProperties": false
       },
       "ReferansBilgisiUpdateDto": {
+        "required": [
+          "gorev",
+          "isYeri",
+          "referansAdi",
+          "referansSoyadi",
+          "referansTelefon"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4612,6 +5233,9 @@
         "format": "int32"
       },
       "RolCreateDto": {
+        "required": [
+          "rolAdi"
+        ],
         "type": "object",
         "properties": {
           "rolAdi": {
@@ -4622,6 +5246,9 @@
         "additionalProperties": false
       },
       "RolUpdateDto": {
+        "required": [
+          "rolAdi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4645,6 +5272,9 @@
         "format": "int32"
       },
       "SehirCreateDto": {
+        "required": [
+          "sehirAdi"
+        ],
         "type": "object",
         "properties": {
           "ulkeId": {
@@ -4659,6 +5289,9 @@
         "additionalProperties": false
       },
       "SehirUpdateDto": {
+        "required": [
+          "sehirAdi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4677,6 +5310,11 @@
         "additionalProperties": false
       },
       "SertifikaBilgisiCreateDto": {
+        "required": [
+          "kurumAdi",
+          "sertifikaAdi",
+          "suresi"
+        ],
         "type": "object",
         "properties": {
           "personelId": {
@@ -4708,6 +5346,11 @@
         "additionalProperties": false
       },
       "SertifikaBilgisiUpdateDto": {
+        "required": [
+          "kurumAdi",
+          "sertifikaAdi",
+          "suresi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4743,6 +5386,9 @@
         "additionalProperties": false
       },
       "SubeAlanCreateDto": {
+        "required": [
+          "subeAlanAdi"
+        ],
         "type": "object",
         "properties": {
           "subeId": {
@@ -4760,6 +5406,9 @@
         "additionalProperties": false
       },
       "SubeAlanUpdateDto": {
+        "required": [
+          "subeAlanAdi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4781,6 +5430,9 @@
         "additionalProperties": false
       },
       "SubeCreateDto": {
+        "required": [
+          "subeAdi"
+        ],
         "type": "object",
         "properties": {
           "subeAdi": {
@@ -4794,6 +5446,9 @@
         "additionalProperties": false
       },
       "SubeUpdateDto": {
+        "required": [
+          "subeAdi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4811,6 +5466,9 @@
         "additionalProperties": false
       },
       "UlkeCreateDto": {
+        "required": [
+          "ulkeAdi"
+        ],
         "type": "object",
         "properties": {
           "ulkeAdi": {
@@ -4821,6 +5479,9 @@
         "additionalProperties": false
       },
       "UlkeUpdateDto": {
+        "required": [
+          "ulkeAdi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4835,6 +5496,9 @@
         "additionalProperties": false
       },
       "UyrukCreateDto": {
+        "required": [
+          "uyrukAdi"
+        ],
         "type": "object",
         "properties": {
           "ulkeId": {
@@ -4849,6 +5513,9 @@
         "additionalProperties": false
       },
       "UyrukUpdateDto": {
+        "required": [
+          "uyrukAdi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4867,6 +5534,9 @@
         "additionalProperties": false
       },
       "YabanciDilBilgisiCreateDto": {
+        "required": [
+          "nasilOgrenildi"
+        ],
         "type": "object",
         "properties": {
           "personelId": {
@@ -4897,6 +5567,9 @@
         "additionalProperties": false
       },
       "YabanciDilBilgisiUpdateDto": {
+        "required": [
+          "nasilOgrenildi"
+        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4942,6 +5615,19 @@
         "type": "integer",
         "format": "int32"
       }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "apiKey",
+        "description": "JWT Token'ı 'Bearer [boşluk] token' formatında giriniz.\nÖrnek: Bearer eyJhbGciOi...",
+        "name": "Authorization",
+        "in": "header"
+      }
     }
-  }
+  },
+  "security": [
+    {
+      "Bearer": [ ]
+    }
+  ]
 }

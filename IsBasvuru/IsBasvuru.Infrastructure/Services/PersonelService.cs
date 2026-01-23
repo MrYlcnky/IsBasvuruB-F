@@ -101,6 +101,20 @@ namespace IsBasvuru.Infrastructure.Services
                 await _context.Personeller.AddAsync(personel);
                 await _context.SaveChangesAsync();
 
+                if (dto.PersonelEhliyetler != null && dto.PersonelEhliyetler.Any())
+                {
+                    var personelEhliyetler = dto.PersonelEhliyetler
+                        .Select(item => new PersonelEhliyet
+                        {
+                            PersonelId = personel.Id,
+                            EhliyetTuruId = item.EhliyetTuruId
+                        })
+                        .ToList();
+
+                    await _context.PersonelEhliyetleri.AddRangeAsync(personelEhliyetler);
+                    await _context.SaveChangesAsync();
+                }
+
                 if (dto.EgitimBilgileri != null && dto.EgitimBilgileri.Any())
                 {
                     foreach (var item in dto.EgitimBilgileri)

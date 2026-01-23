@@ -15,6 +15,9 @@ namespace IsBasvuru.Domain.Entities.AdminBilgileri
         public int? SubeId { get; set; }
         public virtual Sube? Sube { get; set; }
 
+        public int? SubeAlanId { get; set; }
+        public virtual SubeAlan? SubeAlan { get; set; }
+
         public int? DepartmanId { get; set; }
         public virtual Departman? Departman { get; set; }
 

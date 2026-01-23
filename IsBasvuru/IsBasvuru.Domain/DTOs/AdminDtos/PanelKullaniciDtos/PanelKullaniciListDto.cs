@@ -15,10 +15,13 @@ namespace IsBasvuru.Domain.DTOs.AdminDtos.PanelKullaniciDtos
         public required string RolAdi { get; set; } 
 
         public int? SubeId { get; set; }
-        public required string SubeAdi { get; set; } 
+        public string? SubeAdi { get; set; }
+
+        public int? SubeAlanId { get; set; }
+        public string? SubeAlanAdi { get; set; }
 
         public int? DepartmanId { get; set; }
-        public required string DepartmanAdi { get; set; } 
+        public  string? DepartmanAdi { get; set; } 
 
         public DateTime SonGirisTarihi { get; set; }
 

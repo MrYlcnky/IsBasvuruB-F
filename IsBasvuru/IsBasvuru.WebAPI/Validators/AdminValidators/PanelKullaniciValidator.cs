@@ -30,6 +30,9 @@ namespace IsBasvuru.WebAPI.Validators.AdminValidators
             RuleFor(x => x.SubeId)
                 .GreaterThan(0).When(x => x.SubeId.HasValue)
                 .WithMessage("Geçersiz şube seçimi.");
+            RuleFor(x => x.SubeAlanId)
+               .GreaterThan(0).When(x => x.SubeAlanId.HasValue)
+               .WithMessage("Geçersiz alan seçimi.");
 
             RuleFor(x => x.DepartmanId)
                 .GreaterThan(0).When(x => x.DepartmanId.HasValue)
@@ -55,6 +58,10 @@ namespace IsBasvuru.WebAPI.Validators.AdminValidators
             RuleFor(x => x.SubeId)
                 .GreaterThan(0).When(x => x.SubeId.HasValue)
                 .WithMessage("Geçersiz şube seçimi.");
+
+            RuleFor(x => x.SubeAlanId)
+              .GreaterThan(0).When(x => x.SubeAlanId.HasValue)
+              .WithMessage("Geçersiz alan seçimi.");
 
             RuleFor(x => x.DepartmanId)
                 .GreaterThan(0).When(x => x.DepartmanId.HasValue)
