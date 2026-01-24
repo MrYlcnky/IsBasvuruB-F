@@ -155,14 +155,24 @@ try
     });
 
     // CORS
+    var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("AllowFrontend",
             policy =>
             {
-                policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
-                      .AllowAnyHeader()
-                      .AllowAnyMethod();
+                if (allowedOrigins != null && allowedOrigins.Length > 0)
+                {
+                    policy.WithOrigins(allowedOrigins)
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                }
+                else
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                }
             });
     });
 

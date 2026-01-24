@@ -9,6 +9,7 @@ using IsBasvuru.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace IsBasvuru.Infrastructure.Services
@@ -96,10 +97,22 @@ namespace IsBasvuru.Infrastructure.Services
             var jwtHelper = new JwtHelper(_configuration);
             var token = jwtHelper.GenerateToken(kullanici);
 
+            var jwtSettings = _configuration.GetSection("JwtSettings");
+            var durationValue = jwtSettings["DurationInMinutes"];
+            if (string.IsNullOrWhiteSpace(durationValue))
+            {
+                throw new InvalidOperationException("JwtSettings:DurationInMinutes yapılandırması bulunamadı veya boş.");
+            }
+
+            if (!double.TryParse(durationValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var durationInMinutes))
+            {
+                throw new InvalidOperationException("JwtSettings:DurationInMinutes geçerli bir sayı değil.");
+            }
+
             var loginResponse = new LoginResponseDto
             {
                 Token = token,
-                Expiration = System.DateTime.Now.AddHours(1),
+                Expiration = DateTime.UtcNow.AddMinutes(durationInMinutes),
                 UserInfo = _mapper.Map<PanelKullaniciListDto>(kullanici)
             };
 
