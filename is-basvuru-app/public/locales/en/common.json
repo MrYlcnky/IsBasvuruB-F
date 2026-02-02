@@ -1,4 +1,5 @@
 {
+  "langKey": "en",
   "app": { "language": "Language" },
   "hero": {
     "brand": "CHAMADA GROUP",
@@ -66,16 +67,17 @@
       "emailText": "Please enter your email address in the personal information section."
     },
     "otp": {
-        "title": "Confirm Application",
-        "text": "Enter the code sent to <b>{{email}}</b> to complete your application:",
-        "verifyAndSubmit": "Confirm and Submit"
+      "title": "Confirm Application",
+      "text": "Enter the code sent to <b>{{email}}</b> to complete your application:",
+      "verifyAndSubmit": "Confirm and Submit"
     },
     "success": {
-        "title": "Congratulations!",
-        "text": "Your application has been submitted successfully."
+      "title": "Congratulations!",
+      "text": "Your application has been submitted successfully.",
+      "submit": "Your application has been submitted successfully!"
     },
     "error": {
-        "submit": "An error occurred during submission."
+      "submit": "An error occurred during submission."
     },
     "toast": { "success": "Your application has been submitted successfully!" },
     "cards": {
@@ -141,11 +143,26 @@
     },
     "validations": {
       "alphaNum": "Only letters, numbers and spaces are allowed.",
-      "name": { "required": "Certificate / Training name is required.", "max": "You can enter up to 100 characters." },
-      "org": { "required": "Institution / Organization name is required.", "max": "You can enter up to 100 characters." },
-      "duration": { "required": "Duration is required.", "max": "You can enter up to 50 characters." },
-      "issuedAt": { "required": "Issue date is required.", "future": "Issue date cannot be in the future." },
-      "validUntil": { "beforeIssued": "Validity date cannot be earlier than the issue date.", "sameDay": "Issue and validity dates cannot be the same day." }
+      "name": {
+        "required": "Certificate / Training name is required.",
+        "max": "You can enter up to 100 characters."
+      },
+      "org": {
+        "required": "Institution / Organization name is required.",
+        "max": "You can enter up to 100 characters."
+      },
+      "duration": {
+        "required": "Duration is required.",
+        "max": "You can enter up to 50 characters."
+      },
+      "issuedAt": {
+        "required": "Issue date is required.",
+        "future": "Issue date cannot be in the future."
+      },
+      "validUntil": {
+        "beforeIssued": "Validity date cannot be earlier than the issue date.",
+        "sameDay": "Issue and validity dates cannot be the same day."
+      }
     }
   },
   "computer": {
@@ -176,7 +193,7 @@
       "title": "Are you sure?",
       "text": "Do you want to delete “{{name}}”?"
     },
-      "select": {
+    "select": {
       "choose": "Select"
     },
     "validations": {
@@ -441,7 +458,8 @@
       "countryReq": "Job country is required.",
       "cityReq": "Job city is required."
     }
-  }, "languages": {
+  },
+  "languages": {
     "table": {
       "language": "Language",
       "speaking": "Speaking Level",
@@ -500,7 +518,8 @@
       "learnedHowMax": "This field can be at most 80 characters.",
       "learnedHowRegex": "Only letters, spaces, dot and hyphen are allowed."
     }
-  },"references": {
+  },
+  "references": {
     "table": {
       "orgType": "Organization Type",
       "firstName": "First Name",
@@ -553,7 +572,8 @@
       "phoneRequired": "Phone is required.",
       "phoneInvalid": "Invalid phone number. E.g., +90 5XX XXX XX XX"
     }
-  }, "personal": {
+  },
+  "personal": {
     "labels": {
       "photo": "Passport Photo",
       "firstName": "First Name",
@@ -589,7 +609,7 @@
       "replace": "Replace",
       "noPhoto": "No Photo",
       "cityState": "City / State",
-    "districtRegion": "District / Region"
+      "districtRegion": "District / Region"
     },
     "options": {
       "gender": { "female": "Female", "male": "Male" },
@@ -642,10 +662,12 @@
       "birthCity": "Birth city (Province/District) is required.",
       "resCountry": "Country of residence is required.",
       "resCity": "City of residence (Province/District) is required.",
+      "resDistrict": "District of residence is required",
+      "birthDistrict": "District of birth is required",
       "nationality": "Select nationality"
     }
   },
- "otherInfo": {
+  "otherInfo": {
     "labels": {
       "kktcDoc": "Valid Document for TRNC",
       "lawsuit": "Lawsuit Status",
@@ -667,11 +689,21 @@
       "licenseTypePlaceholder": "Types"
     },
     "options": {
-      "kktcDoc": ["Citizenship", "Work Permit", "Student Certificate", "No Document"],
+      "kktcDoc": [
+        "Citizenship",
+        "Work Permit",
+        "Student Certificate",
+        "No Document"
+      ],
       "yesNo": { "yes": "Yes", "no": "No" },
       "license": { "have": "Have", "none": "None" },
       "lawsuit": { "have": "Yes", "none": "No" },
-      "military": { "done": "Completed", "notDone": "Not Completed", "postponed": "Postponed", "exempt": "Exempt" }
+      "military": {
+        "done": "Completed",
+        "notDone": "Not Completed",
+        "postponed": "Postponed",
+        "exempt": "Exempt"
+      }
     },
     "errors": {
       "kktcDoc": "Select a TRNC document",

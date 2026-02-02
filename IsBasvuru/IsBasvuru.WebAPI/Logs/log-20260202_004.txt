@@ -1,0 +1,7 @@
+2026-02-02 17:19:50.291 +02:00 [WRN] The WebRootPath was not found: \\172.16.0.27\Casino\It\Kişisel\MehmetYalcinkaya\MehmetYalcinkaya\Udemy\Proje\React\IsBasvuru\IsBasvuru.WebAPI\wwwroot. Static files may be unavailable.
+2026-02-02 17:19:50.519 +02:00 [INF] Now listening on: https://localhost:7000
+2026-02-02 17:19:50.523 +02:00 [INF] Now listening on: http://localhost:5054
+2026-02-02 17:19:50.669 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-02-02 17:19:50.673 +02:00 [INF] Hosting environment: Development
+2026-02-02 17:19:50.675 +02:00 [INF] Content root path: \\172.16.0.27\Casino\It\Kişisel\MehmetYalcinkaya\MehmetYalcinkaya\Udemy\Proje\React\IsBasvuru\IsBasvuru.WebAPI
+2026-02-02 19:27:50.403 +02:00 [INF] Uygulama başlatılıyor...

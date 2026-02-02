@@ -583,7 +583,6 @@ namespace IsBasvuru.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("VesikalikFotograf")
-                        .IsRequired()
                         .HasColumnType("longtext");
 
                     b.HasKey("Id");

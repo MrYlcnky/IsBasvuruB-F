@@ -98,6 +98,10 @@ namespace IsBasvuru.WebAPI.Mapping
             CreateMap<PersonelEhliyet, PersonelEhliyetListDto>()
                 .ForMember(dest => dest.EhliyetTuruAdi, opt => opt.MapFrom(src => src.EhliyetTuru != null ? src.EhliyetTuru.EhliyetTuruAdi : ""));
 
+            // ULKE
+            CreateMap<Ulke, UlkeListDto>().ReverseMap();
+            CreateMap<UlkeCreateDto, Ulke>().ReverseMap();
+            CreateMap<UlkeUpdateDto, Ulke>().ReverseMap();
 
             // SEHIR 
             CreateMap<Sehir, SehirListDto>()
@@ -126,10 +130,13 @@ namespace IsBasvuru.WebAPI.Mapping
             CreateMap<UyrukCreateDto, Uyruk>();
             CreateMap<UyrukUpdateDto, Uyruk>();
 
+  
+
             // Dil
             CreateMap<Dil, DilListDto>();
             CreateMap<DilCreateDto, Dil>();
             CreateMap<DilUpdateDto, Dil>();
+
 
             // EhliyetTuru
             CreateMap<EhliyetTuru, EhliyetTuruListDto>();

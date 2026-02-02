@@ -56,6 +56,17 @@ namespace IsBasvuru.Infrastructure.Services
             return ServiceResponse<SehirListDto>.SuccessResult(mapped);
         }
 
+        public async Task<ServiceResponse<List<SehirListDto>>> GetByUlkeIdAsync(int ulkeId)
+        {
+            var list = await _context.Sehirler
+                .Include(x => x.Ulke)
+                .Where(x => x.UlkeId == ulkeId)
+                .ToListAsync();
+
+            var mappedList = _mapper.Map<List<SehirListDto>>(list) ?? new List<SehirListDto>();
+            return ServiceResponse<List<SehirListDto>>.SuccessResult(mappedList);
+        }
+
         public async Task<ServiceResponse<SehirListDto>> CreateAsync(SehirCreateDto createDto)
         {
             if (!await _context.Ulkeler.AnyAsync(x => x.Id == createDto.UlkeId))

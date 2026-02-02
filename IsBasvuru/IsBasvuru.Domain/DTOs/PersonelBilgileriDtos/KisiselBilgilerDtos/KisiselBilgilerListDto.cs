@@ -18,7 +18,7 @@ namespace IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.KisiselBilgilerListDtos
         public Cinsiyet Cinsiyet { get; set; }
         public MedeniDurum MedeniDurum { get; set; }
         public int? CocukSayisi { get; set; }
-        public required string VesikalikFotograf { get; set; }
+        public string? VesikalikFotograf { get; set; }
 
 
 

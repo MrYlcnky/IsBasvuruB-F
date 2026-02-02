@@ -1,7 +1,7 @@
-// src/components/Admin/Panel/AdminPanel.jsx
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 import {
   useReactTable,
   getCoreRowModel,
@@ -25,15 +25,14 @@ import {
   faFilePdf,
   faUserTie,
   faFlagCheckered,
-  faArrowRight, // YENİ
+  faArrowRight,
+  faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ApplicationModal from "./ApplicationModal";
-import {
-  getApplications,
-  updateApplicationStatus,
-} from "../../../api/staticDB";
 
+// --- API SERVİSİ ---
+import { basvuruService } from "../../../services/basvuruService";
 import CVViewModal from "./CVViewModal";
 import { formatDate } from "../../../utils/dateFormatter";
 
@@ -51,7 +50,7 @@ function useOutsideAlerter(ref, callback) {
   }, [ref, callback]);
 }
 
-// --- GÜNCELLENMİŞ SAYFALAMA MANTIĞI ---
+// --- SAYFALAMA MANTIĞI ---
 const getPaginationRange = (currentPage, totalPages, siblingCount = 1) => {
   currentPage = currentPage + 1;
   const totalPageNumbers = siblingCount + 5;
@@ -91,8 +90,11 @@ const getPaginationRange = (currentPage, totalPages, siblingCount = 1) => {
 function StatusBadge({ status }) {
   const map = {
     Onaylanan: "bg-emerald-100 text-emerald-800 border-emerald-300",
+    Onaylandı: "bg-emerald-100 text-emerald-800 border-emerald-300",
     Reddedilen: "bg-rose-100 text-rose-800 border-rose-300",
+    Reddedildi: "bg-rose-100 text-rose-800 border-rose-300",
     Bekleyen: "bg-amber-100 text-amber-800 border-amber-300",
+    "Beklemede": "bg-amber-100 text-amber-800 border-amber-300",
     "Revize Talebi": "bg-blue-100 text-blue-800 border-blue-300",
   };
   return (
@@ -101,12 +103,18 @@ function StatusBadge({ status }) {
         map[status] || "bg-gray-100 text-gray-800 border-gray-300"
       }`}
     >
-      {status}
+      {status || "Bilinmiyor"}
     </span>
   );
 }
+
 function CurrentStageBadge({ stage, status }) {
-  if (status === "Onaylanan" || status === "Reddedilen")
+  if (
+    status === "Onaylanan" ||
+    status === "Onaylandı" ||
+    status === "Reddedilen" ||
+    status === "Reddedildi"
+  )
     return (
       <span className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
         <FontAwesomeIcon icon={faFlagCheckered} className="text-emerald-500" />{" "}
@@ -119,6 +127,7 @@ function CurrentStageBadge({ stage, status }) {
         <FontAwesomeIcon icon={faUserTie} /> İK (Revize)
       </span>
     );
+
   const stageMap = {
     departman_muduru: {
       label: "Departman Müdürü",
@@ -134,10 +143,12 @@ function CurrentStageBadge({ stage, status }) {
     },
     tamamlandi: { label: "Tamamlandı", color: "text-gray-500" },
   };
+
   const info = stageMap[stage] || {
-    label: "Bilinmiyor",
+    label: stage || "Başlangıç",
     color: "text-gray-500",
   };
+
   return (
     <span
       className={`flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs font-bold whitespace-nowrap ${info.color}`}
@@ -146,6 +157,7 @@ function CurrentStageBadge({ stage, status }) {
     </span>
   );
 }
+
 function ListCell({ items = [], max = 2 }) {
   const visible = items.slice(0, max);
   const extra = Math.max(0, items.length - max);
@@ -168,6 +180,7 @@ function ListCell({ items = [], max = 2 }) {
     </div>
   );
 }
+
 const initialFilterState = {
   ageMin: "",
   ageMax: "",
@@ -181,35 +194,40 @@ const initialFilterState = {
 
 export default function AdminPanel() {
   const location = useLocation();
+
+  // Auth state
   const auth = useMemo(() => {
     try {
       const raw = sessionStorage.getItem("authUser");
       return raw
         ? JSON.parse(raw)
-        : { name: "Test DM", role: "dm", email: "dm@example.com" };
+        : { name: "Admin", role: "admin", email: "admin@example.com" };
     } catch {
       return null;
     }
   }, []);
+
   const isAllAccess = useMemo(
-    () => ["ik_spv", "ik_user", "admin"].includes(auth?.role),
+    () => ["ik_spv", "ik_user", "admin", "IT"].includes(auth?.role || "admin"),
     [auth]
   );
+
   const userBranch = useMemo(
     () => (!isAllAccess ? auth?.branch : "all"),
     [auth, isAllAccess]
   );
+
   const canSeeRevisionTab = useMemo(
-    () => ["ik_spv", "admin"].includes(auth?.role),
+    () => ["ik_spv", "admin", "IT"].includes(auth?.role || "admin"),
     [auth]
   );
+
   const allBranches = ["Girne", "Prestige"];
 
   const [globalFilter, setGlobalFilter] = useState("");
   const [tab, setTab] = useState("all");
-
-  // Sayfaya Git Input State
   const [pageInput, setPageInput] = useState(1);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (location.state && location.state.targetTab) {
@@ -237,9 +255,45 @@ export default function AdminPanel() {
   const [isCVModalOpen, setIsCVModalOpen] = useState(false);
   const [applicationData, setApplicationData] = useState([]);
 
-  const fetchData = () => {
-    const data = getApplications();
-    setApplicationData(data);
+  // --- API VERİ ÇEKME FONKSİYONU ---
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await basvuruService.getAll();
+
+      // Backend response yapısına göre düzenleme
+      const rawData = response.data || response || [];
+      const dataArray = Array.isArray(rawData) ? rawData : rawData.data || [];
+
+      const mappedData = dataArray.map((item) => ({
+        id: item.id,
+        name: item.personel
+          ? `${item.personel.ad} ${item.personel.soyad}`
+          : "İsimsiz",
+        personal: {
+          foto: item.personel?.fotografUrl || null,
+          cinsiyet: item.personel?.cinsiyet || "Belirtilmemiş",
+          // Yaş hesabı için dogumTarihi eklenebilir
+          dogumTarihi: item.personel?.dogumTarihi || null,
+        },
+        date: item.basvuruTarihi,
+        status: item.basvuruDurum || "Beklemede",
+        approvalStage: item.onayAsamasi || "ik",
+        branches: item.basvuruDetay?.subeler || [],
+        areas: item.basvuruDetay?.alanlar || [],
+        roles: item.basvuruDetay?.pozisyonlar || [],
+        departments: item.basvuruDetay?.departmanlar || [],
+        education: item.egitimBilgileri || [],
+        originalData: item,
+      }));
+
+      setApplicationData(mappedData);
+    } catch (error) {
+      console.error("Veri çekme hatası:", error);
+      toast.error("Başvurular yüklenirken hata oluştu.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -297,7 +351,7 @@ export default function AdminPanel() {
         accessorKey: "id",
         header: "Başvuru No",
         cell: (info) => (
-          <span className="font-medium text-gray-900">{info.getValue()}</span>
+          <span className="font-medium text-gray-900">#{info.getValue()}</span>
         ),
       },
       {
@@ -439,21 +493,18 @@ export default function AdminPanel() {
       JSON.stringify(activeFilters) ===
       JSON.stringify({ ...initialFilterState, branch: userBranch });
     let dataToFilter = applicationData;
+
     if (!isAllAccess) {
       dataToFilter = dataToFilter.filter((app) =>
         (app.branches || []).includes(auth.branch)
       );
-      if (auth.role === "dm" && auth.department) {
-        dataToFilter = dataToFilter.filter((app) =>
-          (app.departments || []).includes(auth.department)
-        );
-      }
     }
+
     if (isDefault && tab === "all") return dataToFilter;
+
     return dataToFilter.filter((row) => {
+      // DÜZELTME: ageMin ve ageMax kullanılmadığı için buradan kaldırıldı
       const {
-        ageMin,
-        ageMax,
         branch,
         area,
         department,
@@ -461,14 +512,15 @@ export default function AdminPanel() {
         education,
         gender,
       } = activeFilters;
+
       if (tab !== "all") {
         const statusMap = {
-          pending: "Bekleyen",
-          approved: "Onaylanan",
-          rejected: "Reddedilen",
-          revision: "Revize Talebi",
+          pending: ["Bekleyen", "Beklemede"],
+          approved: ["Onaylanan", "Onaylandı"],
+          rejected: ["Reddedilen", "Reddedildi"],
+          revision: ["Revize Talebi"],
         };
-        if (row.status !== statusMap[tab]) return false;
+        if (!statusMap[tab]?.includes(row.status)) return false;
       }
       if (branch !== "all" && !row.branches?.includes(branch)) return false;
       if (area !== "all" && !row.areas?.includes(area)) return false;
@@ -481,11 +533,8 @@ export default function AdminPanel() {
         !row.education?.some((e) => e.seviye === education)
       )
         return false;
-      if (ageMin || ageMax) {
-        const age = Number(row.age);
-        if (age < (Number(ageMin) || 0) || age > (Number(ageMax) || 999))
-          return false;
-      }
+
+      // Yaş filtresi eklenecekse burada birthDate üzerinden hesaplanıp kontrol edilebilir.
       return true;
     });
   }, [
@@ -494,8 +543,6 @@ export default function AdminPanel() {
     tab,
     isAllAccess,
     auth.branch,
-    auth.role,
-    auth.department,
     userBranch,
   ]);
 
@@ -517,24 +564,13 @@ export default function AdminPanel() {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  useEffect(() => {
-    const newFilters = [];
-    if (tab !== "all") {
-      const statusMap = {
-        pending: "Bekleyen",
-        approved: "Onaylanan",
-        rejected: "Reddedilen",
-        revision: "Revize Talebi",
-      };
-      newFilters.push({ id: "status", value: statusMap[tab] });
-    }
-    setColumnFilters(newFilters);
-  }, [tab]);
+  // DÜZELTME: Gereksiz useEffect bloğu kaldırıldı (Error 3 & 4 Fixed)
 
   // Input State Güncelleme
   useEffect(() => {
-    setPageInput(table.getState().pagination.pageIndex + 1);
-  }, [table.getState().pagination.pageIndex]);
+    setPageInput(pagination.pageIndex + 1);
+    // DÜZELTME: Bağımlılık dizisi düzeltildi (Error 5 & 6 Fixed)
+  }, [pagination.pageIndex]);
 
   const handleGoToPage = () => {
     const page = pageInput ? Number(pageInput) - 1 : 0;
@@ -545,43 +581,71 @@ export default function AdminPanel() {
     }
   };
 
-  const handleModalAction = (actionType, note) => {
+  const handleModalAction = async (actionType, note) => {
     if (!activeRow) return;
-    const result = updateApplicationStatus(
-      activeRow.id,
-      actionType,
-      note,
-      auth
-    );
-    if (result.success) {
-      let title = "İşlem Başarılı",
-        icon = "success";
-      if (actionType === "approve") title = "Onaylandı";
-      else if (actionType === "reject") {
-        title = "Reddedildi";
-        icon = "error";
-      } else if (actionType === "request_revision") {
-        title = "Revize Talebi Gönderildi";
-        icon = "info";
-      } else if (actionType === "approve_revision") title = "Revize Onaylandı";
-      else if (actionType === "reject_revision") {
-        title = "Revize Reddedildi";
-        icon = "warning";
+
+    toast.info("İşlem gerçekleştiriliyor...");
+
+    try {
+      const result = await basvuruService.updateStatus(activeRow.id, {
+        action: actionType,
+        note: note,
+        user: auth.name,
+      });
+
+      if (result || result.success) {
+        let title = "İşlem Başarılı";
+        let icon = "success";
+
+        if (actionType === "approve") title = "Başvuru Onaylandı";
+        else if (actionType === "reject") {
+          title = "Başvuru Reddedildi";
+          icon = "error";
+        }
+
+        Swal.fire({
+          title: title,
+          text: "İşlem başarıyla kaydedildi.",
+          icon: icon,
+          timer: 1500,
+          showConfirmButton: false,
+          background: "#1F2937",
+          color: "#E5E7EB",
+        });
+
+        fetchData();
       }
-      Swal.fire(title, result.message, icon);
-      fetchData();
-      window.dispatchEvent(new CustomEvent("applicationsUpdated"));
-    } else {
-      Swal.fire({ icon: "error", title: "Hata", text: result.message });
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        "İşlem sırasında bir hata oluştu: " +
+          (error.response?.data?.message || error.message)
+      );
     }
+
     setOpenModal(false);
     setActiveRow(null);
   };
 
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <FontAwesomeIcon
+            icon={faSpinner}
+            spin
+            size="3x"
+            className="text-blue-600 mb-4"
+          />
+          <p className="text-gray-600 font-medium">Veriler Yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="space-y-4">
-        {/* CSS: Input Oklarını Kaldır */}
         <style>{`input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }`}</style>
 
         {/* ÜST PANEL */}
@@ -612,7 +676,7 @@ export default function AdminPanel() {
                   <button
                     key={t.id}
                     onClick={() => setTab(t.id)}
-                    className={`flex-grow px-4 py-2 text-sm font-medium rounded-lg transition-all cursor-pointer ${
+                    className={`grow px-4 py-2 text-sm font-medium rounded-lg transition-all cursor-pointer ${
                       tab === t.id
                         ? "bg-white text-gray-900 shadow-sm"
                         : "text-gray-500 hover:text-gray-700 hover:bg-white/50"
@@ -646,7 +710,7 @@ export default function AdminPanel() {
                 <span>Gelişmiş Filtrele</span>
               </button>
               {isFilterOpen && (
-                <div className="absolute top-full right-0 mt-2 w-full lg:w-[480px] z-40 bg-white border border-gray-300 rounded-xl shadow-2xl p-6">
+                <div className="absolute top-full right-0 mt-2 w-full lg:w-120 z-50 bg-white border border-gray-300 rounded-xl shadow-2xl p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-4">
                       <h4 className="text-sm font-semibold text-gray-500 border-b border-gray-200 pb-2">
@@ -860,7 +924,7 @@ export default function AdminPanel() {
             </table>
           </div>
 
-          {/* --- MODERN PAGINATION (GÜNCELLENDİ) --- */}
+          {/* --- MODERN PAGINATION --- */}
           {table.getRowModel().rows.length > 0 && (
             <div className="px-6 py-4 border-t border-gray-200 bg-gray-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
               <div className="text-xs text-gray-500 order-2 sm:order-1">
@@ -980,7 +1044,7 @@ export default function AdminPanel() {
       {isCVModalOpen && <CVViewModal onClose={() => setIsCVModalOpen(false)} />}
       {lightboxImage && (
         <div
-          className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity"
           onClick={() => setLightboxImage(null)}
         >
           <img

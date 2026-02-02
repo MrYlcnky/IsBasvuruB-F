@@ -1827,6 +1827,282 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PersonelController",
+    "Method": "TestPersonal",
+    "RelativePath": "api/Personel/test-personal",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "SubeIds",
+        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "SubeAlanIds",
+        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "DepartmanIds",
+        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "DepartmanPozisyonIds",
+        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "ProgramIds",
+        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "OyunIds",
+        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "NedenBiz",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "VesikalikDosyasi",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Id",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.PersonelId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Ad",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Soyadi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Email",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Telefon",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.TelefonWhatsapp",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Adres",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumTarihi",
+        "Type": "System.DateTime",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.Cinsiyet",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.MedeniDurum",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.CocukSayisi",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.VesikalikFotograf",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumUlkeId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumUlkeAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumSehirId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumSehirAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumIlceId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.DogumIlceAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.IkametgahUlkeId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.IkametgahUlkeAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.IkametgahSehirId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.IkametgahSehirAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.IkametgahIlceId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.IkametgahIlceAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.UyrukId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "KisiselBilgiler.UyrukAdi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "DigerKisiselBilgiler.PersonelId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "DigerKisiselBilgiler.KktcBelgeId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "DigerKisiselBilgiler.DavaDurumu",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "DigerKisiselBilgiler.DavaNedeni",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "DigerKisiselBilgiler.SigaraKullanimi",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "DigerKisiselBilgiler.AskerlikDurumu",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "DigerKisiselBilgiler.KaliciRahatsizlik",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "DigerKisiselBilgiler.KaliciRahatsizlikAciklama",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "DigerKisiselBilgiler.EhliyetDurumu",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "DigerKisiselBilgiler.Boy",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "DigerKisiselBilgiler.Kilo",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "EgitimBilgileri",
+        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.EgitimBilgisiDtos.EgitimBilgisiCreateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "IsDeneyimleri",
+        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.IsDeneyimiDtos.IsDeneyimiCreateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "YabanciDilBilgileri",
+        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.YabanciDilBilgisiDtos.YabanciDilBilgisiCreateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "BilgisayarBilgileri",
+        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.BilgisayarBilgisiDtos.BilgisayarBilgisiCreateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "SertifikaBilgileri",
+        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.SertifikaBilgisiDtos.SertifikaBilgisiCreateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "ReferansBilgileri",
+        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.ReferansBilgisiDtos.ReferansBilgisiCreateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "PersonelEhliyetler",
+        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.SirketYapisiDtos.PersonelEhliyetDtos.PersonelEhliyetCreateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "IsBasvuru.WebAPI.Controllers.PersonelEhliyetController",
     "Method": "GetAll",
     "RelativePath": "api/PersonelEhliyet",
@@ -2222,6 +2498,22 @@
     "Parameters": [
       {
         "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.SehirController",
+    "Method": "GetByUlkeId",
+    "RelativePath": "api/Sehir/ulke/{ulkeId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ulkeId",
         "Type": "System.Int32",
         "IsRequired": true
       }

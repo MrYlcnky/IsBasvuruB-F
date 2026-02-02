@@ -181,7 +181,7 @@ export default function EducationAddModal({
         onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Başlık */}
-        <div className="flex items-center justify-between bg-gradient-to-r from-gray-700 via-gray-600 to-gray-500 text-white px-4 sm:px-6 py-3 sm:py-4">
+        <div className="flex items-center justify-between bg-linear-to-r from-gray-700 via-gray-600 to-gray-500 text-white px-4 sm:px-6 py-3 sm:py-4">
           <h2 className="text-base sm:text-lg md:text-xl font-semibold truncate">
             {mode === "edit"
               ? t("education.modal.titleEdit")
@@ -196,7 +196,7 @@ export default function EducationAddModal({
           </button>
         </div>
 
-        {/* DÜZELTME: FORM YERİNE DIV KULLANIYORUZ (NESTED FORM SORUNU İÇİN) */}
+      
         <div className="flex-1 flex flex-col min-h-0">
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
             {/* Seviye & Okul */}

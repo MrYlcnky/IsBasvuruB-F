@@ -1886,6 +1886,418 @@
         }
       }
     },
+    "/api/Personel/test-personal": {
+      "post": {
+        "tags": [
+          "Personel"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "KisiselBilgiler.Ad",
+                  "KisiselBilgiler.Adres",
+                  "KisiselBilgiler.Email",
+                  "KisiselBilgiler.Soyadi",
+                  "KisiselBilgiler.Telefon",
+                  "KisiselBilgiler.TelefonWhatsapp"
+                ],
+                "type": "object",
+                "properties": {
+                  "SubeIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
+                  },
+                  "SubeAlanIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
+                  },
+                  "DepartmanIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
+                  },
+                  "DepartmanPozisyonIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
+                  },
+                  "ProgramIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
+                  },
+                  "OyunIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
+                  },
+                  "NedenBiz": {
+                    "type": "string"
+                  },
+                  "VesikalikDosyasi": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "KisiselBilgiler.Id": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "KisiselBilgiler.PersonelId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "KisiselBilgiler.Ad": {
+                    "type": "string"
+                  },
+                  "KisiselBilgiler.Soyadi": {
+                    "type": "string"
+                  },
+                  "KisiselBilgiler.Email": {
+                    "type": "string"
+                  },
+                  "KisiselBilgiler.Telefon": {
+                    "type": "string"
+                  },
+                  "KisiselBilgiler.TelefonWhatsapp": {
+                    "type": "string"
+                  },
+                  "KisiselBilgiler.Adres": {
+                    "type": "string"
+                  },
+                  "KisiselBilgiler.DogumTarihi": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "KisiselBilgiler.Cinsiyet": {
+                    "$ref": "#/components/schemas/Cinsiyet"
+                  },
+                  "KisiselBilgiler.MedeniDurum": {
+                    "$ref": "#/components/schemas/MedeniDurum"
+                  },
+                  "KisiselBilgiler.CocukSayisi": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "KisiselBilgiler.VesikalikFotograf": {
+                    "type": "string"
+                  },
+                  "KisiselBilgiler.DogumUlkeId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "KisiselBilgiler.DogumUlkeAdi": {
+                    "type": "string"
+                  },
+                  "KisiselBilgiler.DogumSehirId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "KisiselBilgiler.DogumSehirAdi": {
+                    "type": "string"
+                  },
+                  "KisiselBilgiler.DogumIlceId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "KisiselBilgiler.DogumIlceAdi": {
+                    "type": "string"
+                  },
+                  "KisiselBilgiler.IkametgahUlkeId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "KisiselBilgiler.IkametgahUlkeAdi": {
+                    "type": "string"
+                  },
+                  "KisiselBilgiler.IkametgahSehirId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "KisiselBilgiler.IkametgahSehirAdi": {
+                    "type": "string"
+                  },
+                  "KisiselBilgiler.IkametgahIlceId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "KisiselBilgiler.IkametgahIlceAdi": {
+                    "type": "string"
+                  },
+                  "KisiselBilgiler.UyrukId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "KisiselBilgiler.UyrukAdi": {
+                    "type": "string"
+                  },
+                  "DigerKisiselBilgiler.PersonelId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "DigerKisiselBilgiler.KktcBelgeId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "DigerKisiselBilgiler.DavaDurumu": {
+                    "$ref": "#/components/schemas/SecimDurumu"
+                  },
+                  "DigerKisiselBilgiler.DavaNedeni": {
+                    "type": "string"
+                  },
+                  "DigerKisiselBilgiler.SigaraKullanimi": {
+                    "$ref": "#/components/schemas/SecimDurumu"
+                  },
+                  "DigerKisiselBilgiler.AskerlikDurumu": {
+                    "$ref": "#/components/schemas/AskerlikDurumu"
+                  },
+                  "DigerKisiselBilgiler.KaliciRahatsizlik": {
+                    "$ref": "#/components/schemas/SecimDurumu"
+                  },
+                  "DigerKisiselBilgiler.KaliciRahatsizlikAciklama": {
+                    "type": "string"
+                  },
+                  "DigerKisiselBilgiler.EhliyetDurumu": {
+                    "$ref": "#/components/schemas/SecimDurumu"
+                  },
+                  "DigerKisiselBilgiler.Boy": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "DigerKisiselBilgiler.Kilo": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "EgitimBilgileri": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/EgitimBilgisiCreateDto"
+                    }
+                  },
+                  "IsDeneyimleri": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/IsDeneyimiCreateDto"
+                    }
+                  },
+                  "YabanciDilBilgileri": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/YabanciDilBilgisiCreateDto"
+                    }
+                  },
+                  "BilgisayarBilgileri": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/BilgisayarBilgisiCreateDto"
+                    }
+                  },
+                  "SertifikaBilgileri": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/SertifikaBilgisiCreateDto"
+                    }
+                  },
+                  "ReferansBilgileri": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ReferansBilgisiCreateDto"
+                    }
+                  },
+                  "PersonelEhliyetler": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/PersonelEhliyetCreateDto"
+                    }
+                  }
+                }
+              },
+              "encoding": {
+                "SubeIds": {
+                  "style": "form"
+                },
+                "SubeAlanIds": {
+                  "style": "form"
+                },
+                "DepartmanIds": {
+                  "style": "form"
+                },
+                "DepartmanPozisyonIds": {
+                  "style": "form"
+                },
+                "ProgramIds": {
+                  "style": "form"
+                },
+                "OyunIds": {
+                  "style": "form"
+                },
+                "NedenBiz": {
+                  "style": "form"
+                },
+                "VesikalikDosyasi": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.Id": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.PersonelId": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.Ad": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.Soyadi": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.Email": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.Telefon": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.TelefonWhatsapp": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.Adres": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.DogumTarihi": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.Cinsiyet": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.MedeniDurum": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.CocukSayisi": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.VesikalikFotograf": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.DogumUlkeId": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.DogumUlkeAdi": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.DogumSehirId": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.DogumSehirAdi": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.DogumIlceId": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.DogumIlceAdi": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.IkametgahUlkeId": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.IkametgahUlkeAdi": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.IkametgahSehirId": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.IkametgahSehirAdi": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.IkametgahIlceId": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.IkametgahIlceAdi": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.UyrukId": {
+                  "style": "form"
+                },
+                "KisiselBilgiler.UyrukAdi": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.PersonelId": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.KktcBelgeId": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.DavaDurumu": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.DavaNedeni": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.SigaraKullanimi": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.AskerlikDurumu": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.KaliciRahatsizlik": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.KaliciRahatsizlikAciklama": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.EhliyetDurumu": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.Boy": {
+                  "style": "form"
+                },
+                "DigerKisiselBilgiler.Kilo": {
+                  "style": "form"
+                },
+                "EgitimBilgileri": {
+                  "style": "form"
+                },
+                "IsDeneyimleri": {
+                  "style": "form"
+                },
+                "YabanciDilBilgileri": {
+                  "style": "form"
+                },
+                "BilgisayarBilgileri": {
+                  "style": "form"
+                },
+                "SertifikaBilgileri": {
+                  "style": "form"
+                },
+                "ReferansBilgileri": {
+                  "style": "form"
+                },
+                "PersonelEhliyetler": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/Personel": {
       "get": {
         "tags": [
@@ -1929,8 +2341,7 @@
                   "KisiselBilgiler.Email",
                   "KisiselBilgiler.Soyadi",
                   "KisiselBilgiler.Telefon",
-                  "KisiselBilgiler.TelefonWhatsapp",
-                  "KisiselBilgiler.VesikalikFotograf"
+                  "KisiselBilgiler.TelefonWhatsapp"
                 ],
                 "type": "object",
                 "properties": {
@@ -2340,8 +2751,7 @@
                   "KisiselBilgiler.Email",
                   "KisiselBilgiler.Soyadi",
                   "KisiselBilgiler.Telefon",
-                  "KisiselBilgiler.TelefonWhatsapp",
-                  "KisiselBilgiler.VesikalikFotograf"
+                  "KisiselBilgiler.TelefonWhatsapp"
                 ],
                 "type": "object",
                 "properties": {
@@ -3377,6 +3787,29 @@
         "parameters": [
           {
             "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Sehir/ulke/{ulkeId}": {
+      "get": {
+        "tags": [
+          "Sehir"
+        ],
+        "parameters": [
+          {
+            "name": "ulkeId",
             "in": "path",
             "required": true,
             "schema": {
@@ -5016,6 +5449,11 @@
             "format": "int32",
             "nullable": true
           },
+          "subeAlanId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
           "departmanId": {
             "type": "integer",
             "format": "int32",
@@ -5057,6 +5495,11 @@
             "format": "int32"
           },
           "subeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "subeAlanId": {
             "type": "integer",
             "format": "int32",
             "nullable": true

@@ -1,4 +1,5 @@
 {
+  "langKey": "tr",
   "app": { "language": "Dil" },
   "hero": {
     "brand": "CHAMADA GROUP",
@@ -66,16 +67,17 @@
       "emailText": "Lütfen kişisel bilgiler kısmına e-posta adresinizi giriniz."
     },
     "otp": {
-        "title": "Başvuruyu Onayla",
-        "text": "Başvurunuzu tamamlamak için <b>{{email}}</b> adresine gönderilen kodu giriniz:",
-        "verifyAndSubmit": "Onayla ve Gönder"
+      "title": "Başvuruyu Onayla",
+      "text": "Başvurunuzu tamamlamak için <b>{{email}}</b> adresine gönderilen kodu giriniz:",
+      "verifyAndSubmit": "Onayla ve Gönder"
     },
     "success": {
-        "title": "Tebrikler!",
-        "text": "Başvurunuz başarıyla alındı."
+      "title": "Tebrikler!",
+      "text": "Başvurunuz başarıyla alındı.",
+      "submit": "Başvurunuz başarıyla gönderildi!"
     },
     "error": {
-        "submit": "Başvuru sırasında hata oluştu."
+      "submit": "Başvuru sırasında hata oluştu."
     },
     "toast": { "success": "Başvurunuz başarıyla gönderildi!" },
     "cards": {
@@ -141,11 +143,26 @@
     },
     "validations": {
       "alphaNum": "Yalnızca harf, rakam ve boşluk kullanılabilir.",
-      "name": { "required": "Sertifika / Eğitim adı zorunlu.", "max": "En fazla 100 karakter yazabilirsiniz." },
-      "org": { "required": "Kurum / Organizasyon adı zorunlu.", "max": "En fazla 100 karakter yazabilirsiniz." },
-      "duration": { "required": "Süre zorunlu.", "max": "En fazla 50 karakter yazabilirsiniz." },
-      "issuedAt": { "required": "Veriliş tarihi zorunlu.", "future": "Veriliş tarihi bugünden ileri olamaz." },
-      "validUntil": { "beforeIssued": "Geçerlilik tarihi verilişten önce olamaz.", "sameDay": "Veriliş ve geçerlilik tarihi aynı gün olamaz." }
+      "name": {
+        "required": "Sertifika / Eğitim adı zorunlu.",
+        "max": "En fazla 100 karakter yazabilirsiniz."
+      },
+      "org": {
+        "required": "Kurum / Organizasyon adı zorunlu.",
+        "max": "En fazla 100 karakter yazabilirsiniz."
+      },
+      "duration": {
+        "required": "Süre zorunlu.",
+        "max": "En fazla 50 karakter yazabilirsiniz."
+      },
+      "issuedAt": {
+        "required": "Veriliş tarihi zorunlu.",
+        "future": "Veriliş tarihi bugünden ileri olamaz."
+      },
+      "validUntil": {
+        "beforeIssued": "Geçerlilik tarihi verilişten önce olamaz.",
+        "sameDay": "Veriliş ve geçerlilik tarihi aynı gün olamaz."
+      }
     }
   },
   "computer": {
@@ -176,7 +193,7 @@
       "title": "Emin misin?",
       "text": "“{{name}}” kaydını silmek istiyor musun?"
     },
-      "select": {
+    "select": {
       "choose": "Seçiniz"
     },
     "validations": {
@@ -444,7 +461,8 @@
       "countryReq": "İş ülkesi zorunlu.",
       "cityReq": "İş şehri zorunlu."
     }
-  }, "languages": {
+  },
+  "languages": {
     "table": {
       "language": "Dil",
       "speaking": "Konuşma Seviyesi",
@@ -503,7 +521,8 @@
       "learnedHowMax": "Bu alan en fazla 80 karakter olabilir.",
       "learnedHowRegex": "Yalnızca harf, boşluk, nokta ve tire içerebilir."
     }
-  },"references": {
+  },
+  "references": {
     "table": {
       "orgType": "Çalıştığı Kurum",
       "firstName": "Ad",
@@ -556,7 +575,8 @@
       "phoneRequired": "Telefon zorunlu.",
       "phoneInvalid": "Telefon numarası geçersiz. Örn: +90 5XX XXX XX XX"
     }
-  }, "personal": {
+  },
+  "personal": {
     "labels": {
       "photo": "Vesikalık Fotoğraf",
       "firstName": "Ad",
@@ -592,7 +612,7 @@
       "replace": "Değiştir",
       "noPhoto": "Fotoğraf Yok",
       "cityState": "Şehir / Eyalet",
-    "districtRegion": "İlçe / Bölge"
+      "districtRegion": "İlçe / Bölge"
     },
     "options": {
       "gender": { "female": "Kadın", "male": "Erkek" },
@@ -645,10 +665,12 @@
       "birthCity": "Doğum yeri (İl/İlçe) zorunlu",
       "resCountry": "Yaşadığı ülke zorunlu",
       "resCity": "Yaşadığı şehir (İl/İlçe) zorunlu",
+      "resDistrict": "Yaşadığı İlçe zorunlu",
+      "birthDistrict": "Doğum yeri İlçe zorunlu",
       "nationality": "Uyruğu seçiniz"
     }
   },
- "otherInfo": {
+  "otherInfo": {
     "labels": {
       "kktcDoc": "KKTC Geçerli Belge",
       "lawsuit": "Dava Durumu",
@@ -670,11 +692,21 @@
       "licenseTypePlaceholder": "Türler"
     },
     "options": {
-      "kktcDoc": ["Vatandaşlık", "Çalışma İzni", "Öğrenci Belgesi", "Belge Yok"],
+      "kktcDoc": [
+        "Vatandaşlık",
+        "Çalışma İzni",
+        "Öğrenci Belgesi",
+        "Belge Yok"
+      ],
       "yesNo": { "yes": "Evet", "no": "Hayır" },
       "license": { "have": "Var", "none": "Yok" },
       "lawsuit": { "have": "Evet", "none": "Hayır" },
-      "military": { "done": "Yapıldı", "notDone": "Yapılmadı", "postponed": "Tecilli", "exempt": "Muaf" }
+      "military": {
+        "done": "Yapıldı",
+        "notDone": "Yapılmadı",
+        "postponed": "Tecilli",
+        "exempt": "Muaf"
+      }
     },
     "errors": {
       "kktcDoc": "KKTC Geçerli Belge seçiniz",

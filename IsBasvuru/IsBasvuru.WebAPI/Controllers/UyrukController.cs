@@ -1,5 +1,6 @@
 ﻿using IsBasvuru.Domain.DTOs.TanimlamalarDtos.UyrukDtos;
 using IsBasvuru.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -7,6 +8,7 @@ namespace IsBasvuru.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class UyrukController : BaseController // 1. BaseController'dan miras al
     {
         private readonly IUyrukService _service;
@@ -17,6 +19,7 @@ namespace IsBasvuru.WebAPI.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
             var response = await _service.GetAllAsync();
@@ -24,6 +27,7 @@ namespace IsBasvuru.WebAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetById(int id)
         {
             var response = await _service.GetByIdAsync(id);

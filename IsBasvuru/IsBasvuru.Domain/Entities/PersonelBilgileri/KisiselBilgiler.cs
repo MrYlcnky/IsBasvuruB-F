@@ -55,7 +55,7 @@ namespace IsBasvuru.Domain.Entities.PersonelBilgileri
         public int? CocukSayisi { get; set; }
 
 
-        public required string VesikalikFotograf { get; set; }
+        public string? VesikalikFotograf { get; set; }
 
     }
 }

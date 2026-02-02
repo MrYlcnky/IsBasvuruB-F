@@ -1,11 +1,10 @@
-// components/Users/Selected/SearchSelect.jsx
 import Select from "react-select";
 
 export default function SearchSelect({
   label,
   name,
-  value, // string
-  options = [], // [{value,label}]
+  value,
+  options = [],
   onChange,
   placeholder = "Ara veya seç…",
   error,
@@ -14,16 +13,21 @@ export default function SearchSelect({
   isDisabled = false,
   isClearable = false,
   className = "",
-  menuPortalTarget, // genelde document.body
-  zIndex = 99999, // <-- modalın üstünde olsun
+  menuPortalTarget,
+  zIndex = 99999,
 }) {
+  // --- DÜZELTİLEN KISIM ---
+  // Eğer gelen 'value' zaten bir nesne ise (örn: {value:1, label:'Türkiye'}), onu direkt kullan.
+  // Eğer sadece ID geldiyse (örn: 1), options listesinde arayıp bul.
   const rsValue =
-    options.find((o) => String(o.value) === String(value)) || null;
+    value && typeof value === "object" && "value" in value
+      ? value
+      : options.find((o) => String(o.value) === String(value)) || null;
+  // -------------------------
 
   const handleChange = (opt) => {
-    onChange?.({
-      target: { name, value: opt ? opt.value : "" },
-    });
+    // Seçim yapıldığında üst bileşene (PersonalInformation) tüm objeyi gönderiyoruz.
+    onChange?.(opt);
   };
 
   const styles = {
@@ -48,11 +52,8 @@ export default function SearchSelect({
     dropdownIndicator: (b) => ({ ...b, padding: 8 }),
     clearIndicator: (b) => ({ ...b, padding: 8 }),
     placeholder: (b) => ({ ...b, color: "#9ca3af" }),
-    // Menü portalı (body'ye taşınıyor) — en önemli kısım
     menuPortal: (base) => ({ ...base, zIndex }),
-    // Menü kutusuna da yüksek z-index veriyoruz
     menu: (b) => ({ ...b, zIndex }),
-    // Liste yüksekliği
     menuList: (b) => ({
       ...b,
       maxHeight: maxVisible * itemHeight,
@@ -69,8 +70,8 @@ export default function SearchSelect({
       backgroundColor: state.isSelected
         ? "#e5f2ff"
         : state.isFocused
-        ? "#f3f4f6"
-        : "white",
+          ? "#f3f4f6"
+          : "white",
       color: "#111827",
     }),
   };
@@ -105,7 +106,7 @@ export default function SearchSelect({
         menuPosition="fixed"
         styles={styles}
         autoComplete="off"
-        classNamePrefix="rs" // olası global css çakışmalarını azaltır
+        classNamePrefix="rs"
       />
 
       {error && (

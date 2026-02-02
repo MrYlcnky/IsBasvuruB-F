@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("IsBasvuru.Domain")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8681fd4882528563d46f09641e91c2d83c2284d1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c891bf8642cb0138c354dcd34a0f469d6b20135c")]
 [assembly: System.Reflection.AssemblyProductAttribute("IsBasvuru.Domain")]
 [assembly: System.Reflection.AssemblyTitleAttribute("IsBasvuru.Domain")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
