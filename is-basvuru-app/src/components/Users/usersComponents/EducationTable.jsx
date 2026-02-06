@@ -1,5 +1,5 @@
 import { useState, forwardRef, useImperativeHandle } from "react";
-import { useFormContext, useWatch } from "react-hook-form"; // Hook Form eklendi
+import { useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -8,32 +8,55 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import EducationAddModal from "../addModals/EducationAddModal";
-import { formatDate } from "../modalHooks/dateUtils"; // Tarih formatlayıcı
+import { formatDate } from "../modalHooks/dateUtils";
+
+/* -------------------- 1. Çeviri Fonksiyonları (Enum -> Text) -------------------- */
+// Backend'den veya Modal'dan gelen ID'leri (1, 2, 3) kullanıcıya anlamlı metne çevirir.
+
+const getSeviyeLabel = (val, t) => {
+  const map = {
+    1: t("education.levels.highschool"), // Lise
+    2: t("education.levels.associate"), // Ön Lisans
+    3: t("education.levels.bachelor"), // Lisans
+    4: t("education.levels.master"), // Yüksek Lisans
+    5: t("education.levels.phd"), // Doktora
+    6: t("education.levels.other"), // Diğer
+  };
+  return map[Number(val)] || val; // Eşleşme yoksa olduğu gibi göster
+};
+
+const getDiplomaLabel = (val, t) => {
+  const map = {
+    1: t("education.diploma.graduated"), // Mezun
+    2: t("education.diploma.continuing"), // Devam
+    3: t("education.diploma.paused"), // Ara Verdi
+    4: t("education.diploma.dropped"), // Terk
+  };
+  return map[Number(val)] || val;
+};
+
+// ✅ GÜNCELLEME: Backend Enum ID'lerine göre etiketleme (1=Yüzlük, 2=Dörtlük)
+const getNotSistemiLabel = (val, t) => {
+  const numVal = Number(val);
+  if (numVal === 1) return t("education.gradeSystem.hundred"); // Yüzlük Sistem
+  if (numVal === 2) return t("education.gradeSystem.four"); // Dörtlük Sistem
+  return String(val ?? t("common.dash"));
+};
 
 const EducationTable = forwardRef((props, ref) => {
   const { t } = useTranslation();
 
-  // --- 1. React Hook Form Entegrasyonu ---
+  // --- React Hook Form Entegrasyonu ---
   const { control, setValue } = useFormContext();
-
-  // Ana formdaki 'education' listesini dinliyoruz (rows artık buradan geliyor)
   const rows = useWatch({ control, name: "education" }) || [];
 
-  // --- 2. Modal State Yönetimi (Local) ---
+  // --- Modal State ---
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [selectedRow, setSelectedRow] = useState(null);
-  const [selectedIndex, setSelectedIndex] = useState(-1); // Düzenleme için index takibi
+  const [selectedIndex, setSelectedIndex] = useState(-1);
 
-  // --- 3. Yardımcı Fonksiyonlar ---
-  const notSistemaText = (val) =>
-    val === "100"
-      ? t("education.gradeSystem.hundred")
-      : val === "4"
-      ? t("education.gradeSystem.four")
-      : String(val ?? t("common.dash"));
-
-  // --- 4. CRUD İşlemleri (Ana Formu Günceller) ---
+  // --- CRUD İşlemleri ---
   const handleSave = (newData) => {
     const updatedList = [...rows, newData];
     setValue("education", updatedList, {
@@ -88,21 +111,16 @@ const EducationTable = forwardRef((props, ref) => {
   const openEdit = (row, index) => {
     setModalMode("edit");
     setSelectedRow(row);
-    setSelectedIndex(index); // Hangi satırın düzenlendiğini bilmek için
+    setSelectedIndex(index);
     setModalOpen(true);
   };
 
-  // --- 5. Dışarıya Açılan Metodlar ---
   useImperativeHandle(ref, () => ({
     openCreate,
-    // getData ve fillData artık gereksiz çünkü veri Context'te, ama
-    // eski kodun patlamaması için dummy fonksiyonlar bırakabiliriz veya silebiliriz.
-    // Şimdilik sadece openCreate yeterli.
   }));
 
   return (
     <div>
-      {/* Tablo sadece veri varsa görünür (Senin istediğin yapı) */}
       {rows.length !== 0 && (
         <div className="overflow-x-auto rounded-b-lg ring-1 ring-gray-200 bg-white">
           <table className="min-w-full text-sm table-fixed">
@@ -128,24 +146,34 @@ const EducationTable = forwardRef((props, ref) => {
             <tbody>
               {rows.map((r, idx) => (
                 <tr key={idx} className="bg-white border-t">
-                  <td className="px-4 py-3 truncate" title={r.seviye}>
-                    {r.seviye}
+                  {/* Burada ID'leri Label'a çeviriyoruz */}
+                  <td className="px-4 py-3 truncate">
+                    {getSeviyeLabel(r.seviye, t)}
                   </td>
+
                   <td className="px-4 py-3 truncate" title={r.okul}>
                     {r.okul}
                   </td>
                   <td className="px-4 py-3 truncate" title={r.bolum}>
                     {r.bolum}
                   </td>
+
+                  {/* Not Sistemi Çevirisi */}
                   <td className="px-4 py-3 truncate">
-                    {notSistemaText(r.notSistemi)}
+                    {getNotSistemiLabel(r.notSistemi, t)}
                   </td>
+
                   <td className="px-4 py-3 truncate">{r.gano}</td>
                   <td className="px-4 py-3 truncate">
                     {formatDate(r.baslangic)}
                   </td>
                   <td className="px-4 py-3 truncate">{formatDate(r.bitis)}</td>
-                  <td className="px-4 py-3 truncate">{r.diplomaDurum}</td>
+
+                  {/* Diploma Durumu Çevirisi */}
+                  <td className="px-4 py-3 truncate">
+                    {getDiplomaLabel(r.diplomaDurum, t)}
+                  </td>
+
                   <td className="px-4 py-3 text-right">
                     <div className="inline-flex items-center gap-2">
                       <button

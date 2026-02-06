@@ -33,6 +33,7 @@ namespace IsBasvuru.Domain.Entities.PersonelBilgileri
 
         public SecimDurumu EhliyetDurumu { get; set; }
 
+
         public required int Boy { get; set; }
 
         public required int Kilo { get; set; }

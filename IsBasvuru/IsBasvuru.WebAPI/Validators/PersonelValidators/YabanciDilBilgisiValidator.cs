@@ -7,9 +7,10 @@ namespace IsBasvuru.WebAPI.Validators.PersonelValidators
     {
         public YabanciDilBilgisiValidator()
         {
-            
-            RuleFor(x => x.DilId)
-                .GreaterThan(0).WithMessage("Lütfen bir dil seçiniz.");
+
+            RuleFor(x => x)
+                .Must(x => (x.DilId != null && x.DilId > 0) || !string.IsNullOrWhiteSpace(x.DigerDilAdi))
+                .WithMessage("Lütfen listeden bir dil seçiniz veya 'Diğer' alanına dil adını giriniz.");
 
             // --- SEVİYE KONTROLLERİ ---
             RuleFor(x => x.OkumaSeviyesi)

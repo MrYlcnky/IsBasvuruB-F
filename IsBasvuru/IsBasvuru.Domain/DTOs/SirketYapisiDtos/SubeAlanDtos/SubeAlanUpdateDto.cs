@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public int SubeId { get; set; }
-        public required string SubeAlanAdi { get; set; }
+        public int MasterAlanId { get; set; } 
         public bool SubeAlanAktifMi { get; set; }
     }
 }

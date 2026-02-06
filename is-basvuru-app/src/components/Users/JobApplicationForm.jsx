@@ -1,7 +1,6 @@
 import { useMemo, useRef, useState, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
 import {
   faUser,
   faGraduationCap,
@@ -22,16 +21,13 @@ import {
   faEnvelope,
   faTrashAlt,
 } from "@fortawesome/free-solid-svg-icons";
-
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { z } from "zod";
-
 import { useForm, FormProvider, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import { createMainApplicationSchema } from "../../schemas/mainApplicationSchema";
 import { createPersonalSchema } from "../../schemas/personalInfoSchema";
 import { createOtherInfoSchema } from "../../schemas/otherInfoSchema";
@@ -52,12 +48,10 @@ import { lockScroll } from "./modalHooks/scrollLock";
 import LanguageSwitcher from "../LanguageSwitcher";
 import { mockCVData } from "../../api/mockCVData";
 
-// ✅ persist kaldırıldı
-// import { useFormPersist } from "./modalHooks/useFormPersist";
-
 import { basvuruService } from "../../services/basvuruService";
 import { tanimlamaService } from "../../services/tanimlamalarService";
-import { objectToFormData } from "../../utils/objectToFormData"; // ✅ yolu projene göre düzelt
+import { objectToFormData } from "../../utils/objectToFormData";
+import { toISODate } from "./modalHooks/dateUtils";
 
 const MySwal = withReactContent(Swal);
 
@@ -90,25 +84,19 @@ const DEFAULT_VALUES = {
     dogumTarihi: "",
     cocukSayisi: "",
     foto: null,
-
-    // ✅ File
     VesikalikDosyasi: null,
-
-    // ✅ DTO (lokasyon/uyruk)
     DogumUlkeId: null,
     DogumUlkeAdi: "",
     DogumSehirId: null,
     DogumSehirAdi: "",
     DogumIlceId: null,
     DogumIlceAdi: "",
-
     IkametgahUlkeId: null,
     IkametgahUlkeAdi: "",
     IkametgahSehirId: null,
     IkametgahSehirAdi: "",
     IkametgahIlceId: null,
     IkametgahIlceAdi: "",
-
     UyrukId: null,
     UyrukAdi: "",
   },
@@ -127,7 +115,7 @@ const DEFAULT_VALUES = {
   },
   jobDetails: {
     subeler: [],
-    subealanlar: [],
+    alanlar: [],
     departmanlar: [],
     programlar: [],
     departmanPozisyonlari: [],
@@ -148,27 +136,22 @@ function normalizeLegacyPersonalToDto(p = {}) {
   return {
     ...p,
     VesikalikDosyasi: null,
-
     DogumUlkeId: p.DogumUlkeId ?? null,
     DogumUlkeAdi: safeStr(p.DogumUlkeAdi ?? p.dogumUlke ?? ""),
     DogumSehirId: p.DogumSehirId ?? null,
     DogumSehirAdi: safeStr(p.DogumSehirAdi ?? p.dogumSehir ?? ""),
     DogumIlceId: p.DogumIlceId ?? null,
     DogumIlceAdi: safeStr(p.DogumIlceAdi ?? p.dogumIlce ?? ""),
-
     IkametgahUlkeId: p.IkametgahUlkeId ?? null,
     IkametgahUlkeAdi: safeStr(p.IkametgahUlkeAdi ?? p.ikametUlke ?? ""),
     IkametgahSehirId: p.IkametgahSehirId ?? null,
     IkametgahSehirAdi: safeStr(p.IkametgahSehirAdi ?? p.ikametSehir ?? ""),
     IkametgahIlceId: p.IkametgahIlceId ?? null,
     IkametgahIlceAdi: safeStr(p.IkametgahIlceAdi ?? p.ikametIlce ?? ""),
-
     UyrukId: p.UyrukId ?? null,
     UyrukAdi: safeStr(p.UyrukAdi ?? p.uyruk ?? ""),
   };
 }
-
-/* ---------------- DTO mapping helpers ---------------- */
 
 const isNil = (v) => v === null || v === undefined;
 
@@ -194,41 +177,6 @@ const toIntOrNull = (v) => {
   return Number.isFinite(n) ? n : null;
 };
 
-const toIntOrZero = (v) => {
-  const n = Number(v);
-  return Number.isFinite(n) ? n : 0;
-};
-
-// Enum mapping: (gerekirse backend’e göre kesinleştiririz)
-const mapGenderEnum = (t, value) => {
-  const n = Number(value);
-  if (Number.isFinite(n)) return n;
-
-  const female = t("personal.options.gender.female");
-  const male = t("personal.options.gender.male");
-
-  if (value === female) return 0;
-  if (value === male) return 1;
-  return value ?? "";
-};
-
-const mapMaritalEnum = (t, value) => {
-  const n = Number(value);
-  if (Number.isFinite(n)) return n;
-
-  const single = t("personal.options.marital.single");
-  const married = t("personal.options.marital.married");
-  const divorced = t("personal.options.marital.divorced");
-  const widowed = t("personal.options.marital.widowed");
-
-  if (value === single) return 0;
-  if (value === married) return 1;
-  if (value === divorced) return 2;
-  if (value === widowed) return 3;
-
-  return value ?? "";
-};
-
 const mapArrayToIntList = (arr) => {
   if (!Array.isArray(arr)) return [];
   return arr
@@ -236,6 +184,13 @@ const mapArrayToIntList = (arr) => {
     .map((x) => (x === "" ? null : x))
     .map(toIntOrNull)
     .filter((x) => x !== null);
+};
+
+// ✅ ENUM GÜVENLİK FONKSİYONU
+const safeEnum = (val) => {
+  if (val === "" || val === null || val === undefined) return 0;
+  const n = Number(val);
+  return isNaN(n) ? 0 : n;
 };
 
 // RHF Data -> PersonelCreateDto Payload
@@ -246,29 +201,90 @@ function buildPersonelCreateDtoPayload(t, data, testMode = false) {
 
   const pickFirstId = (arr) => {
     const first = Array.isArray(arr) && arr.length ? arr[0] : null;
-
-    // Bazı listeler {id:1}, bazıları {value:1}, bazıları direkt 1 olabilir
     const v = first?.id ?? first?.value ?? first;
     const n = Number(v);
-
     return Number.isFinite(n) ? [n] : [];
   };
 
+  // 1. EĞİTİM
+  const educationList = (data.education || []).map((edu) => ({
+    EgitimSeviye: Number(edu.seviye),
+    OkulAdi: edu.okul,
+    Bolum: edu.bolum,
+    BaslangicTarihi: toYmd(edu.baslangic),
+    BitisTarihi: edu.bitis ? toYmd(edu.bitis) : null,
+    DiplomaDurum: Number(edu.diplomaDurum),
+    NotSistemi: Number(edu.notSistemi),
+    Gano: edu.gano ? Number(edu.gano) : null,
+  }));
+
+  // 2. SERTİFİKA
+  const certificateList = (data.certificates || []).map((cert) => ({
+    SertifikaAdi: cert.ad,
+    KurumAdi: cert.kurum,
+    Suresi: cert.sure,
+    VerilisTarihi: toYmd(cert.verilisTarihi),
+    GecerlilikTarihi: cert.gecerlilikTarihi
+      ? toYmd(cert.gecerlilikTarihi)
+      : null,
+  }));
+
+  // 3. BİLGİSAYAR
+  const computerList = (data.computer || []).map((comp) => ({
+    ProgramAdi: comp.programAdi,
+    Yetkinlik: Number(comp.yetkinlik),
+  }));
+
+  // 4. YABANCI DİL
+  const languageList = (data.languages || []).map((lang) => ({
+    DilId: lang.dilId,
+    DigerDilAdi: lang.digerDilAdi,
+    KonusmaSeviyesi: Number(lang.konusma),
+    YazmaSeviyesi: Number(lang.yazma),
+    OkumaSeviyesi: Number(lang.okuma),
+    DinlemeSeviyesi: Number(lang.dinleme),
+    NasilOgrenildi: lang.ogrenilenKurum,
+  }));
+
+  // 5. İŞ DENEYİMİ
+  const experienceList = (data.experience || []).map((exp) => ({
+    SirketAdi: exp.isAdi,
+    Departman: exp.departman,
+    Pozisyon: exp.pozisyon,
+    Gorev: exp.gorev,
+    Ucret: Number(exp.ucret),
+    BaslangicTarihi: toYmd(exp.baslangicTarihi),
+    BitisTarihi: exp.bitisTarihi ? toYmd(exp.bitisTarihi) : null,
+    AyrilisSebep: exp.ayrilisSebebi,
+    UlkeId: exp.ulkeId,
+    UlkeAdi: exp.ulkeAdi,
+    SehirId: exp.sehirId,
+    SehirAdi: exp.sehirAdi,
+  }));
+
+  // 6. REFERANS BİLGİSİ
+  const referenceList = (data.references || []).map((ref) => ({
+    CalistigiKurum: Number(ref.calistigiKurum),
+    ReferansAdi: ref.referansAdi,
+    ReferansSoyadi: ref.referansSoyadi,
+    IsYeri: ref.referansIsYeri,
+    Gorev: ref.referansGorevi,
+    ReferansTelefon: ref.referansTelefon,
+  }));
+
   const payload = {
-    // normalde seçilenler
+    // --- BAŞVURU DETAYLARI ---
     SubeIds: mapArrayToIntList(jd.subeler),
-    SubeAlanIds: mapArrayToIntList(jd.subealanlar),
+    SubeAlanIds: mapArrayToIntList(jd.alanlar),
     DepartmanIds: mapArrayToIntList(jd.departmanlar),
     DepartmanPozisyonIds: mapArrayToIntList(jd.departmanPozisyonlari),
     ProgramIds: mapArrayToIntList(jd.programlar),
     OyunIds: mapArrayToIntList(jd.kagitOyunlari),
     NedenBiz: jd.tercihNedeni ?? "",
 
-    // File (IFormFile)
     VesikalikDosyasi:
       p.VesikalikDosyasi instanceof File ? p.VesikalikDosyasi : null,
 
-    // ✅ KisiselBilgiler
     KisiselBilgiler: {
       Ad: p.ad ?? "",
       Soyadi: p.soyad ?? "",
@@ -277,94 +293,87 @@ function buildPersonelCreateDtoPayload(t, data, testMode = false) {
       TelefonWhatsapp: p.whatsapp ?? "",
       Adres: p.adres ?? "",
       DogumTarihi: toYmd(p.dogumTarihi),
-
-      Cinsiyet: mapGenderEnum(t, p.cinsiyet),
-      MedeniDurum: mapMaritalEnum(t, p.medeniDurum),
-
+      Cinsiyet: safeEnum(p.cinsiyet),
+      MedeniDurum: safeEnum(p.medeniDurum),
       CocukSayisi: p.cocukSayisi === "7+" ? 7 : toIntOrNull(p.cocukSayisi),
-
       VesikalikFotograf: "",
-
       DogumUlkeId: p.DogumUlkeId ?? null,
       DogumUlkeAdi: p.DogumUlkeAdi ?? "",
       DogumSehirId: p.DogumSehirId ?? null,
       DogumSehirAdi: p.DogumSehirAdi ?? "",
       DogumIlceId: p.DogumIlceId ?? null,
       DogumIlceAdi: p.DogumIlceAdi ?? "",
-
       IkametgahUlkeId: p.IkametgahUlkeId ?? null,
       IkametgahUlkeAdi: p.IkametgahUlkeAdi ?? "",
       IkametgahSehirId: p.IkametgahSehirId ?? null,
       IkametgahSehirAdi: p.IkametgahSehirAdi ?? "",
       IkametgahIlceId: p.IkametgahIlceId ?? null,
       IkametgahIlceAdi: p.IkametgahIlceAdi ?? "",
-
       UyrukId: p.UyrukId ?? null,
       UyrukAdi: p.UyrukAdi ?? "",
     },
 
-    // ✅ DigerKisiselBilgiler
     DigerKisiselBilgiler: {
-      KktcBelgeId: toIntOrZero(oi.kktcGecerliBelge),
-
-      DavaDurumu: oi.davaDurumu ?? "",
-      DavaNedeni: oi.davaNedeni ?? "",
-
-      SigaraKullanimi: oi.sigara ?? "",
-      AskerlikDurumu: oi.askerlik ?? "",
-
-      KaliciRahatsizlik: oi.kaliciRahatsizlik ?? "",
-      KaliciRahatsizlikAciklama: oi.rahatsizlikAciklama ?? "",
-
-      EhliyetDurumu: oi.ehliyet ?? "",
-
-      Boy: toIntOrZero(oi.boy),
-      Kilo: toIntOrZero(oi.kilo),
+      KktcBelgeId: safeEnum(oi.kktcGecerliBelge),
+      DavaDurumu: safeEnum(oi.davaDurumu),
+      DavaNedeni: oi.davaNedeni || null,
+      SigaraKullanimi: safeEnum(oi.sigara),
+      AskerlikDurumu: safeEnum(oi.askerlik),
+      KaliciRahatsizlik: safeEnum(oi.kaliciRahatsizlik),
+      KaliciRahatsizlikAciklama: oi.rahatsizlikAciklama || null,
+      EhliyetDurumu: safeEnum(oi.ehliyet),
+      Boy: Number(oi.boy) || 0,
+      Kilo: Number(oi.kilo) || 0,
     },
 
-    // testte boş geçebiliriz
-    EgitimBilgileri: [],
-    PersonelEhliyetler: [],
+    EgitimBilgileri: educationList,
+    SertifikaBilgileri: certificateList,
+    BilgisayarBilgileri: computerList,
+    YabanciDilBilgileri: languageList,
+    IsDeneyimleri: experienceList,
+    ReferansBilgileri: referenceList,
+
+    PersonelEhliyetler: (oi.ehliyetTurleri || []).map((id) => ({
+      EhliyetTuruId: Number(id),
+    })),
   };
 
-  // ✅ TEST MODE: required alanları boş bırakma
   if (testMode) {
     payload.SubeIds = payload.SubeIds.length
       ? payload.SubeIds
       : pickFirstId(data.__defs?.subeler);
-
-    // 👇 BURASI KRİTİK: Düzeltildi
     payload.SubeAlanIds = payload.SubeAlanIds.length
       ? payload.SubeAlanIds
       : pickFirstId(data.__defs?.subeAlanlar);
-
     payload.DepartmanIds = payload.DepartmanIds.length
       ? payload.DepartmanIds
       : pickFirstId(data.__defs?.departmanlar);
-
     payload.DepartmanPozisyonIds = payload.DepartmanPozisyonIds.length
       ? payload.DepartmanPozisyonIds
       : pickFirstId(data.__defs?.pozisyonlar);
-
     payload.ProgramIds = payload.ProgramIds.length
       ? payload.ProgramIds
       : pickFirstId(data.__defs?.programlar);
-
     payload.OyunIds = payload.OyunIds.length
       ? payload.OyunIds
       : pickFirstId(data.__defs?.kagitOyunlari);
 
-    // Boy/Kilo ve KKTC belge required
+    // Test verisi atamaları
     payload.DigerKisiselBilgiler.Boy = payload.DigerKisiselBilgiler.Boy || 170;
     payload.DigerKisiselBilgiler.Kilo = payload.DigerKisiselBilgiler.Kilo || 70;
     payload.DigerKisiselBilgiler.KktcBelgeId =
-      payload.DigerKisiselBilgiler.KktcBelgeId || 1;
+      payload.DigerKisiselBilgiler.KktcBelgeId ||
+      pickFirstId(data.__defs?.kktcBelgeler)[0] ||
+      1;
+
+    if (!payload.KisiselBilgiler.Cinsiyet) payload.KisiselBilgiler.Cinsiyet = 2; // Erkek
+    if (!payload.KisiselBilgiler.MedeniDurum)
+      payload.KisiselBilgiler.MedeniDurum = 1; // Bekar
   }
 
   return payload;
 }
 
-// FormData entries -> okunabilir liste
 function formDataEntriesToList(fd) {
   const rows = [];
   for (const [k, v] of fd.entries()) {
@@ -379,19 +388,15 @@ function formDataEntriesToList(fd) {
   return rows;
 }
 
-// sadece KisiselBilgiler.* ve VesikalikDosyasi filtre
 function filterPersonalFormDataRows(rows) {
   return rows.filter(
     (r) => r.key.startsWith("KisiselBilgiler.") || r.key === "VesikalikDosyasi",
   );
 }
 
-/* -------------------- Component -------------------- */
-
 export default function JobApplicationForm() {
   const { t } = useTranslation();
 
-  // ✅ Sayfa yenilenince formlar boş gelsin diye eski draft varsa temizle
   useEffect(() => {
     try {
       localStorage.removeItem("job_application_draft");
@@ -412,7 +417,7 @@ export default function JobApplicationForm() {
   const [emailError, setEmailError] = useState("");
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
 
-  // ✅ Definitions (DB) - İsimler düzenlendi
+  // ✅ TÜM LİSTELERİ TUTAN STATE
   const [definitionData, setDefinitionData] = useState({
     ulkeler: [],
     sehirler: [],
@@ -421,11 +426,12 @@ export default function JobApplicationForm() {
     departmanlar: [],
     pozisyonlar: [],
     subeler: [],
-    ehliyetler: [],
-    diller: [],
-    subeAlanlar: [], // 👈 DÜZELDİ
+    subeAlanlar: [],
     programlar: [],
     kagitOyunlari: [],
+    ehliyetler: [],
+    diller: [],
+    kktcBelgeler: [],
   });
 
   const safeCall = async (fn, ...args) => {
@@ -489,7 +495,6 @@ export default function JobApplicationForm() {
 
   const { handleSubmit, trigger, reset, control, getValues } = methods;
 
-  // ✅ definitions yüklenince personalı yeniden validate et
   useEffect(() => {
     const loadDefinitions = async () => {
       try {
@@ -503,9 +508,10 @@ export default function JobApplicationForm() {
           subeler,
           ehliyetler,
           diller,
-          subeAlanlar, // 👈 DÜZELDİ
+          subeAlanlar,
           programlar,
           kagitOyunlari,
+          kktcBelgeler,
         ] = await Promise.all([
           safeCall(tanimlamaService.getUlkeler),
           safeCall(tanimlamaService.getSehirler),
@@ -516,9 +522,10 @@ export default function JobApplicationForm() {
           safeCall(tanimlamaService.getSubeler),
           safeCall(tanimlamaService.getEhliyetTurleri),
           safeCall(tanimlamaService.getDiller),
-          safeCall(tanimlamaService.getSubeAlanlar), // Servisten çekiliyor
+          safeCall(tanimlamaService.getSubeAlanlar),
           safeCall(tanimlamaService.getProgramlar),
           safeCall(tanimlamaService.getOyunlar),
+          safeCall(tanimlamaService.getKktcBelgeler),
         ]);
 
         setDefinitionData({
@@ -531,13 +538,11 @@ export default function JobApplicationForm() {
           subeler,
           ehliyetler,
           diller,
-          subeAlanlar, // 👈 State'e atandı
+          subeAlanlar,
           programlar,
           kagitOyunlari,
+          kktcBelgeler,
         });
-
-        // ✅ ilçe listesi vs geç gelince personalOk yanlış yeşil kalmasın
-        // trigger("personal");
       } catch (error) {
         console.error("Tanımlamalar yüklenemedi:", error);
       }
@@ -562,7 +567,6 @@ export default function JobApplicationForm() {
     const educationOk =
       Array.isArray(educationData) && educationData.length > 0;
     const otherOk = createOtherInfoSchema(t).safeParse(otherInfoData).success;
-
     const jobDetailsOk = createJobDetailsSchema(t, departmentRoles).safeParse(
       jobDetailsData,
     ).success;
@@ -575,10 +579,7 @@ export default function JobApplicationForm() {
     jobDetailsData,
     t,
     departmentRoles,
-    definitionData.ulkeler,
-    definitionData.uyruklar,
-    definitionData.sehirler,
-    definitionData.ilceler,
+    definitionData,
   ]);
 
   const allRequiredOk =
@@ -720,212 +721,271 @@ export default function JobApplicationForm() {
     }
   };
 
-  /* -------------------- TEST: Personal -------------------- */
-
+  /* -------------------- TEST START -------------------- */
   const handleTestPersonal = async () => {
     const current = getValues();
     const dtoPayload = buildPersonelCreateDtoPayload(t, current);
     const fd = objectToFormData(dtoPayload);
-
     const rows = formDataEntriesToList(fd);
     const personalRows = filterPersonalFormDataRows(rows);
+    const personalText = personalRows
+      .map((r) => `${r.key} = ${r.value}`)
+      .join("\n");
 
-    console.log("🧾 [TEST] PersonelCreateDto payload:", dtoPayload);
-    console.log("🧾 [TEST] FormData ALL rows:", rows);
-    console.log("🧾 [TEST] FormData PERSONAL rows:", personalRows);
-    console.log("TEST SIRASINDAKİ subeAlanlar:", definitionData.subeAlanlar);
-    alert(definitionData.subeAlanlar);
+    // Eğitim
+    const educationList = current.education || [];
+    let educationText = "";
+    if (educationList.length === 0)
+      educationText = "⚠️ Henüz eğitim bilgisi eklenmedi.";
+    else {
+      educationList.forEach((item, index) => {
+        educationText += `\n--- [Eğitim #${index + 1}] ---\n`;
+        educationText += `Okul Adı      : ${item.okul}\n`;
+        educationText += `Bölüm         : ${item.bolum}\n`;
+        educationText += `Başlangıç     : ${toISODate(item.baslangic)}\n`;
+        educationText += `Bitiş         : ${item.bitis ? toISODate(item.bitis) : "Devam"}\n`;
+      });
+    }
+
+    // Sertifika
+    const certList = current.certificates || [];
+    let certText = "";
+    if (certList.length === 0)
+      certText = "⚠️ Henüz sertifika bilgisi eklenmedi.";
+    else {
+      certList.forEach((item, index) => {
+        certText += `\n--- [Sertifika #${index + 1}] ---\n`;
+        certText += `Ad            : ${item.ad}\n`;
+        certText += `Kurum         : ${item.kurum}\n`;
+      });
+    }
+
+    // Bilgisayar
+    const compList = current.computer || [];
+    let compText = "";
+    if (compList.length === 0) compText = "⚠️ Bilgisayar bilgisi yok.";
+    else {
+      compList.forEach((item, index) => {
+        compText += `\n--- [Bilgisayar #${index + 1}] ---\n`;
+        compText += `Program       : ${item.programAdi}\n`;
+      });
+    }
+
+    // Dil
+    const langList = current.languages || [];
+    let langText = "";
+    if (langList.length === 0) langText = "⚠️ Dil bilgisi yok.";
+    else {
+      langList.forEach((item, index) => {
+        langText += `\n--- [Dil #${index + 1}] ---\n`;
+        langText += `Dil ID        : ${item.dilId || "-"}\n`;
+        langText += `Diğer Dil     : ${item.digerDilAdi || "-"}\n`;
+      });
+    }
+
+    // İş Deneyimi
+    const expList = current.experience || [];
+    let expText = "";
+    if (expList.length === 0) expText = "⚠️ İş deneyimi yok.";
+    else {
+      expList.forEach((item, index) => {
+        expText += `\n--- [Deneyim #${index + 1}] ---\n`;
+        expText += `Şirket        : ${item.isAdi}\n`;
+        expText += `Pozisyon      : ${item.pozisyon}\n`;
+      });
+    }
+
+    // Referans
+    const refList = current.references || [];
+    let refText = "";
+    if (refList.length === 0) refText = "⚠️ Referans bilgisi yok.";
+    else {
+      refList.forEach((item, index) => {
+        refText += `\n--- [Referans #${index + 1}] ---\n`;
+        refText += `Ad Soyad      : ${item.referansAdi} ${item.referansSoyadi}\n`;
+      });
+    }
+
+    // ✅ Diğer Bilgiler Görsel Düzeltme (Boşsa - yazsın)
+    const oi = current.otherInfo || {};
+    const mapVarYok = (val) =>
+      val === "1" ? "Var" : val === "2" ? "Yok" : "-";
+    const mapEvetHayir = (val) =>
+      val === "1" ? "Evet" : val === "2" ? "Hayır" : "-";
+
+    let oiText = "";
+    oiText += `KKTC Belge ID : ${oi.kktcGecerliBelge || "-"}\n`;
+    oiText += `Dava Durumu   : ${mapVarYok(oi.davaDurumu)}\n`;
+    oiText += `Sigara        : ${mapEvetHayir(oi.sigara)}\n`;
+    oiText += `Ehliyet       : ${mapVarYok(oi.ehliyet)}\n`;
+    oiText += `Ehliyet Tür   : ${oi.ehliyetTurleri?.length ? oi.ehliyetTurleri.join(", ") : "-"}\n`;
+    oiText += `Boy           : ${oi.boy || "-"}\n`;
+    oiText += `Kilo          : ${oi.kilo || "-"}\n`;
+
+    // ✅ İş Başvuru Detayları (EKLENDİ)
+    const jd = current.jobDetails || {};
+    const getLabels = (arr) =>
+      Array.isArray(arr) && arr.length > 0
+        ? arr.map((x) => x.label).join(", ")
+        : "-";
+
+    let jobDetailsText = "";
+    jobDetailsText += `Şubeler        : ${getLabels(jd.subeler)}\n`;
+    jobDetailsText += `Alanlar        : ${getLabels(jd.alanlar)}\n`;
+    jobDetailsText += `Departmanlar   : ${getLabels(jd.departmanlar)}\n`;
+    jobDetailsText += `Pozisyonlar    : ${getLabels(jd.departmanPozisyonlari)}\n`;
+    jobDetailsText += `Programlar     : ${getLabels(jd.programlar)}\n`;
+    jobDetailsText += `Kağıt Oyunları : ${getLabels(jd.kagitOyunlari)}\n`;
+    jobDetailsText += `Lojman         : ${jd.lojman || "-"}\n`;
+    jobDetailsText += `Tercih Nedeni  : ${jd.tercihNedeni || "-"}\n`;
 
     await MySwal.fire({
       ...swalSkyConfig,
-      title: "TEST: Kişisel Bilgiler FormData",
+      width: "700px",
+      title: "✅ TEST: Veri Önizleme",
       html: `
-        <div style="text-align:left; font-size:12px; line-height:1.4;">
-          <p style="margin:0 0 8px 0; opacity:0.9;">
-            Aşağıdaki key'ler backend'de <b>KisiselBilgilerDto</b> olarak bind edilir.
-          </p>
-          <pre style="white-space:pre-wrap; word-break:break-word; background:#0b1220; padding:10px; border-radius:10px; border:1px solid #334155;">
-${personalRows.map((r) => `${r.key} = ${r.value}`).join("\n")}
-          </pre>
+        <div style="text-align:left; font-size:12px; line-height:1.4; max-height:65vh; overflow-y:auto;">
+          
+          <div style="margin-bottom: 15px;">
+            <h4 style="color:#38bdf8; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #334155; padding-bottom:3px;">
+              👤 Kişisel Bilgiler
+            </h4>
+            <pre style="white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#cbd5e1; padding:10px; border-radius:8px; border:1px solid #334155;">
+${personalText || "Kişisel bilgi verisi oluşmadı."}
+            </pre>
+          </div>
+
+          <div style="margin-bottom: 15px;">
+            <h4 style="color:#fbbf24; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #334155; padding-bottom:3px;">
+              🎓 Eğitim Bilgileri
+            </h4>
+            <pre style="white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#cbd5e1; padding:10px; border-radius:8px; border:1px solid #334155;">
+${educationText}
+            </pre>
+          </div>
+
+          <div style="margin-bottom: 15px;">
+            <h4 style="color:#a78bfa; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #334155; padding-bottom:3px;">
+              🏅 Sertifika Bilgileri
+            </h4>
+            <pre style="white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#cbd5e1; padding:10px; border-radius:8px; border:1px solid #334155;">
+${certText}
+            </pre>
+          </div>
+
+          <div style="margin-bottom: 15px;">
+            <h4 style="color:#f472b6; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #334155; padding-bottom:3px;">
+              💻 Bilgisayar Bilgileri
+            </h4>
+            <pre style="white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#cbd5e1; padding:10px; border-radius:8px; border:1px solid #334155;">
+${compText}
+            </pre>
+          </div>
+
+          <div style="margin-bottom: 15px;">
+            <h4 style="color:#34d399; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #334155; padding-bottom:3px;">
+              🗣️ Yabancı Dil Bilgileri
+            </h4>
+            <pre style="white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#cbd5e1; padding:10px; border-radius:8px; border:1px solid #334155;">
+${langText}
+            </pre>
+          </div>
+
+          <div style="margin-bottom: 15px;">
+            <h4 style="color:#f87171; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #334155; padding-bottom:3px;">
+              💼 İş Deneyimleri
+            </h4>
+            <pre style="white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#cbd5e1; padding:10px; border-radius:8px; border:1px solid #334155;">
+${expText}
+            </pre>
+          </div>
+
+          <div style="margin-bottom: 15px;">
+             <h4 style="color:#0ea5e9; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #334155; padding-bottom:3px;">
+               📋 İş Başvuru Detayları
+             </h4>
+             <pre style="white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#cbd5e1; padding:10px; border-radius:8px; border:1px solid #334155;">
+${jobDetailsText}
+             </pre>
+           </div>
+
+          <div>
+            <h4 style="color:#d8b4fe; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #334155; padding-bottom:3px;">
+              📞 Referans Bilgileri
+            </h4>
+            <pre style="white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#cbd5e1; padding:10px; border-radius:8px; border:1px solid #334155;">
+${refText}
+            </pre>
+          </div>
+
+          <div>
+            <h4 style="color:#94a3b8; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #334155; padding-bottom:3px;">
+              📋 Diğer Bilgiler
+            </h4>
+            <pre style="white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#cbd5e1; padding:10px; border-radius:8px; border:1px solid #334155;">
+${oiText}
+            </pre>
+          </div>
+
         </div>
       `,
       confirmButtonText: "Tamam",
     });
   };
+  /* -------------------- TEST END -------------------- */
 
-  //*********************************** */
-  /* -------------------- TEST: Personal -> API -------------------- */
   const handleTestPersonalToApi = async () => {
     try {
       const current = getValues();
+      const dtoPayload = buildPersonelCreateDtoPayload(t, current, false);
+      // NOT: Burada "testMode=false" gönderiyoruz ki sahte veri eklemesin
 
-      // 1. DTO Hazırla
-      const dataWithDefs = {
-        ...current,
-        __defs: {
-          subeler: definitionData.subeler,
-          subeAlanlar: definitionData.subeAlanlar, // 👈 DÜZELDİ
-          departmanlar: definitionData.departmanlar,
-          pozisyonlar: definitionData.pozisyonlar,
-          programlar: definitionData.programlar,
-          kagitOyunlari: definitionData.kagitOyunlari,
-        },
-      };
-
-      const dtoPayload = buildPersonelCreateDtoPayload(t, dataWithDefs, true);
       const formDataToSend = objectToFormData(dtoPayload);
+      const allRows = formDataEntriesToList(formDataToSend);
 
-      // ============================================================
-      // 🛠️ HELPER: ID Bulucu (Varsa listeden ilkini al, yoksa 1 salla)
-      // ============================================================
-      const getValidId = (listName) => {
-        const list = definitionData[listName]; // subeler, subeAlanlar vb.
-        if (Array.isArray(list) && list.length > 0) {
-          // id veya value kontrolü (backend response yapısına göre)
-          const item = list[0];
-          return String(item.id ?? item.value ?? 1);
-        }
-        return "1"; // Liste boşsa mecburen 1 gönderiyoruz (DB boşsa hata alabilirsin)
-      };
-
-      // ============================================================
-      // ⚠️ VALIDATION BYPASS (GARANTİ GEÇİŞ AYARLARI)
-      // ============================================================
-
-      // 1. ZORUNLU LİSTELERİ DOLDUR (Geçerli ID ile)
-      if (!formDataToSend.has("SubeIds[0]"))
-        formDataToSend.append("SubeIds[0]", getValidId("subeler"));
-      if (!formDataToSend.has("SubeAlanIds[0]"))
-        formDataToSend.append("SubeAlanIds[0]", getValidId("subeAlanlar")); // 👈 DÜZELDİ
-      if (!formDataToSend.has("DepartmanIds[0]"))
-        formDataToSend.append("DepartmanIds[0]", getValidId("departmanlar"));
-      if (!formDataToSend.has("DepartmanPozisyonIds[0]"))
-        formDataToSend.append(
-          "DepartmanPozisyonIds[0]",
-          getValidId("pozisyonlar"),
-        );
-      if (!formDataToSend.has("ProgramIds[0]"))
-        formDataToSend.append("ProgramIds[0]", getValidId("programlar"));
-      if (!formDataToSend.has("OyunIds[0]"))
-        formDataToSend.append("OyunIds[0]", getValidId("kagitOyunlari"));
-
-      // 2. DİĞER KİŞİSEL BİLGİLER (Enum Düzeltildi)
-      // SecimDurumu Enum: 1=Hayır(Yok), 2=Evet(Var)
-
-      const YOK = "1"; // ✅ ARTIK DOĞRU (Hayır)
-      const YAPILDI = "1"; // Askerlik (Yapıldı varsayalım)
-
-      // KktcBelgeId (Varsa listeden al)
-      if (!formDataToSend.has("DigerKisiselBilgiler.KktcBelgeId"))
-        formDataToSend.append("DigerKisiselBilgiler.KktcBelgeId", "1");
-
-      // Dava Durumu: 1 (Yok) -> Neden sormaz
-      formDataToSend.set("DigerKisiselBilgiler.DavaDurumu", YOK);
-      formDataToSend.set("DigerKisiselBilgiler.DavaNedeni", "");
-
-      // Rahatsızlık: 1 (Yok) -> Açıklama sormaz
-      formDataToSend.set("DigerKisiselBilgiler.KaliciRahatsizlik", YOK);
-      formDataToSend.set("DigerKisiselBilgiler.KaliciRahatsizlikAciklama", "");
-
-      // Ehliyet: 1 (Yok) -> Liste sormaz
-      formDataToSend.set("DigerKisiselBilgiler.EhliyetDurumu", YOK);
-
-      // Sigara: 1 (Yok)
-      formDataToSend.set("DigerKisiselBilgiler.SigaraKullanimi", YOK);
-
-      // Askerlik
-      formDataToSend.set("DigerKisiselBilgiler.AskerlikDurumu", YAPILDI);
-
-      // Boy & Kilo
-      if (
-        !formDataToSend.has("DigerKisiselBilgiler.Boy") ||
-        formDataToSend.get("DigerKisiselBilgiler.Boy") == "0" ||
-        formDataToSend.get("DigerKisiselBilgiler.Boy") == ""
-      ) {
-        formDataToSend.set("DigerKisiselBilgiler.Boy", "175");
-      }
-      if (
-        !formDataToSend.has("DigerKisiselBilgiler.Kilo") ||
-        formDataToSend.get("DigerKisiselBilgiler.Kilo") == "0" ||
-        formDataToSend.get("DigerKisiselBilgiler.Kilo") == ""
-      ) {
-        formDataToSend.set("DigerKisiselBilgiler.Kilo", "75");
-      }
-
-      // ============================================================
-
-      console.table(
-        filterPersonalFormDataRows(formDataEntriesToList(formDataToSend)),
+      // Sadece dolu olan alanları göster (Temiz görüntü için)
+      const relevantRows = allRows.filter(
+        (r) => r.value !== "" && r.value !== "0" && r.value !== "null",
       );
+
+      console.table(allRows);
 
       const res = await basvuruService.testPersonal(formDataToSend);
 
       await MySwal.fire({
         ...swalSkyConfig,
         title: "✅ TEST API Başarılı",
-        html: `<pre style="text-align:left; white-space:pre-wrap; word-break:break-word; background:#0b1220; padding:10px; border-radius:10px; border:1px solid #334155;">
+        width: "700px",
+        html: `
+          <div style="text-align:left; font-size:12px;">
+            <p style="color:#4ade80; font-weight:bold; margin-bottom:10px;">
+              Veriler Backend'e ulaştı! Aşağıda GÖNDERİLEN form datayı görebilirsin:
+            </p>
+            
+            <h4 style="color:#fbbf24; border-bottom:1px solid #334155; margin-bottom:5px;">📦 Gönderilen FormData (Sadece Dolu Alanlar)</h4>
+            <pre style="white-space:pre-wrap; background:#0f172a; padding:10px; border-radius:8px; border:1px solid #334155; max-height:200px; overflow:auto;">
+${relevantRows.length > 0 ? relevantRows.map((r) => `${r.key} = ${r.value}`).join("\n") : "⚠️ Hiçbir veri gönderilmedi (Form boş)"}
+            </pre>
+
+            <h4 style="color:#38bdf8; border-bottom:1px solid #334155; margin:10px 0 5px 0;">📩 API Cevabı</h4>
+            <pre style="white-space:pre-wrap; background:#0f172a; padding:10px; border-radius:8px; border:1px solid #334155;">
 ${JSON.stringify(res?.data ?? res, null, 2)}
-</pre>`,
+            </pre>
+          </div>
+        `,
       });
     } catch (e) {
       console.error("❌ TEST API Hatası:", e);
-      const msg =
-        e?.response?.data?.message ||
-        e?.response?.data ||
-        e?.message ||
-        "Bilinmeyen hata";
-      const detailedErrors = e?.response?.data?.errors
-        ? JSON.stringify(e.response.data.errors, null, 2)
-        : "";
-
+      const msg = e?.response?.data?.message || e?.message || "Hata";
       await MySwal.fire({
         ...swalSkyConfig,
         icon: "error",
         title: "❌ TEST API Hatası",
-        html: `<pre style="text-align:left; white-space:pre-wrap; word-break:break-word; background:#0b1220; padding:10px; border-radius:10px; border:1px solid #334155;">
-${JSON.stringify(msg, null, 2)}
-<br/>
-${detailedErrors}
-</pre>`,
+        text: JSON.stringify(msg),
       });
     }
   };
-  //------------------------test db----------
-  const handleTestPersonalDb = async () => {
-    try {
-      const current = getValues(); // RHF formun tamamı
-      const dtoPayload = buildPersonelCreateDtoPayload(t, current);
-      const fd = objectToFormData(dtoPayload);
 
-      const res = await basvuruService.testPersonal(fd);
-
-      await MySwal.fire({
-        ...swalSkyConfig,
-        icon: res?.ok ? "success" : "error",
-        title: "TEST: Personal DB Insert",
-        html: `
-        <div style="text-align:left; font-size:12px; line-height:1.4;">
-          <p><b>ok:</b> ${String(res?.ok)}</p>
-          <p><b>message:</b> ${res?.message ?? "-"}</p>
-          <p><b>createdId:</b> ${res?.createdId ?? "-"}</p>
-          <p><b>hasFile:</b> ${String(res?.hasFile)}</p>
-          <hr style="opacity:0.2; margin:10px 0;" />
-          <pre style="white-space:pre-wrap; word-break:break-word; background:#0b1220; padding:10px; border-radius:10px; border:1px solid #334155;">
-${JSON.stringify(res, null, 2)}
-          </pre>
-        </div>
-      `,
-        confirmButtonText: "Tamam",
-      });
-    } catch (e) {
-      console.error(e);
-      toast.error("TestPersonal çağrısında hata oluştu.", { theme: "dark" });
-    }
-  };
-
-  //------------------------test db----------
-
-  // ✅ SUBMIT
   const handleFormSubmit = async (data) => {
     console.log("✅ Form Data (RHF):", data);
 
@@ -950,8 +1010,6 @@ ${JSON.stringify(res, null, 2)}
       if (otpCode === "1234") {
         const dtoPayload = buildPersonelCreateDtoPayload(t, data);
         const formDataToSend = objectToFormData(dtoPayload);
-
-        // ✅ FormData'yı okunabilir listeye çevir (tüm submit)
         const rows = formDataEntriesToList(formDataToSend);
 
         const preview = await MySwal.fire({
@@ -1001,7 +1059,6 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
   };
 
   return (
-    // ✅ schema değişince FormProvider key değişir -> resolver/dil değişimlerinde en stabil çözüm
     <FormProvider
       {...methods}
       key={t("langKey", { defaultValue: "" }) + JSON.stringify(departmentRoles)}
@@ -1205,13 +1262,7 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
           >
             ✅ TEST: Kişisel Bilgiler Nasıl Gidiyor?
           </button>
-          <button
-            type="button"
-            onClick={handleTestPersonalDb}
-            className="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-md transition-all active:scale-95"
-          >
-            🧪 TEST: Personal DB'ye gidiyor mu?
-          </button>
+
           <button
             type="button"
             onClick={handleTestPersonalToApi}
@@ -1285,7 +1336,7 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
             content={
               <LanguageTable
                 ref={languageTableRef}
-                definitions={definitionData}
+                definitions={definitionData} // ✅ Definitions Prop'u gönderildi
               />
             }
           />
@@ -1296,7 +1347,12 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
             onAdd={onAddWithScrollLock(() =>
               jobExperiencesTableRef.current?.openCreate(),
             )}
-            content={<JobExperiencesTable ref={jobExperiencesTableRef} />}
+            content={
+              <JobExperiencesTable
+                ref={jobExperiencesTableRef}
+                definitions={definitionData}
+              />
+            }
           />
 
           <Section
@@ -1314,7 +1370,7 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
             title={t("sections.other")}
             required
             content={
-              <OtherPersonalInformationTable definitions={definitionData} />
+              <OtherPersonalInformationTable definitions={definitionData} /> // ✅ Prop
             }
           />
 

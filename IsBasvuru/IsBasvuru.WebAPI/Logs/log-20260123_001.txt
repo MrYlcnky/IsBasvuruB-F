@@ -1,8 +1,0 @@
-2026-01-23 11:47:51.550 +02:00 [WRN] The WebRootPath was not found: \\172.16.0.27\Casino\It\Kişisel\MehmetYalcinkaya\MehmetYalcinkaya\Udemy\Proje\React\IsBasvuru\IsBasvuru.WebAPI\wwwroot. Static files may be unavailable.
-2026-01-23 11:47:51.752 +02:00 [WRN] The ASP.NET Core developer certificate is not trusted. For information about trusting the ASP.NET Core developer certificate, see https://aka.ms/aspnet/https-trust-dev-cert.
-2026-01-23 11:47:51.838 +02:00 [INF] Now listening on: https://localhost:7000
-2026-01-23 11:47:51.842 +02:00 [INF] Now listening on: http://localhost:5054
-2026-01-23 11:47:51.975 +02:00 [INF] Application started. Press Ctrl+C to shut down.
-2026-01-23 11:47:51.986 +02:00 [INF] Hosting environment: Development
-2026-01-23 11:47:51.990 +02:00 [INF] Content root path: \\172.16.0.27\Casino\It\Kişisel\MehmetYalcinkaya\MehmetYalcinkaya\Udemy\Proje\React\IsBasvuru\IsBasvuru.WebAPI
-2026-01-23 12:56:26.188 +02:00 [INF] Uygulama başlatılıyor...

@@ -6,29 +6,43 @@ export const createOtherInfoSchema = (t) => {
     required_error: t(`otherInfo.errors.${key}`),
   });
 
-  // Yardımcı Fonksiyon: Metin tabanlı sayı validasyonu (Garanti Yöntem)
-  const stringToNumberSchema = (requiredMsg, invalidMsg, intMsg, min, minMsg, max, maxMsg) => {
-    return z.string()
-      .or(z.number()) // Hem string hem sayı gelebilir
-      .transform((val) => String(val).trim()) // String'e çevir ve boşlukları temizle
-      .refine((val) => val !== "", { message: requiredMsg }) // 1. KONTROL: Boş mu? -> Zorunlu hatası ver
-      .transform((val) => Number(val)) // Sayıya çevir
-      .refine((val) => !isNaN(val), { message: invalidMsg }) // 2. KONTROL: Sayı mı? -> Sayı olmalı hatası ver
-      .refine((val) => Number.isInteger(val), { message: intMsg }) // 3. KONTROL: Tam sayı mı?
-      .refine((val) => val >= min, { message: minMsg }) // 4. KONTROL: Minimum
-      .refine((val) => val <= max, { message: maxMsg }); // 5. KONTROL: Maksimum
+  const stringToNumberSchema = (
+    min,
+    max,
+    minMsg,
+    maxMsg,
+    intMsg,
+    invalidMsg,
+  ) => {
+    return z
+      .string()
+      .or(z.number())
+      .transform((val) => String(val).trim())
+      .refine((val) => val !== "", { message: invalidMsg })
+      .transform((val) => Number(val))
+      .refine((val) => !isNaN(val), { message: invalidMsg })
+      .refine((val) => Number.isInteger(val), { message: intMsg })
+      .refine((val) => val >= min, { message: minMsg })
+      .refine((val) => val <= max, { message: maxMsg });
   };
 
   return z
     .object({
-      kktcGecerliBelge: z.string(reqMsg("kktcDoc")).min(1, t("otherInfo.errors.kktcDoc")),
-      davaDurumu: z.string(reqMsg("lawsuit")).min(1, t("otherInfo.errors.lawsuit")),
+      kktcGecerliBelge: z
+        .string(reqMsg("kktcDoc"))
+        .min(1, t("otherInfo.errors.kktcDoc")),
+
+      davaDurumu: z
+        .string(reqMsg("lawsuit"))
+        .min(1, t("otherInfo.errors.lawsuit")),
       davaNedeni: z
         .string()
         .trim()
         .max(250, t("otherInfo.errors.lawsuitReason"))
         .optional(),
+
       sigara: z.string(reqMsg("smoke")).min(1, t("otherInfo.errors.smoke")),
+
       kaliciRahatsizlik: z
         .string(reqMsg("permanentDisease"))
         .min(1, t("otherInfo.errors.permanentDisease")),
@@ -37,34 +51,39 @@ export const createOtherInfoSchema = (t) => {
         .trim()
         .max(250, t("otherInfo.errors.diseaseDesc"))
         .optional(),
-      ehliyet: z.string(reqMsg("license")).min(1, t("otherInfo.errors.license")),
+
+      ehliyet: z
+        .string(reqMsg("license"))
+        .min(1, t("otherInfo.errors.license")),
       ehliyetTurleri: z.array(z.string()).optional().default([]),
-      askerlik: z.string(reqMsg("military")).min(1, t("otherInfo.errors.military")),
-      
-      // --- BOY (Özel Validasyon Zinciri) ---
+
+      askerlik: z
+        .string(reqMsg("military"))
+        .min(1, t("otherInfo.errors.military")),
+
       boy: stringToNumberSchema(
-        t("otherInfo.errors.heightNum"), // Boşsa bu mesaj (Sayı olmalı)
-        t("otherInfo.errors.heightNum"), // Geçersizse bu mesaj (Sayı olmalı)
-        t("otherInfo.errors.heightInt"), // Tam sayı değilse
-        50, t("otherInfo.errors.heightMin"), // Min 50
-        250, t("otherInfo.errors.heightMax") // Max 250
+        50,
+        250,
+        t("otherInfo.errors.heightMin"),
+        t("otherInfo.errors.heightMax"),
+        t("otherInfo.errors.heightInt"),
+        t("otherInfo.errors.heightNum"),
       ),
-      
-      // --- KİLO (Özel Validasyon Zinciri) ---
+
       kilo: stringToNumberSchema(
-        t("otherInfo.errors.weightNum"),
-        t("otherInfo.errors.weightNum"),
+        30,
+        300,
+        t("otherInfo.errors.weightMin"),
+        t("otherInfo.errors.weightMax"),
         t("otherInfo.errors.weightInt"),
-        20, t("otherInfo.errors.weightMin"), // Min 20
-        300, t("otherInfo.errors.weightMax") // Max 300
+        t("otherInfo.errors.weightNum"),
       ),
     })
     .superRefine((data, ctx) => {
-      // Koşullu Validasyonlar (Eskisi gibi)
-      const isPositive = (val) =>
-        ["evet", "yes", "var", "have"].includes(String(val || "").toLowerCase());
-
-      if (isPositive(data.davaDurumu) && (!data.davaNedeni || data.davaNedeni.trim().length < 3)) {
+      if (
+        String(data.davaDurumu) === "1" &&
+        (!data.davaNedeni || data.davaNedeni.trim().length < 3)
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["davaNedeni"],
@@ -73,8 +92,9 @@ export const createOtherInfoSchema = (t) => {
       }
 
       if (
-        isPositive(data.kaliciRahatsizlik) &&
-        (!data.rahatsizlikAciklama || data.rahatsizlikAciklama.trim().length < 5)
+        String(data.kaliciRahatsizlik) === "1" &&
+        (!data.rahatsizlikAciklama ||
+          data.rahatsizlikAciklama.trim().length < 3)
       ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -83,7 +103,10 @@ export const createOtherInfoSchema = (t) => {
         });
       }
 
-      if (isPositive(data.ehliyet) && (!data.ehliyetTurleri || data.ehliyetTurleri.length < 1)) {
+      if (
+        String(data.ehliyet) === "1" &&
+        (!data.ehliyetTurleri || data.ehliyetTurleri.length === 0)
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["ehliyetTurleri"],

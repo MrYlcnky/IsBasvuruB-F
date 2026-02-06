@@ -8,11 +8,11 @@ namespace IsBasvuru.WebAPI.Validators.SirketYapisiValidators
         public DepartmanPozisyonCreateValidator()
         {
             // Bir pozisyon mutlaka bir departmana bağlı olmalıdır
-            RuleFor(x => x.DepartmanId).GreaterThan(0).WithMessage("Bağlı olunacak departman seçilmelidir.");
+            RuleFor(x => x.DepartmanId)
+                .GreaterThan(0).WithMessage("Bağlı olunacak departman seçilmelidir.");
 
-            RuleFor(x => x.DepartmanPozisyonAdi)
-                .NotEmpty().WithMessage("Pozisyon adı boş geçilemez.")
-                .MaximumLength(100).WithMessage("Pozisyon adı en fazla 100 karakter olabilir.");
+            RuleFor(x => x.MasterPozisyonId)
+                .GreaterThan(0).WithMessage("Lütfen listeden bir pozisyon seçiniz.");
         }
     }
 
@@ -20,13 +20,14 @@ namespace IsBasvuru.WebAPI.Validators.SirketYapisiValidators
     {
         public DepartmanPozisyonUpdateValidator()
         {
-            RuleFor(x => x.Id).GreaterThan(0).WithMessage("Geçersiz ID.");
+            RuleFor(x => x.Id)
+                .GreaterThan(0).WithMessage("Geçersiz ID.");
 
-            RuleFor(x => x.DepartmanId).GreaterThan(0).WithMessage("Bağlı olunacak departman seçilmelidir.");
+            RuleFor(x => x.DepartmanId)
+                .GreaterThan(0).WithMessage("Bağlı olunacak departman seçilmelidir.");
 
-            RuleFor(x => x.DepartmanPozisyonAdi)
-                .NotEmpty().WithMessage("Pozisyon adı boş geçilemez.")
-                .MaximumLength(100).WithMessage("Pozisyon adı en fazla 100 karakter olabilir.");
+            RuleFor(x => x.MasterPozisyonId)
+                .GreaterThan(0).WithMessage("Lütfen listeden bir pozisyon seçiniz.");
         }
     }
 }

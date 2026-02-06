@@ -1,5 +1,5 @@
 import { useState, forwardRef, useImperativeHandle } from "react";
-import { useFormContext, useWatch } from "react-hook-form"; // Hook Form entegrasyonu
+import { useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -9,15 +9,23 @@ import "react-toastify/dist/ReactToastify.css";
 
 import ComputerInformationAddModal from "../addModals/ComputerInformationAddModal";
 
+// ✅ YENİ: ID -> Text Çevirici Helper
+const getYetkinlikLabel = (val, t) => {
+  const map = {
+    1: t("computer.levels.veryPoor"),
+    2: t("computer.levels.poor"),
+    3: t("computer.levels.medium"),
+    4: t("computer.levels.good"),
+    5: t("computer.levels.veryGood"),
+  };
+  return map[Number(val)] || val; // Eşleşme yoksa (belirtilmemişse) olduğu gibi dön
+};
+
 const ComputerInformationTable = forwardRef((props, ref) => {
   const { t } = useTranslation();
-
-  // --- 1. Context Bağlantısı ---
   const { control, setValue } = useFormContext();
-  // Ana formdaki 'computer' listesini izle
   const rows = useWatch({ control, name: "computer" }) || [];
 
-  // --- 2. Local Modal State ---
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [selectedRow, setSelectedRow] = useState(null);
@@ -25,7 +33,6 @@ const ComputerInformationTable = forwardRef((props, ref) => {
 
   const notify = (msg) => toast.success(msg);
 
-  // --- 3. Actions ---
   const openCreate = () => {
     setModalMode("create");
     setSelectedRow(null);
@@ -40,8 +47,6 @@ const ComputerInformationTable = forwardRef((props, ref) => {
     setModalOpen(true);
   };
 
-  const closeModal = () => setModalOpen(false);
-
   const handleSave = (newData) => {
     const updatedList = [...rows, newData];
     setValue("computer", updatedList, {
@@ -49,7 +54,7 @@ const ComputerInformationTable = forwardRef((props, ref) => {
       shouldValidate: true,
     });
     notify(t("toast.saved"));
-    closeModal();
+    setModalOpen(false);
   };
 
   const handleUpdate = (updatedData) => {
@@ -62,7 +67,7 @@ const ComputerInformationTable = forwardRef((props, ref) => {
       });
       notify(t("toast.updated"));
     }
-    closeModal();
+    setModalOpen(false);
   };
 
   const handleDelete = async (row, index) => {
@@ -86,16 +91,7 @@ const ComputerInformationTable = forwardRef((props, ref) => {
     }
   };
 
-  // --- 4. Expose Methods ---
-  useImperativeHandle(ref, () => ({
-    openCreate,
-    getData: () => rows,
-    fillData: (data) => {
-      if (Array.isArray(data)) {
-        setValue("computer", data);
-      }
-    },
-  }));
+  useImperativeHandle(ref, () => ({ openCreate }));
 
   return (
     <div>
@@ -115,22 +111,21 @@ const ComputerInformationTable = forwardRef((props, ref) => {
               {rows.map((item, idx) => (
                 <tr key={idx} className="bg-white border-t table-fixed">
                   <td
-                    className="px-4 py-3 font-medium text-gray-800 max-w-[140px] truncate"
+                    className="px-4 py-3 font-medium text-gray-800 max-w-35 truncate"
                     title={item.programAdi}
                   >
                     {item.programAdi}
                   </td>
-                  <td
-                    className="px-4 py-3 text-gray-800 max-w-[120px] truncate"
-                    title={item.yetkinlik}
-                  >
-                    {item.yetkinlik}
+
+                  {/* ✅ GÜNCELLEME: ID yerine Label gösteriyoruz */}
+                  <td className="px-4 py-3 text-gray-800 max-w-30 truncate">
+                    {getYetkinlikLabel(item.yetkinlik, t)}
                   </td>
+
                   <td className="px-4 py-3 text-right">
                     <div className="inline-flex items-center gap-2">
                       <button
-                        type="button" // Sayfa yenilenmesini önler
-                        aria-label={t("actions.update")}
+                        type="button"
                         title={t("actions.update")}
                         onClick={() => openEdit(item, idx)}
                         className="inline-flex items-center gap-1 rounded-md border border-gray-200 px-2 py-1 text-sm hover:bg-gray-50 active:scale-[0.98] transition cursor-pointer"
@@ -138,8 +133,7 @@ const ComputerInformationTable = forwardRef((props, ref) => {
                         <FontAwesomeIcon icon={faPen} />
                       </button>
                       <button
-                        type="button" // Sayfa yenilenmesini önler
-                        aria-label={t("actions.delete")}
+                        type="button"
                         title={t("actions.delete")}
                         onClick={() => handleDelete(item, idx)}
                         className="inline-flex items-center gap-1 rounded-md bg-red-600 px-2 py-1 text-sm text-white hover:bg-red-700 active:scale-[0.98] transition cursor-pointer"
@@ -159,7 +153,7 @@ const ComputerInformationTable = forwardRef((props, ref) => {
         open={modalOpen}
         mode={modalMode}
         initialData={selectedRow}
-        onClose={closeModal}
+        onClose={() => setModalOpen(false)}
         onSave={handleSave}
         onUpdate={handleUpdate}
       />

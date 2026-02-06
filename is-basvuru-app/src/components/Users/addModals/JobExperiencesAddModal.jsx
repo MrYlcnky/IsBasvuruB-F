@@ -2,8 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import useModalDismiss from "../modalHooks/useModalDismiss";
-import { createJobExpSchema } from "../../../schemas/jobExperienceSchema"; // Şema importu
-import SearchSelect from "../Selected/SearchSelect";
+import { createJobExpSchema } from "../../../schemas/jobExperienceSchema";
 import MuiDateStringField from "../Date/MuiDateStringField";
 import { lockScroll, unlockScroll } from "../modalHooks/scrollLock";
 import {
@@ -14,37 +13,19 @@ import {
 } from "../modalHooks/dateUtils";
 import { useTranslation } from "react-i18next";
 
-/* -------------------- Ülke / İl seçenekleri -------------------- */
-const TR_IL_ILCE = {
-  İstanbul: ["Kadıköy", "Üsküdar", "Beşiktaş", "Bakırköy", "Sarıyer"],
-  Ankara: ["Çankaya", "Keçiören", "Yenimahalle", "Mamak", "Sincan"],
-  İzmir: ["Konak", "Karşıyaka", "Bornova", "Buca", "Bayraklı"],
-  Çorum: ["Merkez", "Sungurlu", "Osmancık", "İskilip", "Uğurludağ"],
-  Kayseri: ["Kocasinan", "Melikgazi", "Talas", "Develi", "İncesu"],
-  Antalya: ["Muratpaşa", "Kepez", "Konyaaltı", "Alanya", "Manavgat"],
-};
+/* -------------------- ORTAK SINIFLAR -------------------- */
+// Temel stil
+const FIELD_BASE_CLASSES =
+  "w-full border rounded-lg px-3 py-2 focus:outline-none border-gray-300 hover:border-black focus:border-black transition h-[42px]";
 
-const COUNTRY_OPTIONS = [
-  "Türkiye",
-  "Türkmenistan",
-  "Pakistan",
-  "Azerbaycan",
-  "Kazakistan",
-  "Kırgızistan",
-  "Özbekistan",
-  "Kuzey Kıbrıs (KKTC)",
-  "Bangladeş",
-  "Rusya",
-  "Diğer",
-];
+// Aktif Input Stili (Beyaz)
+const FIELD_ACTIVE = `${FIELD_BASE_CLASSES} bg-white text-gray-900`;
+
+// Pasif Input Stili (Gri - Disable olduğu belli olsun)
+const FIELD_DISABLED = `${FIELD_BASE_CLASSES} bg-gray-200 text-gray-500 cursor-not-allowed border-gray-200`;
 
 const onlyLettersTR = (s) => s.replace(/[^a-zA-ZığüşöçİĞÜŞÖÇ\s]/g, "");
 
-/* -------------------- ORTAK SINIF -------------------- */
-const FIELD_BASE =
-  "w-full border rounded-lg px-3 py-2 bg-white text-gray-900 focus:outline-none border-gray-300 hover:border-black";
-
-/* -------------------- COMPONENT -------------------- */
 export default function JobExperiencesAddModal({
   open,
   mode = "create",
@@ -53,14 +34,17 @@ export default function JobExperiencesAddModal({
   onSave,
   onUpdate,
   anotherActiveExists = false,
+  definitions = {},
 }) {
   const { t } = useTranslation();
   const dialogRef = useRef(null);
 
-  // Şemayı burada oluşturuyoruz (Eski makeSchema yerine)
+  const countryOtherRef = useRef(null);
+  const cityOtherRef = useRef(null);
+
   const schema = useMemo(
     () => createJobExpSchema(t, anotherActiveExists),
-    [t, anotherActiveExists]
+    [t, anotherActiveExists],
   );
 
   const [formData, setFormData] = useState({
@@ -72,83 +56,25 @@ export default function JobExperiencesAddModal({
     baslangicTarihi: "",
     bitisTarihi: "",
     ayrilisSebebi: "",
-    isUlke: "",
-    isSehir: "",
     halenCalisiyor: false,
+
+    // Seçim State'leri
+    ulkeSelect: "",
+    ulkeOther: "",
+    sehirSelect: "",
+    sehirOther: "",
   });
 
-  const [touched, setTouched] = useState({});
-  const touch = (name) =>
-    setTouched((p) => (p[name] ? p : { ...p, [name]: true }));
-
-  /* --------- Ülke/Şehir --------- */
-  const [jobCountry, setJobCountry] = useState("");
-  const [jobCountryOther, setJobCountryOther] = useState("");
-  const [jobProvince, setJobProvince] = useState("");
-  const [jobPlaceOther, setJobPlaceOther] = useState("");
-
-  const countryOptions = [
-    { value: "", label: t("common.pleaseSelect") },
-  ].concat(COUNTRY_OPTIONS.map((c) => ({ value: c, label: c })));
-  const ilOptions = [
-    { value: "", label: t("jobExp.labels.selectProvince") },
-  ].concat(Object.keys(TR_IL_ILCE).map((il) => ({ value: il, label: il })));
-
   const [errors, setErrors] = useState({});
-  const [disabledTip, setDisabledTip] = useState("");
+  const [touched, setTouched] = useState({});
+
+  const [activeCities, setActiveCities] = useState([]);
+  const [isCitySelectMode, setIsCitySelectMode] = useState(false);
 
   const todayStr = useMemo(() => todayISO(), []);
   const yesterdayStr = useMemo(() => yesterdayISO(), []);
 
-  const buildCandidate = (fd = formData) => {
-    let countryFallback = jobCountry === "Diğer" ? jobCountryOther : jobCountry;
-    let cityFallback =
-      jobCountry === "Türkiye" ? jobProvince || "" : jobPlaceOther || "";
-    const country =
-      (fd.isUlke ?? "").toString() !== "" ? fd.isUlke : countryFallback || "";
-    const city =
-      (fd.isSehir ?? "").toString() !== "" ? fd.isSehir : cityFallback || "";
-    return { ...fd, isUlke: country, isSehir: city };
-  };
-
-  const isValid = useMemo(() => {
-    const parsed = schema.safeParse(buildCandidate());
-    setDisabledTip(parsed.success ? "" : t("common.fillAllProperly"));
-    return parsed.success;
-  }, [
-    formData,
-    jobCountry,
-    jobCountryOther,
-    jobProvince,
-    jobPlaceOther,
-    schema,
-    t,
-  ]);
-
-  const parseInitialCountryCity = (ulkeVal, sehirVal) => {
-    if (!ulkeVal) {
-      setJobCountry("");
-      setJobCountryOther("");
-      setJobProvince("");
-      setJobPlaceOther("");
-      return;
-    }
-    if (COUNTRY_OPTIONS.includes(ulkeVal)) {
-      setJobCountry(ulkeVal);
-      setJobCountryOther("");
-    } else {
-      setJobCountry("Diğer");
-      setJobCountryOther(ulkeVal);
-    }
-    if (ulkeVal === "Türkiye") {
-      setJobProvince(sehirVal || "");
-      setJobPlaceOther("");
-    } else {
-      setJobProvince("");
-      setJobPlaceOther(sehirVal || "");
-    }
-  };
-
+  /* --------- SCROLL & INIT --------- */
   useEffect(() => {
     if (open) lockScroll();
     else unlockScroll();
@@ -160,15 +86,71 @@ export default function JobExperiencesAddModal({
     onClose?.();
   };
 
+  // 1. ŞEHİR MODUNU BELİRLEME (DB'de şehir var mı?)
+  useEffect(() => {
+    // Ülke seçilmediyse veya "Diğer" ise Select modu kapalı
+    if (!formData.ulkeSelect || formData.ulkeSelect === "other") {
+      setActiveCities([]);
+      setIsCitySelectMode(false);
+      return;
+    }
+
+    // Seçilen ülkenin şehirlerini bul
+    // Dikkat: String/Number uyuşmazlığı olmaması için String'e çevirerek karşılaştırıyoruz
+    const cities =
+      definitions.sehirler?.filter(
+        (c) => String(c.ulkeId) === String(formData.ulkeSelect),
+      ) || [];
+
+    if (cities.length > 0) {
+      setActiveCities(cities);
+      setIsCitySelectMode(true);
+    } else {
+      setActiveCities([]);
+      setIsCitySelectMode(false);
+    }
+  }, [formData.ulkeSelect, definitions.sehirler]);
+
+  // 2. MODAL AÇILIŞ / EDIT MODE
   useEffect(() => {
     if (!open) return;
+
     if (mode === "edit" && initialData) {
-      const next = {
+      let uSelect = "";
+      let uOther = "";
+      let cSelect = "";
+      let cOther = "";
+
+      // Ülke Çözümleme
+      if (initialData.ulkeId) {
+        uSelect = String(initialData.ulkeId);
+      } else if (initialData.ulkeAdi) {
+        uSelect = "other";
+        uOther = initialData.ulkeAdi;
+      }
+
+      // Şehir Çözümleme
+      if (initialData.sehirId) {
+        cSelect = String(initialData.sehirId);
+      } else if (initialData.sehirAdi) {
+        // Eğer ülkenin şehirleri varsa ve ID yoksa -> "Diğer" seçeneğidir
+        const citiesForCountry =
+          definitions.sehirler?.filter((c) => String(c.ulkeId) === uSelect) ||
+          [];
+        if (citiesForCountry.length > 0) {
+          cSelect = "other";
+        } else {
+          cSelect = ""; // Şehir listesi yoksa select boştur
+        }
+        cOther = initialData.sehirAdi;
+      }
+
+      setFormData({
         isAdi: initialData.isAdi ?? "",
         departman: initialData.departman ?? "",
         pozisyon: initialData.pozisyon ?? "",
         gorev: initialData.gorev ?? "",
-        ucret: initialData.ucret ?? "",
+        ucret: initialData.ucret ? String(initialData.ucret) : "",
         baslangicTarihi: initialData.baslangicTarihi
           ? toISODate(fromISODateString(initialData.baslangicTarihi))
           : "",
@@ -176,17 +158,14 @@ export default function JobExperiencesAddModal({
           ? toISODate(fromISODateString(initialData.bitisTarihi))
           : "",
         ayrilisSebebi: initialData.ayrilisSebebi ?? "",
-        isUlke: initialData.isUlke ?? "",
-        isSehir: initialData.isSehir ?? "",
         halenCalisiyor:
-          initialData.halenCalisiyor === true ||
-          !initialData.bitisTarihi ||
-          initialData.bitisTarihi === "",
-      };
-      setFormData(next);
-      parseInitialCountryCity(next.isUlke, next.isSehir);
-      setErrors({});
-      setTouched({});
+          initialData.halenCalisiyor === true || !initialData.bitisTarihi,
+
+        ulkeSelect: uSelect,
+        ulkeOther: uOther,
+        sehirSelect: cSelect,
+        sehirOther: cOther,
+      });
     } else {
       setFormData({
         isAdi: "",
@@ -197,28 +176,92 @@ export default function JobExperiencesAddModal({
         baslangicTarihi: "",
         bitisTarihi: "",
         ayrilisSebebi: "",
-        isUlke: "",
-        isSehir: "",
         halenCalisiyor: false,
+        ulkeSelect: "",
+        ulkeOther: "",
+        sehirSelect: "",
+        sehirOther: "",
       });
-      setJobCountry("");
-      setJobCountryOther("");
-      setJobProvince("");
-      setJobPlaceOther("");
-      setErrors({});
-      setTouched({});
-      setDisabledTip("");
     }
-  }, [open, mode, initialData]);
+    setErrors({});
+    setTouched({});
+  }, [open, mode, initialData, definitions.sehirler]);
 
   const onBackdropClick = useModalDismiss(open, handleClose, dialogRef);
 
-  const validateField = (name, next) => {
-    const parsed = schema.safeParse(buildCandidate(next));
-    const issue = !parsed.success
-      ? parsed.error.issues.find((i) => i.path[0] === name)
-      : null;
-    setErrors((p) => ({ ...p, [name]: issue ? issue.message : "" }));
+  /* --------- HELPER: Form Verisini Şemaya Uygun Hale Getir --------- */
+  const buildCandidate = (data = formData) => {
+    // 1. Ülke Değerini Bul
+    let finalUlke = "";
+    if (data.ulkeSelect === "other") {
+      finalUlke = data.ulkeOther.trim();
+    } else if (data.ulkeSelect) {
+      // ID seçildiyse validasyonun geçmesi için dolu bir string atıyoruz
+      // (UI'da gösterim için ismi bulabiliriz ama validation için "1" bile yeterli)
+      finalUlke =
+        definitions.ulkeler?.find((u) => String(u.id) === data.ulkeSelect)
+          ?.ulkeAdi || "Selected";
+    }
+
+    // 2. Şehir Değerini Bul
+    let finalSehir = "";
+
+    // Şehir modu (Select mi Input mu?)
+    // Bu kontrolü useEffect'teki mantıkla senkron tutuyoruz
+    const currentCities =
+      definitions.sehirler?.filter(
+        (c) => String(c.ulkeId) === String(data.ulkeSelect),
+      ) || [];
+    const isSelectMode = currentCities.length > 0;
+
+    if (isSelectMode) {
+      // Select Modu
+      if (data.sehirSelect === "other") {
+        finalSehir = data.sehirOther.trim();
+      } else if (data.sehirSelect) {
+        finalSehir =
+          definitions.sehirler?.find((c) => String(c.id) === data.sehirSelect)
+            ?.sehirAdi || "Selected";
+      }
+    } else {
+      // Input Modu (Şehir yok veya Ülke 'Diğer')
+      finalSehir = data.sehirOther.trim();
+    }
+
+    return {
+      ...data,
+      isUlke: finalUlke,
+      isSehir: finalSehir,
+    };
+  };
+
+  /* --------- HANDLERS --------- */
+  const validateField = (name, nextData) => {
+    const candidate = buildCandidate(nextData);
+    const result = schema.safeParse(candidate);
+
+    if (!result.success) {
+      const issue = result.error.issues.find((i) => i.path[0] === name);
+
+      // isUlke veya isSehir hatası gelirse, ilgili UI elemanına yansıt
+      if (name === "ulkeSelect" || name === "ulkeOther") {
+        const err = result.error.issues.find((i) => i.path[0] === "isUlke");
+        setErrors((prev) => ({ ...prev, [name]: err ? err.message : "" }));
+        return;
+      }
+      if (name === "sehirSelect" || name === "sehirOther") {
+        const err = result.error.issues.find((i) => i.path[0] === "isSehir");
+        setErrors((prev) => ({ ...prev, [name]: err ? err.message : "" }));
+        return;
+      }
+
+      setErrors((prev) => ({ ...prev, [name]: issue ? issue.message : "" }));
+    } else {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+      // Bağlantılı hataları temizle
+      if (name === "ulkeSelect") setErrors((p) => ({ ...p, ulkeOther: "" }));
+      if (name === "sehirSelect") setErrors((p) => ({ ...p, sehirOther: "" }));
+    }
   };
 
   const normalizeSalaryInput = (raw) =>
@@ -226,127 +269,143 @@ export default function JobExperiencesAddModal({
       .replace(/[^\d.,]/g, "")
       .replace(/,+/g, (m) => (m.length > 1 ? "," : ","));
 
-  const onInput = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    const v = name === "ucret" ? normalizeSalaryInput(value) : value;
-    const next = { ...formData, [name]: v };
-    setFormData(next);
-    if (!touched[name]) touch(name);
-    validateField(name, next);
-  };
+    let next = { ...formData, [name]: value };
 
-  const onBlur = (e) => {
-    const { name } = e.target;
-    touch(name);
-    validateField(name, formData);
+    // Ülke değişince
+    if (name === "ulkeSelect") {
+      next.sehirSelect = "";
+      next.sehirOther = "";
+
+      if (value === "other") {
+        setTimeout(() => countryOtherRef.current?.focus(), 50);
+      } else {
+        next.ulkeOther = "";
+      }
+    }
+
+    // Şehir Select değişince
+    if (name === "sehirSelect") {
+      if (value === "other") {
+        setTimeout(() => cityOtherRef.current?.focus(), 50);
+      } else {
+        next.sehirOther = "";
+      }
+    }
+
+    if (name === "ulkeOther" || name === "sehirOther") {
+      next[name] = onlyLettersTR(value);
+    }
+
+    if (name === "ucret") {
+      next[name] = normalizeSalaryInput(value);
+    }
+
+    setFormData(next);
+    if (!touched[name]) setTouched((prev) => ({ ...prev, [name]: true }));
+    validateField(name, next);
   };
 
   const onDateChange = (name, value) => {
     const next = { ...formData, [name]: value || "" };
     setFormData(next);
-    if (!touched[name]) touch(name);
     validateField(name, next);
   };
+
   const onDateBlur = (name) => {
-    touch(name);
+    setTouched((prev) => ({ ...prev, [name]: true }));
     validateField(name, formData);
   };
 
-  const handleCountryChange = (e) => {
-    const v = e.target.value;
-    setJobCountry(v);
-    setJobCountryOther("");
-    setJobProvince("");
-    setJobPlaceOther("");
-
-    const next = { ...formData, isUlke: v === "Diğer" ? "" : v, isSehir: "" };
+  const toggleHalenCalisiyor = (checked) => {
+    const next = {
+      ...formData,
+      halenCalisiyor: checked,
+      bitisTarihi: checked ? "" : formData.bitisTarihi,
+    };
     setFormData(next);
+    if (!touched.halenCalisiyor)
+      setTouched((p) => ({ ...p, halenCalisiyor: true }));
+    validateField("halenCalisiyor", next);
 
-    if (!touched.isUlke) touch("isUlke");
-    validateField("isUlke", next);
-    setErrors((p) => ({ ...p, isSehir: "" }));
-  };
-
-  const handleCityChangeTR = (e) => {
-    const val = e.target.value;
-    setJobProvince(val);
-    const next = { ...formData, isSehir: val };
-    setFormData(next);
-    if (!touched.isSehir) touch("isSehir");
-    validateField("isSehir", next);
-  };
-
-  const handleCityChangeOther = (e) => {
-    const v = onlyLettersTR(e.target.value);
-    setJobPlaceOther(v);
-    if (jobCountry && (jobCountry !== "Diğer" || jobCountryOther)) {
-      const next = { ...formData, isSehir: v };
-      setFormData(next);
-      if (!touched.isSehir) touch("isSehir");
-      validateField("isSehir", next);
+    if (checked) {
+      setErrors((p) => ({ ...p, bitisTarihi: "", ayrilisSebebi: "" }));
     }
   };
 
-  const toggleHalenCalisiyor = (checked) => {
-    const next = checked
-      ? {
-          ...formData,
-          halenCalisiyor: true,
-          bitisTarihi: "",
-          ayrilisSebebi: "",
-        }
-      : { ...formData, halenCalisiyor: false };
-    setFormData(next);
-    if (!touched.halenCalisiyor) touch("halenCalisiyor");
-    validateField("halenCalisiyor", next);
-    setErrors((p) => ({
-      ...p,
-      bitisTarihi: checked ? "" : p.bitisTarihi,
-      ayrilisSebebi: checked ? "" : p.ayrilisSebebi,
-    }));
-  };
+  const isValid = useMemo(() => {
+    const candidate = buildCandidate(formData);
+    return schema.safeParse(candidate).success;
+  }, [formData, schema, definitions]);
 
+  const disabledTip = !isValid ? t("common.fillAllProperly") : "";
+
+  /* --------- SUBMIT --------- */
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
-    const allKeys = [
-      "isAdi",
-      "departman",
-      "pozisyon",
-      "gorev",
-      "ucret",
-      "baslangicTarihi",
-      "bitisTarihi",
-      "ayrilisSebebi",
-      "isUlke",
-      "isSehir",
-      "halenCalisiyor",
-    ];
-    setTouched(Object.fromEntries(allKeys.map((k) => [k, true])));
+    const allKeys = Object.keys(formData);
+    setTouched(allKeys.reduce((acc, k) => ({ ...acc, [k]: true }), {}));
 
-    const candidate = buildCandidate();
+    const candidate = buildCandidate(formData);
     const parsed = schema.safeParse(candidate);
+
     if (!parsed.success) {
       const newErrs = {};
       parsed.error.issues.forEach((i) => {
-        if (i.path[0]) newErrs[i.path[0]] = i.message;
+        newErrs[i.path[0]] = i.message;
       });
-      setErrors((prev) => ({ ...prev, ...newErrs }));
+      setErrors(newErrs);
       return;
     }
 
     const d = parsed.data;
+
+    // Payload Hazırlığı
+    let finalUlkeId = null;
+    let finalUlkeAdi = null;
+    let finalSehirId = null;
+    let finalSehirAdi = null;
+
+    // Ülke
+    if (formData.ulkeSelect === "other") {
+      finalUlkeAdi = formData.ulkeOther.trim();
+    } else {
+      finalUlkeId = Number(formData.ulkeSelect);
+      finalUlkeAdi = definitions.ulkeler?.find(
+        (u) => String(u.id) === formData.ulkeSelect,
+      )?.ulkeAdi;
+    }
+
+    // Şehir
+    if (isCitySelectMode) {
+      if (formData.sehirSelect === "other") {
+        finalSehirAdi = formData.sehirOther.trim();
+      } else {
+        finalSehirId = Number(formData.sehirSelect);
+        finalSehirAdi = definitions.sehirler?.find(
+          (c) => String(c.id) === formData.sehirSelect,
+        )?.sehirAdi;
+      }
+    } else {
+      // Input modu
+      finalSehirAdi = formData.sehirOther ? formData.sehirOther.trim() : null;
+    }
+
     const payload = {
-      isAdi: d.isAdi.trim(),
-      departman: d.departman.trim(),
-      pozisyon: d.pozisyon.trim(),
-      gorev: d.gorev.trim(),
-      ucret: d.ucret === "" ? "" : String(d.ucret),
+      isAdi: d.isAdi,
+      departman: d.departman,
+      pozisyon: d.pozisyon,
+      gorev: d.gorev,
+      ucret: Number(d.ucret.replace(",", ".")),
       baslangicTarihi: d.baslangicTarihi,
-      bitisTarihi: d.halenCalisiyor || !d.bitisTarihi ? "" : d.bitisTarihi,
-      ayrilisSebebi: (d.ayrilisSebebi || "").trim(),
-      isUlke: d.isUlke.trim(),
-      isSehir: d.isSehir.trim(),
-      halenCalisiyor: !!d.halenCalisiyor,
+      bitisTarihi: d.halenCalisiyor ? null : d.bitisTarihi,
+      ayrilisSebebi: d.ayrilisSebebi,
+      halenCalisiyor: d.halenCalisiyor,
+      ulkeId: finalUlkeId,
+      ulkeAdi: finalUlkeAdi,
+      sehirId: finalSehirId,
+      sehirAdi: finalSehirAdi,
     };
 
     if (mode === "edit") onUpdate?.(payload);
@@ -355,8 +414,6 @@ export default function JobExperiencesAddModal({
   };
 
   if (!open) return null;
-
-  const portalTarget = typeof document !== "undefined" ? document.body : null;
 
   return (
     <div
@@ -368,25 +425,24 @@ export default function JobExperiencesAddModal({
         className="w-full max-w-3xl bg-white rounded-2xl shadow-xl flex flex-col max-h-[90vh] overflow-hidden"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        {/* Başlık */}
-        <div className="flex items-center justify-between bg-gradient-to-r from-gray-700 via-gray-600 to-gray-500 text-white px-4 sm:px-6 py-3 sm:py-4">
+        {/* Header */}
+        <div className="flex items-center justify-between bg-linear-to-r from-gray-700 via-gray-600 to-gray-500 text-white px-4 sm:px-6 py-3 sm:py-4">
           <h2 className="text-base sm:text-lg md:text-xl font-semibold truncate">
             {mode === "edit" ? t("jobExp.title.edit") : t("jobExp.title.add")}
           </h2>
           <button
             type="button"
             onClick={handleClose}
-            aria-label={t("common.close")}
             className="inline-flex items-center justify-center h-10 w-10 rounded-full hover:bg-white/15 active:bg-white/25 focus:outline-none cursor-pointer"
           >
             <FontAwesomeIcon icon={faXmark} className="text-white text-lg" />
           </button>
         </div>
 
-        {/* DIV yapısı (Form içinde form olmaması için) */}
+        {/* FORM */}
         <div className="flex-1 flex flex-col min-h-0">
-          <div className="flex-1 overflow-y-auto p-6 space-y-4 overflow-visible">
-            {/* 1. Satır */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            {/* 1. Şirket / Departman */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm text-gray-600 mb-1">
@@ -396,33 +452,15 @@ export default function JobExperiencesAddModal({
                   type="text"
                   name="isAdi"
                   value={formData.isAdi}
-                  onChange={onInput}
-                  onBlur={onBlur}
-                  maxLength={100}
-                  className={FIELD_BASE}
+                  onChange={handleChange}
+                  className={FIELD_ACTIVE}
                   placeholder={t("jobExp.placeholders.company")}
-                  required
+                  maxLength={100}
                 />
-                <div className="flex justify-between items-center mt-1">
-                  {touched.isAdi && errors.isAdi ? (
-                    <p className="text-xs text-red-600 font-medium">
-                      {errors.isAdi}
-                    </p>
-                  ) : (
-                    <span />
-                  )}
-                  <p
-                    className={`text-xs ${
-                      formData.isAdi.length >= 90
-                        ? "text-red-500"
-                        : "text-gray-400"
-                    }`}
-                  >
-                    {formData.isAdi.length}/100
-                  </p>
-                </div>
+                {touched.isAdi && errors.isAdi && (
+                  <p className="text-xs text-red-600 mt-1">{errors.isAdi}</p>
+                )}
               </div>
-
               <div>
                 <label className="block text-sm text-gray-600 mb-1">
                   {t("jobExp.labels.department")} *
@@ -431,35 +469,20 @@ export default function JobExperiencesAddModal({
                   type="text"
                   name="departman"
                   value={formData.departman}
-                  onChange={onInput}
-                  onBlur={onBlur}
-                  maxLength={100}
-                  className={FIELD_BASE}
+                  onChange={handleChange}
+                  className={FIELD_ACTIVE}
                   placeholder={t("jobExp.placeholders.department")}
-                  required
+                  maxLength={100}
                 />
-                <div className="flex justify-between items-center mt-1">
-                  {touched.departman && errors.departman ? (
-                    <p className="text-xs text-red-600 font-medium">
-                      {errors.departman}
-                    </p>
-                  ) : (
-                    <span />
-                  )}
-                  <p
-                    className={`text-xs ${
-                      formData.departman.length >= 90
-                        ? "text-red-500"
-                        : "text-gray-400"
-                    }`}
-                  >
-                    {formData.departman.length}/100
+                {touched.departman && errors.departman && (
+                  <p className="text-xs text-red-600 mt-1">
+                    {errors.departman}
                   </p>
-                </div>
+                )}
               </div>
             </div>
 
-            {/* 2. Satır */}
+            {/* 2. Pozisyon / Görev */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm text-gray-600 mb-1">
@@ -469,33 +492,15 @@ export default function JobExperiencesAddModal({
                   type="text"
                   name="pozisyon"
                   value={formData.pozisyon}
-                  onChange={onInput}
-                  onBlur={onBlur}
-                  maxLength={100}
-                  className={FIELD_BASE}
+                  onChange={handleChange}
+                  className={FIELD_ACTIVE}
                   placeholder={t("jobExp.placeholders.position")}
-                  required
+                  maxLength={100}
                 />
-                <div className="flex justify-between items-center mt-1">
-                  {touched.pozisyon && errors.pozisyon ? (
-                    <p className="text-xs text-red-600 font-medium">
-                      {errors.pozisyon}
-                    </p>
-                  ) : (
-                    <span />
-                  )}
-                  <p
-                    className={`text-xs ${
-                      formData.pozisyon.length >= 90
-                        ? "text-red-500"
-                        : "text-gray-400"
-                    }`}
-                  >
-                    {formData.pozisyon.length}/100
-                  </p>
-                </div>
+                {touched.pozisyon && errors.pozisyon && (
+                  <p className="text-xs text-red-600 mt-1">{errors.pozisyon}</p>
+                )}
               </div>
-
               <div>
                 <label className="block text-sm text-gray-600 mb-1">
                   {t("jobExp.labels.duty")} *
@@ -504,36 +509,20 @@ export default function JobExperiencesAddModal({
                   type="text"
                   name="gorev"
                   value={formData.gorev}
-                  onChange={onInput}
-                  onBlur={onBlur}
-                  maxLength={120}
-                  className={FIELD_BASE}
+                  onChange={handleChange}
+                  className={FIELD_ACTIVE}
                   placeholder={t("jobExp.placeholders.duty")}
-                  required
+                  maxLength={120}
                 />
-                <div className="flex justify-between items-center mt-1">
-                  {touched.gorev && errors.gorev ? (
-                    <p className="text-xs text-red-600 font-medium">
-                      {errors.gorev}
-                    </p>
-                  ) : (
-                    <span />
-                  )}
-                  <p
-                    className={`text-xs ${
-                      formData.gorev.length >= 110
-                        ? "text-red-500"
-                        : "text-gray-400"
-                    }`}
-                  >
-                    {formData.gorev.length}/120
-                  </p>
-                </div>
+                {touched.gorev && errors.gorev && (
+                  <p className="text-xs text-red-600 mt-1">{errors.gorev}</p>
+                )}
               </div>
             </div>
 
-            {/* 3. Satır: Ücret + Ülke */}
+            {/* 3. Ücret / Ülke / Diğer Ülke */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Ücret */}
               <div>
                 <label className="block text-sm text-gray-600 mb-1">
                   {t("jobExp.labels.salary")} *
@@ -542,147 +531,161 @@ export default function JobExperiencesAddModal({
                   type="text"
                   name="ucret"
                   value={formData.ucret}
-                  onChange={onInput}
-                  onBlur={onBlur}
-                  className={FIELD_BASE}
+                  onChange={handleChange}
+                  className={FIELD_ACTIVE}
                   placeholder={t("jobExp.placeholders.salary")}
-                  required
                 />
                 {touched.ucret && errors.ucret && (
-                  <p className="mt-1 text-xs text-red-600 font-medium">
-                    {errors.ucret}
-                  </p>
+                  <p className="text-xs text-red-600 mt-1">{errors.ucret}</p>
                 )}
               </div>
 
-              <div className="sm:col-span-2">
+              {/* Ülke Select */}
+              <div className="sm:col-span-1">
                 <label className="block text-sm text-gray-600 mb-1">
                   {t("jobExp.labels.country")} *
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <SearchSelect
-                    label={null}
-                    name="isUlkeSelect"
-                    value={jobCountry}
-                    onChange={handleCountryChange}
-                    options={countryOptions}
-                    placeholder={t("jobExp.placeholders.countrySearch")}
-                    isClearable={false}
-                    menuPortalTarget={portalTarget}
-                  />
-                  <input
-                    type="text"
-                    placeholder={t("jobExp.placeholders.countryOther")}
-                    value={jobCountryOther}
-                    onChange={(e) => {
-                      const v = onlyLettersTR(e.target.value);
-                      setJobCountryOther(v);
-                      if (jobCountry === "Diğer") {
-                        const next = { ...formData, isUlke: v, isSehir: "" };
-                        setFormData(next);
-                        if (!touched.isUlke) touch("isUlke");
-                        validateField("isUlke", next);
-                      }
-                    }}
-                    disabled={jobCountry !== "Diğer"}
-                    className={`block w-full h-[43px] rounded-lg border px-3 py-2 focus:outline-none transition ${
-                      jobCountry === "Diğer"
-                        ? "bg-white border-gray-300 text-gray-900 hover:border-black"
-                        : "bg-gray-200 border-gray-300 text-gray-500 disabled:cursor-not-allowed"
-                    }`}
-                  />
-                </div>
-                {touched.isUlke && errors.isUlke && (
-                  <p className="mt-1 text-xs text-red-600 font-medium">
-                    {errors.isUlke}
+                <select
+                  name="ulkeSelect"
+                  value={formData.ulkeSelect}
+                  onChange={handleChange}
+                  className={FIELD_ACTIVE}
+                >
+                  <option value="">{t("common.pleaseSelect")}</option>
+                  {definitions.ulkeler?.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {u.ulkeAdi}
+                    </option>
+                  ))}
+                  <option value="other">{t("common.other")}</option>
+                </select>
+                {touched.ulkeSelect && errors.ulkeSelect && (
+                  <p className="text-xs text-red-600 mt-1">
+                    {errors.ulkeSelect}
+                  </p>
+                )}
+              </div>
+
+              {/* Diğer Ülke Inputu (Yan yana) */}
+              <div className="sm:col-span-1">
+                <label className="block text-sm text-gray-600 mb-1">
+                  {formData.ulkeSelect === "other" ? (
+                    t("jobExp.placeholders.countryOther")
+                  ) : (
+                    <>&nbsp;</>
+                  )}
+                </label>
+                <input
+                  ref={countryOtherRef}
+                  type="text"
+                  name="ulkeOther"
+                  value={formData.ulkeOther}
+                  onChange={handleChange}
+                  disabled={formData.ulkeSelect !== "other"}
+                  className={
+                    formData.ulkeSelect !== "other"
+                      ? FIELD_DISABLED
+                      : FIELD_ACTIVE
+                  }
+                  placeholder={t("jobExp.placeholders.countryOther")}
+                  maxLength={50}
+                />
+                {touched.ulkeOther && errors.ulkeOther && (
+                  <p className="text-xs text-red-600 mt-1">
+                    {errors.ulkeOther}
                   </p>
                 )}
               </div>
             </div>
 
-            {/* 3.5 Satır: Şehir */}
-            <div>
-              <label className="block text-sm text-gray-600 mb-1">
-                {t("jobExp.labels.city")} *
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {jobCountry === "Türkiye" ? (
-                  <>
-                    <SearchSelect
-                      label={null}
-                      name="isIl"
-                      value={jobProvince}
-                      onChange={handleCityChangeTR}
-                      options={ilOptions}
-                      placeholder={t("jobExp.placeholders.provinceSearch")}
-                      isClearable={false}
-                      isDisabled={!jobCountry}
-                      menuPortalTarget={portalTarget}
-                    />
-                    <div className="hidden sm:block" />
-                  </>
-                ) : (
-                  <>
+            {/* 3.5. Şehir Seçimi */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Şehir Seçim / Input Mantığı */}
+              {isCitySelectMode ? (
+                // Eğer Şehir Listesi Varsa: Select Göster, Yanına "Diğer" seçilince aktif olan Input koy
+                <>
+                  <div className="sm:col-span-1">
+                    <label className="block text-sm text-gray-600 mb-1">
+                      {t("jobExp.labels.city")} *
+                    </label>
+                    <select
+                      name="sehirSelect"
+                      value={formData.sehirSelect}
+                      onChange={handleChange}
+                      className={FIELD_ACTIVE}
+                    >
+                      <option value="">{t("common.pleaseSelect")}</option>
+                      {activeCities.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.sehirAdi}
+                        </option>
+                      ))}
+                      <option value="other">{t("common.other")}</option>
+                    </select>
+                    {touched.sehirSelect && errors.sehirSelect && (
+                      <p className="text-xs text-red-600 mt-1">
+                        {errors.sehirSelect}
+                      </p>
+                    )}
+                  </div>
+                  <div className="sm:col-span-1">
+                    <label className="block text-sm text-gray-600 mb-1">
+                      {formData.sehirSelect === "other" ? (
+                        t("jobExp.placeholders.cityOther")
+                      ) : (
+                        <>&nbsp;</>
+                      )}
+                    </label>
                     <input
+                      ref={cityOtherRef}
                       type="text"
-                      placeholder={t("jobExp.placeholders.cityOther")}
-                      value={jobPlaceOther}
-                      onChange={handleCityChangeOther}
-                      disabled={
-                        !jobCountry ||
-                        (jobCountry === "Diğer" && !jobCountryOther)
+                      name="sehirOther"
+                      value={formData.sehirOther}
+                      onChange={handleChange}
+                      disabled={formData.sehirSelect !== "other"}
+                      className={
+                        formData.sehirSelect !== "other"
+                          ? FIELD_DISABLED
+                          : FIELD_ACTIVE
                       }
-                      className={`block w-full h-[43px] rounded-lg border px-3 py-2 focus:outline-none transition ${
-                        !jobCountry ||
-                        (jobCountry === "Diğer" && !jobCountryOther)
-                          ? "bg-gray-200 border-gray-300 text-gray-500 disabled:cursor-not-allowed"
-                          : "bg-white border-gray-300 text-gray-900 hover:border-black"
-                      }`}
+                      placeholder={t("jobExp.placeholders.cityOther")}
+                      maxLength={50}
                     />
-                    <div className="hidden sm:block" />
-                  </>
-                )}
-              </div>
-              {touched.isSehir && errors.isSehir && (
-                <p className="mt-1 text-xs text-red-600 font-medium">
-                  {errors.isSehir}
-                </p>
+                    {touched.sehirOther && errors.sehirOther && (
+                      <p className="text-xs text-red-600 mt-1">
+                        {errors.sehirOther}
+                      </p>
+                    )}
+                  </div>
+                </>
+              ) : (
+                // Eğer Şehir Listesi Yoksa: Sadece Input Göster (Select'in kapladığı alan yok)
+                <div className="sm:col-span-2">
+                  <label className="block text-sm text-gray-600 mb-1">
+                    {t("jobExp.labels.city")} *
+                  </label>
+                  <input
+                    type="text"
+                    name="sehirOther"
+                    value={formData.sehirOther}
+                    onChange={handleChange}
+                    disabled={!formData.ulkeSelect} // Ülke seçilmemişse pasif
+                    className={
+                      !formData.ulkeSelect ? FIELD_DISABLED : FIELD_ACTIVE
+                    }
+                    placeholder={t("jobExp.placeholders.cityOther")}
+                    maxLength={50}
+                  />
+                  {touched.sehirOther && errors.sehirOther && (
+                    <p className="text-xs text-red-600 mt-1">
+                      {errors.sehirOther}
+                    </p>
+                  )}
+                </div>
               )}
             </div>
 
-            {/* Hâlen çalışıyorum */}
-            <div className="flex items-center gap-2 pt-1">
-              <input
-                id="halenCalisiyorum"
-                type="checkbox"
-                className="h-4 w-4 cursor-pointer"
-                checked={formData.halenCalisiyor}
-                onChange={(e) => toggleHalenCalisiyor(e.target.checked)}
-                onBlur={() => {
-                  touch("halenCalisiyor");
-                  validateField("halenCalisiyor", formData);
-                }}
-                disabled={anotherActiveExists && !formData.halenCalisiyor}
-                title={
-                  anotherActiveExists && !formData.halenCalisiyor
-                    ? t("jobExp.err.alreadyActive")
-                    : ""
-                }
-              />
-              <label
-                htmlFor="halenCalisiyorum"
-                className="text-sm text-gray-700 select-none"
-              >
-                {t("jobExp.labels.ongoing")}
-              </label>
-              {touched.halenCalisiyor && errors.halenCalisiyor && (
-                <span className="text-xs text-red-600 font-medium ml-2">
-                  {errors.halenCalisiyor}
-                </span>
-              )}
-            </div>
-
-            {/* 4. Satır: Tarihler */}
+            {/* 4. Tarihler */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="shadow-none">
                 <MuiDateStringField
@@ -698,123 +701,86 @@ export default function JobExperiencesAddModal({
                   max={yesterdayStr}
                   size="small"
                   error={touched.baslangicTarihi ? errors.baslangicTarihi : ""}
-                  sx={{
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#d1d5db",
-                    },
-                    "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "black",
-                    },
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "black",
-                    },
-                    "& .MuiFormHelperText-root": { fontWeight: 500 },
-                  }}
                 />
               </div>
               <div className="shadow-none">
                 <MuiDateStringField
-                  label={`${t("jobExp.labels.endDate")} ${
-                    formData.halenCalisiyor
-                      ? `(${t("jobExp.badges.ongoing")})`
-                      : "*"
-                  }`}
+                  label={`${t("jobExp.labels.endDate")} ${formData.halenCalisiyor ? `(${t("jobExp.badges.ongoing")})` : "*"}`}
                   name="bitisTarihi"
                   value={formData.bitisTarihi}
                   onChange={(e) => onDateChange("bitisTarihi", e.target.value)}
                   onBlur={() => onDateBlur("bitisTarihi")}
+                  disabled={formData.halenCalisiyor}
                   min={formData.baslangicTarihi || "1950-01-01"}
                   max={todayStr}
                   size="small"
-                  disabled={formData.halenCalisiyor}
                   error={touched.bitisTarihi ? errors.bitisTarihi : ""}
-                  sx={{
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#d1d5db",
-                    },
-                    "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "black",
-                    },
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "black",
-                    },
-                    "& .MuiInputBase-root.Mui-disabled": {
-                      backgroundColor: "#f3f4f6",
-                    },
-                    "& .MuiInputBase-input.Mui-disabled": {
-                      WebkitTextFillColor: "#6b7280",
-                    },
-                    "& .MuiFormHelperText-root": { fontWeight: 500 },
-                  }}
                 />
               </div>
             </div>
 
-            {/* 5. Satır: Ayrılış Sebebi */}
+            {/* Halen Çalışıyorum */}
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="halenCalisiyorum"
+                checked={formData.halenCalisiyor}
+                onChange={(e) => toggleHalenCalisiyor(e.target.checked)}
+                className="h-4 w-4 cursor-pointer"
+              />
+              <label
+                htmlFor="halenCalisiyorum"
+                className="text-sm text-gray-700 cursor-pointer select-none"
+              >
+                {t("jobExp.labels.ongoing")}
+              </label>
+              {touched.halenCalisiyor && errors.halenCalisiyor && (
+                <span className="text-xs text-red-600 font-medium ml-2">
+                  {errors.halenCalisiyor}
+                </span>
+              )}
+            </div>
+
+            {/* Ayrılış Sebebi */}
             <div>
               <label className="block text-sm text-gray-600 mb-1">
                 {t("jobExp.labels.leaveReason")}{" "}
-                {formData.halenCalisiyor
-                  ? `(${t("jobExp.badges.ongoing")})`
-                  : "*"}
+                {formData.halenCalisiyor ? "" : "*"}
               </label>
               <input
                 type="text"
                 name="ayrilisSebebi"
                 value={formData.ayrilisSebebi}
-                onChange={onInput}
-                onBlur={onBlur}
-                maxLength={150}
-                disabled={formData.halenCalisiyor}
-                className={`rounded-lg px-3 py-2 focus:outline-none border ${
-                  formData.halenCalisiyor
-                    ? "bg-gray-100 border-gray-300 cursor-not-allowed opacity-70"
-                    : "bg-white border-gray-300 hover:border-black"
-                } w-full`}
+                onChange={handleChange}
+                onBlur={(e) => validateField(e.target.name, formData)}
+                className={FIELD_ACTIVE}
                 placeholder={t("jobExp.placeholders.leaveReason")}
+                maxLength={150}
               />
-              <div className="flex justify-between items-center mt-1">
-                {touched.ayrilisSebebi && errors.ayrilisSebebi ? (
-                  <p className="text-xs text-red-600 font-medium">
-                    {errors.ayrilisSebebi}
-                  </p>
-                ) : (
-                  <span />
-                )}
-                <p
-                  className={`text-xs ${
-                    (formData.ayrilisSebebi || "").length >= 140
-                      ? "text-red-500"
-                      : "text-gray-400"
-                  }`}
-                >
-                  {(formData.ayrilisSebebi || "").length}/150
+              {touched.ayrilisSebebi && errors.ayrilisSebebi && (
+                <p className="text-xs text-red-600 mt-1">
+                  {errors.ayrilisSebebi}
                 </p>
-              </div>
+              )}
             </div>
           </div>
 
-          {/* Alt aksiyon bar */}
+          {/* Footer */}
           <div className="border-t bg-white px-6 py-3">
             <div className="flex flex-col sm:flex-row sm:justify-end gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={handleClose}
-                className="w-full sm:w-auto px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 active:bg-gray-400 transition cursor-pointer"
+                className="w-full sm:w-auto px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition cursor-pointer"
               >
                 {t("common.cancel")}
               </button>
-
               <button
                 type="button"
                 onClick={handleSubmit}
                 disabled={!isValid}
                 title={disabledTip}
-                className={`w-full sm:w-auto px-4 py-2 rounded-lg text-white transition ${
-                  isValid
-                    ? "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 active:scale-95 cursor-pointer"
-                    : "bg-blue-300 opacity-90 cursor-not-allowed"
-                }`}
+                className={`w-full sm:w-auto px-4 py-2 rounded-lg text-white transition cursor-pointer ${isValid ? "bg-blue-600 hover:bg-blue-700" : "bg-blue-300 cursor-not-allowed"}`}
               >
                 {mode === "edit" ? t("common.update") : t("common.save")}
               </button>

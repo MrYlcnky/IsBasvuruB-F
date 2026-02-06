@@ -958,6 +958,64 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterAlanController",
+    "Method": "GetAll",
+    "RelativePath": "api/MasterAlan",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterAlanController",
+    "Method": "Create",
+    "RelativePath": "api/MasterAlan",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketMasterYapisiDtos.MasterSubeAlan.MasterAlanCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterAlanController",
+    "Method": "Update",
+    "RelativePath": "api/MasterAlan",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketMasterYapisiDtos.MasterAlanDtos.MasterAlanUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterAlanController",
+    "Method": "Delete",
+    "RelativePath": "api/MasterAlan/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterBasvuruController",
     "Method": "GetAll",
     "RelativePath": "api/MasterBasvuru",
@@ -1041,6 +1099,122 @@
     "Parameters": [
       {
         "Name": "personelId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterDepartmanController",
+    "Method": "GetAll",
+    "RelativePath": "api/MasterDepartman",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterDepartmanController",
+    "Method": "Create",
+    "RelativePath": "api/MasterDepartman",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketMasterYapisiDtos.MasterDepartmanDtos.MasterDepartmanCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterDepartmanController",
+    "Method": "Update",
+    "RelativePath": "api/MasterDepartman",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketMasterYapisiDtos.MasterDepartmanDtos.MasterDepartmanUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterDepartmanController",
+    "Method": "Delete",
+    "RelativePath": "api/MasterDepartman/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterPozisyonController",
+    "Method": "GetAll",
+    "RelativePath": "api/MasterPozisyon",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterPozisyonController",
+    "Method": "Create",
+    "RelativePath": "api/MasterPozisyon",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketMasterYapisiDtos.MasterPozisyonDtos.MasterPozisyonCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterPozisyonController",
+    "Method": "Update",
+    "RelativePath": "api/MasterPozisyon",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.SirketMasterYapisiDtos.MasterPozisyonDtos.MasterPozisyonUpdateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.MasterPozisyonController",
+    "Method": "Delete",
+    "RelativePath": "api/MasterPozisyon/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
       }

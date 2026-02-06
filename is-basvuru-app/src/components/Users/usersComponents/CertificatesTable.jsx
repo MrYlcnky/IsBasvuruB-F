@@ -1,5 +1,5 @@
 import { useState, forwardRef, useImperativeHandle } from "react";
-import { useFormContext, useWatch } from "react-hook-form"; // YENİ: Form entegrasyonu
+import { useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -8,17 +8,15 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import CertificatesAddModal from "../addModals/CertificatesAddModal";
+// ✅ GÜNCELLEME: toISODate kullanımı (formatDate yerine standart olsun dersen)
+// Ya da sadece formatDate kullanabilirsin, dateUtils.js içinde ne varsa.
 import { formatDate } from "../modalHooks/dateUtils";
 
 const CertificateTable = forwardRef((props, ref) => {
   const { t } = useTranslation();
-
-  // --- 1. React Hook Form Entegrasyonu ---
   const { control, setValue } = useFormContext();
-  // Ana formdaki 'certificates' listesini izle (rows yerine bunu kullanacağız)
   const rows = useWatch({ control, name: "certificates" }) || [];
 
-  // --- 2. Local Modal State ---
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [selectedRow, setSelectedRow] = useState(null);
@@ -26,7 +24,6 @@ const CertificateTable = forwardRef((props, ref) => {
 
   const notify = (msg) => toast.success(msg);
 
-  // --- 3. Actions (CRUD) ---
   const openCreate = () => {
     setModalMode("create");
     setSelectedRow(null);
@@ -41,8 +38,6 @@ const CertificateTable = forwardRef((props, ref) => {
     setModalOpen(true);
   };
 
-  const closeModal = () => setModalOpen(false);
-
   const handleSave = (newData) => {
     const updatedList = [...rows, newData];
     setValue("certificates", updatedList, {
@@ -50,7 +45,7 @@ const CertificateTable = forwardRef((props, ref) => {
       shouldValidate: true,
     });
     notify(t("toast.saved"));
-    closeModal();
+    setModalOpen(false);
   };
 
   const handleUpdate = (updatedData) => {
@@ -63,16 +58,13 @@ const CertificateTable = forwardRef((props, ref) => {
       });
       notify(t("toast.updated"));
     }
-    closeModal();
+    setModalOpen(false);
   };
 
   const handleDelete = async (row, index) => {
     const res = await Swal.fire({
       title: t("certificates.delete.title"),
-      text: t("certificates.delete.text", {
-        name: row.ad,
-        org: row.kurum,
-      }),
+      text: t("certificates.delete.text", { name: row.ad, org: row.kurum }),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -90,22 +82,12 @@ const CertificateTable = forwardRef((props, ref) => {
     }
   };
 
-  // --- 4. Dışarı Açılan Metodlar ---
-  useImperativeHandle(ref, () => ({
-    openCreate,
-    getData: () => rows,
-    fillData: (data) => {
-      if (Array.isArray(data)) {
-        setValue("certificates", data);
-      }
-    },
-  }));
+  useImperativeHandle(ref, () => ({ openCreate }));
 
   const dash = t("common.dash");
 
   return (
     <div>
-      {/* Tablo: Sadece veri varsa görünür */}
       {rows.length !== 0 && (
         <div className="overflow-x-auto rounded-b-lg ring-1 ring-gray-200 bg-white">
           <table className="min-w-full text-sm">
@@ -129,58 +111,51 @@ const CertificateTable = forwardRef((props, ref) => {
             </thead>
             <tbody>
               {rows.map((item, idx) => {
+                // dateUtils içindeki formatDate fonksiyonu (DD.MM.YYYY çevirir)
                 const issued = formatDate(item.verilisTarihi);
-                const valid = formatDate(item.gecerlilikTarihi) || dash;
+                const valid = item.gecerlilikTarihi
+                  ? formatDate(item.gecerlilikTarihi)
+                  : dash;
 
                 return (
                   <tr key={idx} className="bg-white border-t table-fixed">
                     <td
-                      className="px-4 py-3 font-medium text-gray-800 max-w-[140px] truncate"
+                      className="px-4 py-3 font-medium text-gray-800 max-w-35 truncate"
                       title={item.ad}
                     >
                       {item.ad}
                     </td>
                     <td
-                      className="px-4 py-3 text-gray-800 max-w-[140px] truncate"
+                      className="px-4 py-3 text-gray-800 max-w-35 truncate"
                       title={item.kurum}
                     >
                       {item.kurum}
                     </td>
                     <td
-                      className="px-4 py-3 text-gray-800 max-w-[120px] truncate"
+                      className="px-4 py-3 text-gray-800 max-w-30 truncate"
                       title={item.sure}
                     >
                       {item.sure}
                     </td>
-                    <td
-                      className="px-4 py-3 text-gray-800 max-w-[120px] truncate"
-                      title={issued || dash}
-                    >
-                      {issued || dash}
+                    <td className="px-4 py-3 text-gray-800 max-w-30 truncate">
+                      {issued}
                     </td>
-                    <td
-                      className="px-4 py-3 text-gray-800 max-w-[120px] truncate"
-                      title={valid}
-                    >
+                    <td className="px-4 py-3 text-gray-800 max-w-30 truncate">
                       {valid}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="inline-flex items-center gap-2">
                         <button
-                          type="button" // ÖNEMLİ: Sayfa yenilenmesini önler
-                          aria-label={t("actions.update")}
-                          title={t("actions.update")}
+                          type="button"
                           onClick={() => openEdit(item, idx)}
-                          className="inline-flex items-center gap-1 rounded-md border border-gray-200 px-2 py-1 text-sm hover:bg-gray-50 active:scale-[0.98] transition cursor-pointer"
+                          className="px-2 py-1 border rounded hover:bg-gray-50"
                         >
                           <FontAwesomeIcon icon={faPen} />
                         </button>
                         <button
-                          type="button" // ÖNEMLİ: Sayfa yenilenmesini önler
-                          aria-label={t("actions.delete")}
-                          title={t("actions.delete")}
+                          type="button"
                           onClick={() => handleDelete(item, idx)}
-                          className="inline-flex items-center gap-1 rounded-md bg-red-600 px-2 py-1 text-sm text-white hover:bg-red-700 active:scale-[0.98] transition cursor-pointer"
+                          className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700"
                         >
                           <FontAwesomeIcon icon={faTrash} />
                         </button>
@@ -198,7 +173,7 @@ const CertificateTable = forwardRef((props, ref) => {
         open={modalOpen}
         mode={modalMode}
         initialData={selectedRow}
-        onClose={closeModal}
+        onClose={() => setModalOpen(false)}
         onSave={handleSave}
         onUpdate={handleUpdate}
       />

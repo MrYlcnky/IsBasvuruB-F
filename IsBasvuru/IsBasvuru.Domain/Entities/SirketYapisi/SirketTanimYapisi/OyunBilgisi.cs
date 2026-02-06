@@ -8,6 +8,8 @@ namespace IsBasvuru.Domain.Entities.SirketYapisi.SirketTanimYapisi
 {
     public class OyunBilgisi:BaseEntity
     {
+        public int DepartmanId { get; set; }
+        public virtual Departman? Departman { get; set; }
         public required string OyunAdi { get; set; }
     }
 }

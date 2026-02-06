@@ -27,6 +27,7 @@ namespace IsBasvuru.Domain.DTOs.PersonelDtos
         public IFormFile? VesikalikDosyasi { get; set; }
 
        
+
         public required KisiselBilgilerDto KisiselBilgiler { get; set; }
         public required DigerKisiselBilgilerCreateDto DigerKisiselBilgiler { get; set; }
 

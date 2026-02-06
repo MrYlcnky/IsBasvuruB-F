@@ -110,7 +110,8 @@
     "areYouSure": "Emin misiniz?",
     "clearAllWarning": "Tüm form verileri silinecek ve sıfırlanacak. Bu işlem geri alınamaz!",
     "yesClear": "Evet, Temizle",
-    "clearFormBtn": "Formu Temizle ve Sıfırla"
+    "clearFormBtn": "Formu Temizle ve Sıfırla",
+    "other": "Diğer"
   },
   "certificates": {
     "table": {
@@ -203,7 +204,8 @@
       },
       "level": {
         "required": "Yetkinlik zorunlu."
-      }
+      },
+      "alphaNum": "Geçersiz karakter kullandınız. (İzin verilenler: . # + - _)"
     }
   },
   "education": {
@@ -346,7 +348,8 @@
       "no": "Hayır"
     },
     "common": {
-      "pleaseSelect": "Lütfen seçiniz"
+      "pleaseSelect": "Lütfen seçiniz",
+      "other": "Diğer"
     },
     "departments": {
       "hotelReception": "Otel Resepsiyon",

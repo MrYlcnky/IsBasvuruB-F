@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Yardımcı fonksiyonlar (Bağımsız olması için buraya aldım)
+// Yardımcı fonksiyonlar
 const isValidISODate = (s) => {
   if (!s) return false;
   const d = new Date(s + "T00:00:00");
@@ -18,7 +18,7 @@ export const createEducationSchema = (t) => {
         .trim()
         .regex(
           /^[a-zA-Z0-9ığüşöçİĞÜŞÖÇ\s]+$/u,
-          t("education.validations.schoolFormat")
+          t("education.validations.schoolFormat"),
         )
         .min(5, t("education.validations.schoolRequired"))
         .max(100, t("education.validations.schoolMax")),
@@ -27,13 +27,16 @@ export const createEducationSchema = (t) => {
         .trim()
         .regex(
           /^[a-zA-Z0-9ığüşöçİĞÜŞÖÇ\s]+$/u,
-          t("education.validations.deptFormat")
+          t("education.validations.deptFormat"),
         )
-        .min(5, t("education.validations.deptRequired"))
+        .min(1, t("education.validations.deptRequired"))
         .max(100, t("education.validations.deptMax")),
-      notSistemi: z.enum(["4", "100"], {
+
+      //  Backend Enum ID'leri (1=Yüzlük, 2=Dörtlük)
+      notSistemi: z.enum(["1", "2"], {
         errorMap: () => ({ message: t("education.validations.gradeSystem") }),
       }),
+
       gano: z
         .string()
         .optional()
@@ -42,12 +45,14 @@ export const createEducationSchema = (t) => {
         }),
       baslangic: z.string().min(1, t("education.validations.startRequired")),
       bitis: z.string().optional().default(""),
+
+      //  Diploma Durumu ID'leri (1,2,3,4)
       diplomaDurum: z
         .string()
         .min(1, t("education.validations.diplomaRequired"))
         .refine(
-          (v) => ["Mezun", "Devam", "Ara Verdi", "Terk"].includes(v),
-          t("education.validations.diplomaValid")
+          (v) => ["1", "2", "3", "4"].includes(v),
+          t("education.validations.diplomaValid"),
         ),
     })
     .superRefine((data, ctx) => {
@@ -58,7 +63,7 @@ export const createEducationSchema = (t) => {
           code: z.ZodIssueCode.custom,
           message: t("education.validations.startInvalid"),
         });
-        return; // Tarih bozuksa diğer kontrollere geçme
+        return;
       }
       const start = toDate(data.baslangic);
       const today = new Date();
@@ -73,7 +78,8 @@ export const createEducationSchema = (t) => {
       }
 
       // 2. Bitiş Tarihi Kontrolü
-      const requiresEnd = ["Mezun", "Ara Verdi"].includes(data.diplomaDurum);
+      // ID kontrolü (1=Mezun, 3=Ara Verdi)
+      const requiresEnd = ["1", "3"].includes(data.diplomaDurum);
 
       if (requiresEnd) {
         if (!data.bitis || data.bitis.trim() === "") {
@@ -102,7 +108,6 @@ export const createEducationSchema = (t) => {
           });
         }
         if (start && end) {
-          // Aynı yıl/ay/gün mü?
           if (
             start.getFullYear() === end.getFullYear() &&
             start.getMonth() === end.getMonth() &&
@@ -114,7 +119,6 @@ export const createEducationSchema = (t) => {
               message: t("education.validations.sameDay"),
             });
           }
-          // Bitiş, başlangıçtan önce mi?
           if (end.getTime() < start.getTime()) {
             ctx.addIssue({
               path: ["bitis"],
@@ -128,7 +132,10 @@ export const createEducationSchema = (t) => {
       // 3. GANO Kontrolü
       if (data.gano && data.gano !== "") {
         const n = Number(data.gano);
-        const max = data.notSistemi === "100" ? 100 : 4;
+
+        //Enum ID'lerine göre max değer (1=Yüzlük, 2=Dörtlük)
+        const max = data.notSistemi === "1" ? 100 : 4;
+
         if (n > max) {
           ctx.addIssue({
             path: ["gano"],
@@ -136,8 +143,9 @@ export const createEducationSchema = (t) => {
             message: t("education.validations.gpaRange", { max }),
           });
         }
-        // 4'lük sistem ondalık kontrolü
-        if (data.notSistemi === "4" && String(n).includes(".")) {
+
+        // Ondalık kontrolü sadece 4'lük (ID="2") sistemde
+        if (data.notSistemi === "2" && String(n).includes(".")) {
           const decimals = String(n).split(".")[1];
           if (decimals && decimals.length > 2) {
             ctx.addIssue({

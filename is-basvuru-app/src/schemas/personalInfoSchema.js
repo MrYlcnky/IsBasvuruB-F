@@ -4,43 +4,35 @@ import { z } from "zod";
 const TEXT_ONLY_TR = /^[a-zA-ZığüşöçİĞÜŞÖÇ\s]+$/u;
 const PHONE_REGEX = /^\+?[1-9]\d{6,14}$/;
 
-// yardımcılar
+// Yardımcılar
 const isFilled = (v) => (v ?? "").toString().trim().length > 0;
 
+// Sayı veya Null (Boş string gelirse null yapar)
 const numOrNull = z.preprocess((v) => {
   if (v === "" || v == null) return null;
   const n = Number(v);
   return Number.isFinite(n) ? n : null;
 }, z.number().nullable());
 
-// ✅ File kontrolü (File / FileList / Array)
+// File kontrolü
 const hasRealFile = (v) => {
   if (!v) return false;
   if (v instanceof File) return true;
-  // input file bazen FileList döner
   if (typeof FileList !== "undefined" && v instanceof FileList)
     return v.length > 0;
-  // bazı componentlerde array gelebilir
   if (Array.isArray(v)) return v.length > 0 && v[0] instanceof File;
-  // bazı lib'lerde { file: File } gibi gelebilir
-  if (typeof v === "object" && v.file instanceof File) return true;
+  if (typeof v === "object" && v?.file instanceof File) return true;
   return false;
 };
 
-// ✅ İlçe var mı? (sehirId’ye göre ilce listesinde eşleşme arar)
+// Seçilen şehre ait ilçe var mı kontrolü
 const hasDistrictsForCity = (cityId, ilceler = []) => {
   if (cityId == null) return false;
   const cid = Number(cityId);
   if (!Number.isFinite(cid)) return false;
 
   return (ilceler ?? []).some((x) => {
-    const sid =
-      x?.SehirId ??
-      x?.sehirId ??
-      x?.CityId ??
-      x?.cityId ??
-      x?.SehirID ??
-      x?.sehirID;
+    const sid = x?.SehirId ?? x?.sehirId ?? x?.CityId ?? x?.cityId;
     const n = Number(sid);
     return Number.isFinite(n) && n === cid;
   });
@@ -49,7 +41,7 @@ const hasDistrictsForCity = (cityId, ilceler = []) => {
 export const createPersonalSchema = (t, defs = {}) => {
   const reqMsg = (key) => ({
     required_error: t(`personal.errors.${key}.required`),
-    invalid_type_error: t(`personal.errors.${key}.required`),
+    invalid_type_error: t(`personal.errors.${key}.required`), // Tip hatasında da zorunlu uyarısı ver
   });
 
   const ilceler = defs?.ilceler ?? [];
@@ -93,21 +85,18 @@ export const createPersonalSchema = (t, defs = {}) => {
         .min(5, t("personal.errors.address.min"))
         .max(90, t("personal.errors.address.max")),
 
-      cinsiyet: z
-        .string(reqMsg("gender"))
-        .min(1, t("personal.errors.gender.required")),
+      // Cinsiyet ve Medeni Durum genelde ID (Number) gelir ama String de gelebilir, ikisini de kapsayalım
+      cinsiyet: z.union([z.string(), z.number()], reqMsg("gender")),
 
-      medeniDurum: z
-        .string(reqMsg("marital"))
-        .min(1, t("personal.errors.marital.required")),
+      medeniDurum: z.union([z.string(), z.number()], reqMsg("marital")),
 
       dogumTarihi: z
         .string(reqMsg("birthDate"))
         .min(1, t("personal.errors.birthDate.required")),
 
-      cocukSayisi: z.string().optional(),
+      cocukSayisi: z.any().optional(), // String ("7+") veya Number gelebilir
 
-      // ✅ DTO alanlar
+      // --- DTO Alanları (ID ve Adlar) ---
       UyrukId: numOrNull,
       UyrukAdi: z.string().optional().nullable().or(z.literal("")),
 
@@ -125,36 +114,31 @@ export const createPersonalSchema = (t, defs = {}) => {
       IkametgahIlceId: numOrNull,
       IkametgahIlceAdi: z.string().optional().nullable().or(z.literal("")),
 
-      // ✅ Vesikalık zorunlu
+      // Vesikalık Dosya (Any yaptık çünkü File objesi Zod ile zor valide edilir)
       VesikalikDosyasi: z.any(),
-
-      // opsiyonel (preview vs için)
       foto: z.any().optional(),
     })
     .superRefine((data, ctx) => {
-      // ✅ Vesikalık dosya zorunlu
+      // 1. Vesikalık Dosya Kontrolü
       if (!hasRealFile(data.VesikalikDosyasi)) {
         ctx.addIssue({
           path: ["VesikalikDosyasi"],
           code: z.ZodIssueCode.custom,
-          // istediğin uyarı:
           message:
             "⚠️ Fotoğraf önizlemesi var ama dosya yok. Gönderebilmek için fotoğrafı yeniden yükleyin.",
-          // istersen çeviri key’i açıp şu şekilde yapabilirsin:
-          // message: t("personal.errors.photo.reupload")
         });
       }
 
-      // ✅ Uyruk: ID seçiliyse OK, değilse (Diğer) adı zorunlu
+      // 2. Uyruk Kontrolü
       if (data.UyrukId == null && !isFilled(data.UyrukAdi)) {
         ctx.addIssue({
-          path: ["UyrukId"],
+          path: ["UyrukId"], // Hata Select box'ta görünsün
           code: z.ZodIssueCode.custom,
           message: t("personal.errors.nationality"),
         });
       }
 
-      // ✅ Doğum Ülke
+      // 3. Doğum Yeri Kontrolleri
       if (data.DogumUlkeId == null && !isFilled(data.DogumUlkeAdi)) {
         ctx.addIssue({
           path: ["DogumUlkeId"],
@@ -163,7 +147,6 @@ export const createPersonalSchema = (t, defs = {}) => {
         });
       }
 
-      // ✅ Doğum Şehir
       if (data.DogumSehirId == null && !isFilled(data.DogumSehirAdi)) {
         ctx.addIssue({
           path: ["DogumSehirId"],
@@ -172,28 +155,22 @@ export const createPersonalSchema = (t, defs = {}) => {
         });
       }
 
-      // ✅ Doğum İlçe:
-      // Şehir seçildiyse ve o şehre bağlı ilçe varsa -> ilçe zorunlu
-      const dogumSehirId = data.DogumSehirId;
-      const mustBirthDistrict =
-        (dogumSehirId != null && hasDistrictsForCity(dogumSehirId, ilceler)) ||
-        (dogumSehirId != null && ilceler.length > 0); // fallback: elinde ilce datası varsa zorunlu say
-
+      // Doğum İlçe (Sadece o şehre ait ilçe varsa zorunlu)
       if (
-        mustBirthDistrict &&
+        data.DogumSehirId != null &&
+        hasDistrictsForCity(data.DogumSehirId, ilceler) &&
         data.DogumIlceId == null &&
         !isFilled(data.DogumIlceAdi)
       ) {
         ctx.addIssue({
           path: ["DogumIlceId"],
           code: z.ZodIssueCode.custom,
-          // varsa translation key aç: personal.errors.birthDistrict.required
           message:
             t("personal.errors.birthDistrict") || "Doğum ilçesi zorunludur.",
         });
       }
 
-      // ✅ İkamet Ülke
+      // 4. İkametgah Kontrolleri
       if (data.IkametgahUlkeId == null && !isFilled(data.IkametgahUlkeAdi)) {
         ctx.addIssue({
           path: ["IkametgahUlkeId"],
@@ -202,7 +179,6 @@ export const createPersonalSchema = (t, defs = {}) => {
         });
       }
 
-      // ✅ İkamet Şehir
       if (data.IkametgahSehirId == null && !isFilled(data.IkametgahSehirAdi)) {
         ctx.addIssue({
           path: ["IkametgahSehirId"],
@@ -211,15 +187,10 @@ export const createPersonalSchema = (t, defs = {}) => {
         });
       }
 
-      // ✅ İkamet İlçe:
-      const ikametSehirId = data.IkametgahSehirId;
-      const mustResDistrict =
-        (ikametSehirId != null &&
-          hasDistrictsForCity(ikametSehirId, ilceler)) ||
-        (ikametSehirId != null && ilceler.length > 0);
-
+      // İkamet İlçe (Sadece o şehre ait ilçe varsa zorunlu)
       if (
-        mustResDistrict &&
+        data.IkametgahSehirId != null &&
+        hasDistrictsForCity(data.IkametgahSehirId, ilceler) &&
         data.IkametgahIlceId == null &&
         !isFilled(data.IkametgahIlceAdi)
       ) {

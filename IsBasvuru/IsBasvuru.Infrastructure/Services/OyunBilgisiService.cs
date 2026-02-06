@@ -34,7 +34,12 @@ namespace IsBasvuru.Infrastructure.Services
                 return ServiceResponse<List<OyunBilgisiListDto>>.SuccessResult(cachedList);
             }
 
-            var list = await _context.OyunBilgileri.ToListAsync();
+            var list = await _context.OyunBilgileri
+                .Include(x => x.Departman)
+                .ThenInclude(x => x.MasterDepartman) 
+                .AsNoTracking()
+                .ToListAsync();
+
             var mappedList = _mapper.Map<List<OyunBilgisiListDto>>(list) ?? new List<OyunBilgisiListDto>();
 
             var cacheOptions = new MemoryCacheEntryOptions()

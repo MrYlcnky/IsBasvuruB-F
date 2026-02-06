@@ -3,7 +3,7 @@
     public class SubeAlanCreateDto
     {
         public int SubeId { get; set; } // Hangi şubeye bağlı?
-        public required string SubeAlanAdi { get; set; }
+        public int MasterAlanId { get; set; }
         public bool SubeAlanAktifMi { get; set; } = true;
     }
 }

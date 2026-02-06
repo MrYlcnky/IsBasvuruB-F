@@ -17,7 +17,6 @@ namespace IsBasvuru.Infrastructure.Services
         private readonly IsBasvuruContext _context;
         private readonly IMapper _mapper;
         private readonly IMemoryCache _cache;
-
         private const string CacheKey = "sube_alan_list";
 
         public SubeAlanService(IsBasvuruContext context, IMapper mapper, IMemoryCache cache)
@@ -34,7 +33,11 @@ namespace IsBasvuru.Infrastructure.Services
                 return ServiceResponse<List<SubeAlanListDto>>.SuccessResult(cachedList);
             }
 
-            var list = await _context.SubeAlanlar.Include(x => x.Sube).ToListAsync();
+            var list = await _context.SubeAlanlar
+                .Include(x => x.Sube)
+                .Include(x => x.MasterAlan) 
+                .ToListAsync();
+
             var mappedList = _mapper.Map<List<SubeAlanListDto>>(list) ?? new List<SubeAlanListDto>();
 
             var cacheOptions = new MemoryCacheEntryOptions()
@@ -42,7 +45,6 @@ namespace IsBasvuru.Infrastructure.Services
                 .SetPriority(CacheItemPriority.Normal);
 
             _cache.Set(CacheKey, mappedList, cacheOptions);
-
             return ServiceResponse<List<SubeAlanListDto>>.SuccessResult(mappedList);
         }
 
@@ -50,6 +52,7 @@ namespace IsBasvuru.Infrastructure.Services
         {
             var entity = await _context.SubeAlanlar
                 .Include(x => x.Sube)
+                .Include(x => x.MasterAlan) 
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (entity == null)
@@ -62,14 +65,12 @@ namespace IsBasvuru.Infrastructure.Services
         public async Task<ServiceResponse<SubeAlanListDto>> CreateAsync(SubeAlanCreateDto createDto)
         {
             var subeVarMi = await _context.Subeler.AnyAsync(x => x.Id == createDto.SubeId);
-            if (!subeVarMi)
-                return ServiceResponse<SubeAlanListDto>.FailureResult("Seçilen şube bulunamadı!");
+            if (!subeVarMi) return ServiceResponse<SubeAlanListDto>.FailureResult("Seçilen şube bulunamadı!");
 
             bool cakisma = await _context.SubeAlanlar
-                .AnyAsync(x => x.SubeId == createDto.SubeId && x.SubeAlanAdi == createDto.SubeAlanAdi);
+                .AnyAsync(x => x.SubeId == createDto.SubeId && x.MasterAlanId == createDto.MasterAlanId);
 
-            if (cakisma)
-                return ServiceResponse<SubeAlanListDto>.FailureResult("Bu şubede bu isimde bir alan zaten var.");
+            if (cakisma) return ServiceResponse<SubeAlanListDto>.FailureResult("Bu şubede bu alan zaten tanımlı.");
 
             var entity = _mapper.Map<SubeAlan>(createDto);
             await _context.SubeAlanlar.AddAsync(entity);
@@ -77,27 +78,34 @@ namespace IsBasvuru.Infrastructure.Services
 
             _cache.Remove(CacheKey);
 
-            var mapped = _mapper.Map<SubeAlanListDto>(entity);
+            var createdEntity = await _context.SubeAlanlar
+                .Include(x => x.Sube)
+                .Include(x => x.MasterAlan)
+                .FirstOrDefaultAsync(x => x.Id == entity.Id);
+
+            var mapped = _mapper.Map<SubeAlanListDto>(createdEntity);
             return ServiceResponse<SubeAlanListDto>.SuccessResult(mapped);
         }
 
         public async Task<ServiceResponse<bool>> UpdateAsync(SubeAlanUpdateDto updateDto)
         {
             var mevcut = await _context.SubeAlanlar.FindAsync(updateDto.Id);
-            if (mevcut == null)
-                return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
+            if (mevcut == null) return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
 
             if (mevcut.SubeId != updateDto.SubeId)
             {
                 bool subeVarMi = await _context.Subeler.AnyAsync(x => x.Id == updateDto.SubeId);
-                if (!subeVarMi)
-                    return ServiceResponse<bool>.FailureResult("Yeni seçilen şube geçersiz.");
+                if (!subeVarMi) return ServiceResponse<bool>.FailureResult("Yeni seçilen şube geçersiz.");
             }
+
+            bool cakisma = await _context.SubeAlanlar
+                .AnyAsync(x => x.SubeId == updateDto.SubeId && x.MasterAlanId == updateDto.MasterAlanId && x.Id != updateDto.Id);
+
+            if (cakisma) return ServiceResponse<bool>.FailureResult("Bu şubede bu alan zaten var.");
 
             _mapper.Map(updateDto, mevcut);
             _context.SubeAlanlar.Update(mevcut);
             await _context.SaveChangesAsync();
-
             _cache.Remove(CacheKey);
 
             return ServiceResponse<bool>.SuccessResult(true);
@@ -106,16 +114,13 @@ namespace IsBasvuru.Infrastructure.Services
         public async Task<ServiceResponse<bool>> DeleteAsync(int id)
         {
             bool departmanVarMi = await _context.Departmanlar.AnyAsync(x => x.SubeAlanId == id);
-            if (departmanVarMi)
-                return ServiceResponse<bool>.FailureResult("Bu alana bağlı departmanlar var. Önce onları silmelisiniz.");
+            if (departmanVarMi) return ServiceResponse<bool>.FailureResult("Bu alana bağlı departmanlar var. Önce onları silmelisiniz.");
 
             var kayit = await _context.SubeAlanlar.FindAsync(id);
-            if (kayit == null)
-                return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
+            if (kayit == null) return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
 
             _context.SubeAlanlar.Remove(kayit);
             await _context.SaveChangesAsync();
-
             _cache.Remove(CacheKey);
 
             return ServiceResponse<bool>.SuccessResult(true);

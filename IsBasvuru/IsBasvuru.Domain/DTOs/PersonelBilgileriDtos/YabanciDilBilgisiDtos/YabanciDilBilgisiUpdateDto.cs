@@ -7,7 +7,8 @@ namespace IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.YabanciDilBilgisiDtos
         public int Id { get; set; }
         public int PersonelId { get; set; }
 
-        public int DilId { get; set; }
+        public int? DilId { get; set; }
+        public string? DigerDilAdi { get; set; }
 
         public DilSeviyesi KonusmaSeviyesi { get; set; }
         public DilSeviyesi YazmaSeviyesi { get; set; }

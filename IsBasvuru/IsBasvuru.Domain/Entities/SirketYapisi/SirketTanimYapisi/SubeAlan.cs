@@ -11,7 +11,9 @@ namespace IsBasvuru.Domain.Entities.SirketYapisi.SirketTanimYapisi
     {
         public int SubeId { get; set; }
         public virtual Sube? Sube { get; set; }
-        public required string SubeAlanAdi { get; set; }
+
+        public int MasterAlanId { get; set; }
+        public virtual MasterAlan? MasterAlan { get; set; }
         public bool SubeAlanAktifMi { get; set; }
 
         public virtual ICollection<Departman> Departmanlar { get; set; } = new List<Departman>();

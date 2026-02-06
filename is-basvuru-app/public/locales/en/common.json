@@ -110,7 +110,8 @@
     "areYouSure": "Are you sure?",
     "clearAllWarning": "All form data will be deleted and reset. This action cannot be undone!",
     "yesClear": "Yes, Clear",
-    "clearFormBtn": "Clear and Reset Form"
+    "clearFormBtn": "Clear and Reset Form",
+    "other": "Other"
   },
   "certificates": {
     "table": {
@@ -203,7 +204,8 @@
       },
       "level": {
         "required": "Proficiency is required."
-      }
+      },
+      "alphaNum": "Invalid character used. (Allowed: . # + - _)"
     }
   },
   "education": {
@@ -343,7 +345,8 @@
       "no": "No"
     },
     "common": {
-      "pleaseSelect": "Please select"
+      "pleaseSelect": "Please select",
+      "other": "Other"
     },
     "departments": {
       "hotelReception": "Hotel Reception",

@@ -19,6 +19,7 @@ namespace IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.DigerKisiselBilgilerDtos
 
         public SecimDurumu EhliyetDurumu { get; set; } // Var/Yok
 
+
         public int Boy { get; set; }
         public int Kilo { get; set; }
     }

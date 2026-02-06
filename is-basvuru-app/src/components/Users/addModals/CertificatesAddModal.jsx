@@ -2,11 +2,15 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import useModalDismiss from "../modalHooks/useModalDismiss";
-import { toDateSafe, toISODate } from "../modalHooks/dateUtils";
+import {
+  toDateSafe,
+  toISODate,
+  fromISODateString,
+} from "../modalHooks/dateUtils";
 import MuiDateStringField from "../Date/MuiDateStringField";
 import { lockScroll, unlockScroll } from "../modalHooks/scrollLock";
 import { useTranslation } from "react-i18next";
-import { createCertificateSchema } from "../../../schemas/certificateSchema"; // Şema importu
+import { createCertificateSchema } from "../../../schemas/certificateSchema";
 
 const FIELD_BASE =
   "w-full border rounded-lg px-3 py-2 bg-white text-gray-900 focus:outline-none border-gray-300 hover:border-black";
@@ -27,12 +31,11 @@ export default function CertificatesAddModal({
     ad: "",
     kurum: "",
     sure: "",
-    verilisTarihi: null,
-    gecerlilikTarihi: null,
+    verilisTarihi: "",
+    gecerlilikTarihi: "",
   });
   const [errors, setErrors] = useState({});
 
-  // Scroll Lock
   useEffect(() => {
     if (open) lockScroll();
     else unlockScroll();
@@ -44,7 +47,6 @@ export default function CertificatesAddModal({
     onClose?.();
   };
 
-  // Reset Form
   useEffect(() => {
     if (!open) return;
     if (mode === "edit" && initialData) {
@@ -52,16 +54,20 @@ export default function CertificatesAddModal({
         ad: initialData.ad ?? "",
         kurum: initialData.kurum ?? "",
         sure: initialData.sure ?? "",
-        verilisTarihi: toDateSafe(initialData.verilisTarihi),
-        gecerlilikTarihi: toDateSafe(initialData.gecerlilikTarihi),
+        verilisTarihi: initialData.verilisTarihi
+          ? toISODate(toDateSafe(initialData.verilisTarihi))
+          : "",
+        gecerlilikTarihi: initialData.gecerlilikTarihi
+          ? toISODate(toDateSafe(initialData.gecerlilikTarihi))
+          : "",
       });
     } else {
       setFormData({
         ad: "",
         kurum: "",
         sure: "",
-        verilisTarihi: null,
-        gecerlilikTarihi: null,
+        verilisTarihi: "",
+        gecerlilikTarihi: "",
       });
     }
     setErrors({});
@@ -78,34 +84,48 @@ export default function CertificatesAddModal({
       0,
       0,
       0,
-      0
+      0,
     );
   }, []);
   const todayISO = toISODate(today);
 
   const handleChange = (key, value) => {
-    const updated = { ...formData, [key]: value };
-    setFormData(updated);
+    const updatedFormData = { ...formData, [key]: value };
+    setFormData(updatedFormData);
 
-    // Anlık validasyon (opsiyonel, kullanıcı yazarken hata görmek isterse)
-    const parsed = certSchema.safeParse({
-      ...updated,
-      // Şemadaki preprocess mantığına uymak için tarihleri Date objesi olarak gönderiyoruz
-      verilisTarihi: updated.verilisTarihi,
-      gecerlilikTarihi: updated.gecerlilikTarihi,
-    });
+    // Anlık validasyon için veriyi hazırla (Tarih string -> Date)
+    const validationData = {
+      ...updatedFormData,
+      verilisTarihi: fromISODateString(updatedFormData.verilisTarihi),
+      gecerlilikTarihi: updatedFormData.gecerlilikTarihi
+        ? fromISODateString(updatedFormData.gecerlilikTarihi)
+        : null,
+    };
 
-    if (!parsed.success) {
-      const issue = parsed.error.issues.find((i) => i.path[0] === key);
-      setErrors((p) => ({ ...p, [key]: issue ? issue.message : "" }));
+    const result = certSchema.safeParse(validationData);
+
+    if (!result.success) {
+      // Sadece ilgili alanın hatasını göster
+      const issue = result.error.issues.find((i) => i.path[0] === key);
+      setErrors((prev) => ({ ...prev, [key]: issue ? issue.message : "" }));
     } else {
-      setErrors((p) => ({ ...p, [key]: "" }));
+      setErrors((prev) => ({ ...prev, [key]: "" }));
     }
   };
 
   const handleSubmit = (e) => {
-    if (e) e.preventDefault(); // Güvenlik
-    const parsed = certSchema.safeParse(formData);
+    if (e) e.preventDefault();
+
+    const validationData = {
+      ...formData,
+      verilisTarihi: fromISODateString(formData.verilisTarihi),
+      gecerlilikTarihi: formData.gecerlilikTarihi
+        ? fromISODateString(formData.gecerlilikTarihi)
+        : null,
+    };
+
+    const parsed = certSchema.safeParse(validationData);
+
     if (!parsed.success) {
       const newErr = {};
       parsed.error.issues.forEach((i) => {
@@ -117,10 +137,8 @@ export default function CertificatesAddModal({
 
     const payload = {
       ...parsed.data,
-      verilisTarihi: toISODate(parsed.data.verilisTarihi),
-      gecerlilikTarihi: parsed.data.gecerlilikTarihi
-        ? toISODate(parsed.data.gecerlilikTarihi)
-        : null,
+      verilisTarihi: parsed.data.verilisTarihi,
+      gecerlilikTarihi: parsed.data.gecerlilikTarihi,
     };
 
     if (mode === "edit") onUpdate?.(payload);
@@ -129,26 +147,26 @@ export default function CertificatesAddModal({
     handleClose();
   };
 
-  // Buton disable durumu için (Daha katı veya esnek olabilir)
-  const isValid = certSchema.safeParse(formData).success;
+  const isValid = certSchema.safeParse({
+    ...formData,
+    verilisTarihi: fromISODateString(formData.verilisTarihi),
+    gecerlilikTarihi: formData.gecerlilikTarihi
+      ? fromISODateString(formData.gecerlilikTarihi)
+      : null,
+  }).success;
+
   const disabledTip = !isValid ? t("common.fillAllProperly") : "";
 
   const CharCounter = ({ value, max }) => {
     const len = value?.length || 0;
     return (
       <span
-        className={`text-xs ${
-          len >= max * 0.9 ? "text-red-500" : "text-gray-400"
-        }`}
+        className={`text-xs ${len >= max * 0.9 ? "text-red-500" : "text-gray-400"}`}
       >
         {len}/{max}
       </span>
     );
   };
-
-  const toStr = (d) => (typeof d === "string" ? d : d ? toISODate(d) : "");
-  const handleMuiString = ({ target: { name, value } }) =>
-    handleChange(name, value ? new Date(value) : null);
 
   if (!open) return null;
 
@@ -162,8 +180,8 @@ export default function CertificatesAddModal({
         className="w-full max-w-2xl bg-white rounded-2xl shadow-xl flex flex-col max-h-[90vh] overflow-hidden"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        {/* Başlık */}
-        <div className="flex items-center justify-between bg-gradient-to-r from-gray-700 via-gray-600 to-gray-500 text-white px-4 sm:px-6 py-3 sm:py-4">
+        {/* Header */}
+        <div className="flex items-center justify-between bg-linear-to-r from-gray-700 via-gray-600 to-gray-500 text-white px-4 sm:px-6 py-3 sm:py-4">
           <h2 className="text-base sm:text-lg md:text-xl font-semibold truncate">
             {mode === "edit"
               ? t("certificates.modal.titleEdit")
@@ -178,10 +196,9 @@ export default function CertificatesAddModal({
           </button>
         </div>
 
-        {/* Form yerine Div */}
         <div className="flex-1 flex flex-col min-h-0">
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
-            {/* Sertifika / Eğitim Adı ve Kurum */}
+            {/* Ad ve Kurum */}
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
               <div className="sm:col-span-2">
                 <label className="block text-sm text-gray-600 mb-1">
@@ -228,7 +245,7 @@ export default function CertificatesAddModal({
               </div>
             </div>
 
-            {/* Süre & Veriliş Tarihi */}
+            {/* Süre & Tarihler */}
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
               <div className="sm:col-span-2">
                 <label className="block text-sm text-gray-600 mb-1">
@@ -256,23 +273,14 @@ export default function CertificatesAddModal({
                 <MuiDateStringField
                   label={t("certificates.form.issuedAt")}
                   name="verilisTarihi"
-                  value={toStr(formData.verilisTarihi)}
-                  onChange={handleMuiString}
+                  value={formData.verilisTarihi}
+                  onChange={(e) =>
+                    handleChange("verilisTarihi", e.target.value)
+                  }
                   required
                   error={errors.verilisTarihi}
                   min="1950-01-01"
                   max={todayISO}
-                  sx={{
-                    "& .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "#d1d5db",
-                    },
-                    "&:hover .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "black",
-                    },
-                    "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                      borderColor: "black",
-                    },
-                  }}
                 />
               </div>
             </div>
@@ -282,27 +290,17 @@ export default function CertificatesAddModal({
               <MuiDateStringField
                 label={t("certificates.form.validUntilOptional")}
                 name="gecerlilikTarihi"
-                value={toStr(formData.gecerlilikTarihi)}
-                onChange={handleMuiString}
+                value={formData.gecerlilikTarihi}
+                onChange={(e) =>
+                  handleChange("gecerlilikTarihi", e.target.value)
+                }
                 required={false}
                 error={errors.gecerlilikTarihi}
-                min={toStr(formData.verilisTarihi) || undefined}
-                sx={{
-                  "& .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "#d1d5db",
-                  },
-                  "&:hover .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "black",
-                  },
-                  "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-                    borderColor: "black",
-                  },
-                }}
+                min={formData.verilisTarihi || undefined}
               />
             </div>
           </div>
 
-          {/* Alt Butonlar */}
           <div className="border-t bg-white px-6 py-3">
             <div className="flex flex-col sm:flex-row sm:justify-end gap-2 sm:gap-3">
               <button

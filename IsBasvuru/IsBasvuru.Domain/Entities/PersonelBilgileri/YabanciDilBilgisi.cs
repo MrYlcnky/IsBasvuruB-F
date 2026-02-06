@@ -15,6 +15,7 @@ namespace IsBasvuru.Domain.Entities.PersonelBilgileri
 
         public int DilId { get; set; }
         public virtual Dil? Dil { get; set; }
+        public string? DigerDilAdi { get; set; }
         public DilSeviyesi KonusmaSeviyesi { get; set; }
         public DilSeviyesi YazmaSeviyesi { get; set; }
         public DilSeviyesi OkumaSeviyesi { get; set; }

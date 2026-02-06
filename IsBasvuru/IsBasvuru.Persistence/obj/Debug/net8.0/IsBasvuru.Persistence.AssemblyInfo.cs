@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("IsBasvuru.Persistence")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c891bf8642cb0138c354dcd34a0f469d6b20135c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0411278d82b43c2245b8173d7410bef15af44a65")]
 [assembly: System.Reflection.AssemblyProductAttribute("IsBasvuru.Persistence")]
 [assembly: System.Reflection.AssemblyTitleAttribute("IsBasvuru.Persistence")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

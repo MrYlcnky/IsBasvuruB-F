@@ -3,13 +3,15 @@
     public class DepartmanPozisyonListDto
     {
         public int Id { get; set; }
-        public required string DepartmanPozisyonAdi { get; set; }
+
+        public int MasterPozisyonId { get; set; }
+        public required string PozisyonAdi { get; set; } 
+
         public bool DepartmanPozisyonAktifMi { get; set; }
 
-        // Zincirleme Hiyerarşi Bilgileri
         public int DepartmanId { get; set; }
-        public required string DepartmanAdi { get; set; }
-        public required string SubeAlanAdi { get; set; }  
-        public required string SubeAdi { get; set; }      
+        public string? DepartmanAdi { get; set; }
+        public string? SubeAlanAdi { get; set; }
+        public string? SubeAdi { get; set; }
     }
 }

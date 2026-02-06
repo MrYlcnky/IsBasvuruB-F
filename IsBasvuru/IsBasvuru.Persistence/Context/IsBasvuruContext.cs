@@ -58,6 +58,10 @@ namespace IsBasvuru.Persistence.Context
         public DbSet<Sube> Subeler { get; set; }
         public DbSet<SubeAlan> SubeAlanlar { get; set; }
 
+        public DbSet<MasterAlan> MasterAlanlar { get; set; }
+        public DbSet<MasterDepartman> MasterDepartmanlar { get; set; }
+        public DbSet<MasterPozisyon> MasterPozisyonlar { get; set; }
+
         // 5-Tanimlamalar
         public DbSet<Dil> Diller { get; set; }
         public DbSet<EhliyetTuru> EhliyetTurleri { get; set; }
@@ -136,6 +140,9 @@ namespace IsBasvuru.Persistence.Context
                 .HasIndex(e => new { e.IsBasvuruDetayId, e.OyunBilgisiId }).IsUnique();
 
         }
+
+
+
 
     }
 

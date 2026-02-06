@@ -2,6 +2,7 @@
 {
     public class OyunBilgisiCreateDto
     {
+        public int DepartmanId { get; set; }
         public required string OyunAdi { get; set; }
     }
 }

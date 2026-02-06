@@ -38,11 +38,6 @@ namespace IsBasvuru.WebAPI.Validators.PersonelValidators
                 .When(x => x.BitisTarihi.HasValue)
                 .WithMessage("İşten çıkış tarihi, giriş tarihinden önce olamaz.");
 
-            // 2. Mantık: "Ayrılış Sebebi" yazıldıysa, işten çıkılmış demektir -> Bitiş Tarihi ZORUNLU
-            RuleFor(x => x.BitisTarihi)
-                .NotEmpty()
-                .When(x => !string.IsNullOrEmpty(x.AyrilisSebep))
-                .WithMessage("Ayrılış sebebi belirttiğiniz için işten çıkış tarihi girmelisiniz.");
 
             // 3. Mantık: Gelecek tarihli çıkış olamaz (Genel kural)
             RuleFor(x => x.BitisTarihi)

@@ -1490,6 +1490,99 @@
         }
       }
     },
+    "/api/MasterAlan": {
+      "get": {
+        "tags": [
+          "MasterAlan"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "MasterAlan"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterAlanCreateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterAlanCreateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterAlanCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "MasterAlan"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterAlanUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterAlanUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterAlanUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterAlan/{id}": {
+      "delete": {
+        "tags": [
+          "MasterAlan"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/MasterBasvuru": {
       "get": {
         "tags": [
@@ -1612,6 +1705,192 @@
         "parameters": [
           {
             "name": "personelId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterDepartman": {
+      "get": {
+        "tags": [
+          "MasterDepartman"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "MasterDepartman"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterDepartmanCreateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterDepartmanCreateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterDepartmanCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "MasterDepartman"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterDepartmanUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterDepartmanUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterDepartmanUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterDepartman/{id}": {
+      "delete": {
+        "tags": [
+          "MasterDepartman"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterPozisyon": {
+      "get": {
+        "tags": [
+          "MasterPozisyon"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "MasterPozisyon"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterPozisyonCreateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterPozisyonCreateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterPozisyonCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "MasterPozisyon"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterPozisyonUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterPozisyonUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterPozisyonUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterPozisyon/{id}": {
+      "delete": {
+        "tags": [
+          "MasterPozisyon"
+        ],
+        "parameters": [
+          {
+            "name": "id",
             "in": "path",
             "required": true,
             "schema": {
@@ -4661,18 +4940,15 @@
         "format": "int32"
       },
       "DepartmanCreateDto": {
-        "required": [
-          "departmanAdi"
-        ],
         "type": "object",
         "properties": {
           "subeAlanId": {
             "type": "integer",
             "format": "int32"
           },
-          "departmanAdi": {
-            "type": "string",
-            "nullable": true
+          "masterDepartmanId": {
+            "type": "integer",
+            "format": "int32"
           },
           "departmanAktifMi": {
             "type": "boolean"
@@ -4681,18 +4957,15 @@
         "additionalProperties": false
       },
       "DepartmanPozisyonCreateDto": {
-        "required": [
-          "departmanPozisyonAdi"
-        ],
         "type": "object",
         "properties": {
           "departmanId": {
             "type": "integer",
             "format": "int32"
           },
-          "departmanPozisyonAdi": {
-            "type": "string",
-            "nullable": true
+          "masterPozisyonId": {
+            "type": "integer",
+            "format": "int32"
           },
           "departmanPozisyonAktifMi": {
             "type": "boolean"
@@ -4701,9 +4974,6 @@
         "additionalProperties": false
       },
       "DepartmanPozisyonUpdateDto": {
-        "required": [
-          "departmanPozisyonAdi"
-        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4714,9 +4984,9 @@
             "type": "integer",
             "format": "int32"
           },
-          "departmanPozisyonAdi": {
-            "type": "string",
-            "nullable": true
+          "masterPozisyonId": {
+            "type": "integer",
+            "format": "int32"
           },
           "departmanPozisyonAktifMi": {
             "type": "boolean"
@@ -4725,9 +4995,6 @@
         "additionalProperties": false
       },
       "DepartmanUpdateDto": {
-        "required": [
-          "departmanAdi"
-        ],
         "type": "object",
         "properties": {
           "id": {
@@ -4738,9 +5005,9 @@
             "type": "integer",
             "format": "int32"
           },
-          "departmanAdi": {
-            "type": "string",
-            "nullable": true
+          "masterDepartmanId": {
+            "type": "integer",
+            "format": "int32"
           },
           "departmanAktifMi": {
             "type": "boolean"
@@ -5331,6 +5598,36 @@
         },
         "additionalProperties": false
       },
+      "MasterAlanCreateDto": {
+        "required": [
+          "masterAlanAdi"
+        ],
+        "type": "object",
+        "properties": {
+          "masterAlanAdi": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MasterAlanUpdateDto": {
+        "required": [
+          "masterAlanAdi"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "masterAlanAdi": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "MasterBasvuruCreateDto": {
         "type": "object",
         "properties": {
@@ -5365,6 +5662,66 @@
         },
         "additionalProperties": false
       },
+      "MasterDepartmanCreateDto": {
+        "required": [
+          "masterDepartmanAdi"
+        ],
+        "type": "object",
+        "properties": {
+          "masterDepartmanAdi": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MasterDepartmanUpdateDto": {
+        "required": [
+          "masterDepartmanAdi"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "masterDepartmanAdi": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MasterPozisyonCreateDto": {
+        "required": [
+          "masterPozisyonAdi"
+        ],
+        "type": "object",
+        "properties": {
+          "masterPozisyonAdi": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MasterPozisyonUpdateDto": {
+        "required": [
+          "masterPozisyonAdi"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "masterPozisyonAdi": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "MedeniDurum": {
         "enum": [
           0,
@@ -5391,6 +5748,10 @@
         ],
         "type": "object",
         "properties": {
+          "departmanId": {
+            "type": "integer",
+            "format": "int32"
+          },
           "oyunAdi": {
             "type": "string",
             "nullable": true
@@ -5411,6 +5772,10 @@
           "oyunAdi": {
             "type": "string",
             "nullable": true
+          },
+          "departmanId": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -5829,18 +6194,15 @@
         "additionalProperties": false
       },
       "SubeAlanCreateDto": {
-        "required": [
-          "subeAlanAdi"
-        ],
         "type": "object",
         "properties": {
           "subeId": {
             "type": "integer",
             "format": "int32"
           },
-          "subeAlanAdi": {
-            "type": "string",
-            "nullable": true
+          "masterAlanId": {
+            "type": "integer",
+            "format": "int32"
           },
           "subeAlanAktifMi": {
             "type": "boolean"
@@ -5849,9 +6211,6 @@
         "additionalProperties": false
       },
       "SubeAlanUpdateDto": {
-        "required": [
-          "subeAlanAdi"
-        ],
         "type": "object",
         "properties": {
           "id": {
@@ -5862,9 +6221,9 @@
             "type": "integer",
             "format": "int32"
           },
-          "subeAlanAdi": {
-            "type": "string",
-            "nullable": true
+          "masterAlanId": {
+            "type": "integer",
+            "format": "int32"
           },
           "subeAlanAktifMi": {
             "type": "boolean"
@@ -5988,7 +6347,12 @@
           },
           "dilId": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
+          },
+          "digerDilAdi": {
+            "type": "string",
+            "nullable": true
           },
           "konusmaSeviyesi": {
             "$ref": "#/components/schemas/DilSeviyesi"
@@ -6025,7 +6389,12 @@
           },
           "dilId": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "nullable": true
+          },
+          "digerDilAdi": {
+            "type": "string",
+            "nullable": true
           },
           "konusmaSeviyesi": {
             "$ref": "#/components/schemas/DilSeviyesi"

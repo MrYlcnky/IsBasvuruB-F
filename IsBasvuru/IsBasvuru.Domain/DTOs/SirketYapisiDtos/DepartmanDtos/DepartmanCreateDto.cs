@@ -3,7 +3,7 @@
     public class DepartmanCreateDto
     {
         public int SubeAlanId { get; set; } // Hangi ofise bağlı?
-        public required string DepartmanAdi { get; set; }
+        public int MasterDepartmanId { get; set; }
         public bool DepartmanAktifMi { get; set; } = true;
     }
 }

@@ -7,11 +7,11 @@ namespace IsBasvuru.WebAPI.Validators.SirketYapisiValidators
     {
         public SubeAlanCreateValidator()
         {
-            RuleFor(x => x.SubeId).GreaterThan(0).WithMessage("Bağlı olunacak şube seçilmelidir.");
+            RuleFor(x => x.SubeId)
+                .GreaterThan(0).WithMessage("Bağlı olunacak şube seçilmelidir.");
 
-            RuleFor(x => x.SubeAlanAdi)
-                .NotEmpty().WithMessage("Şube alan adı boş geçilemez.")
-                .MaximumLength(100).WithMessage("Alan adı en fazla 100 karakter olabilir.");
+            RuleFor(x => x.MasterAlanId)
+                .GreaterThan(0).WithMessage("Lütfen listeden bir alan seçiniz.");
         }
     }
 
@@ -19,15 +19,15 @@ namespace IsBasvuru.WebAPI.Validators.SirketYapisiValidators
     {
         public SubeAlanUpdateValidator()
         {
-            RuleFor(x => x.Id).GreaterThan(0).WithMessage("Geçersiz ID.");
+            RuleFor(x => x.Id)
+                .GreaterThan(0).WithMessage("Geçersiz ID.");
 
-            RuleFor(x => x.SubeId).GreaterThan(0).WithMessage("Bağlı olunacak şube seçilmelidir.");
+            RuleFor(x => x.SubeId)
+                .GreaterThan(0).WithMessage("Bağlı olunacak şube seçilmelidir.");
 
-            RuleFor(x => x.SubeAlanAdi)
-                .NotEmpty().WithMessage("Şube alan adı boş geçilemez.")
-                .MaximumLength(100).WithMessage("Alan adı en fazla 100 karakter olabilir.");
-
-        
+            
+            RuleFor(x => x.MasterAlanId)
+                .GreaterThan(0).WithMessage("Lütfen listeden bir alan seçiniz.");
         }
     }
 }

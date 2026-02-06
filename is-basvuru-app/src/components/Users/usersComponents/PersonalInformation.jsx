@@ -71,16 +71,16 @@ export default function PersonalInformation({ definitions }) {
       .map((u) => ({ value: toStr(u?.id), label: u?.ulkeAdi ?? "" }))
       .filter((x) => x.value !== "" && x.label);
 
-    return list.concat([{ value: OTHER_VALUE, label: "Diğer" }]);
-  }, [ulkeler]);
+    return list.concat([{ value: OTHER_VALUE, label: t("common.other") }]);
+  }, [ulkeler, t]);
 
   const uyrukOptionList = useMemo(() => {
     const list = (uyruklar || [])
       .map((u) => ({ value: toStr(u?.id), label: u?.uyrukAdi ?? "" }))
       .filter((x) => x.value !== "" && x.label);
 
-    return list.concat([{ value: OTHER_VALUE, label: "Diğer" }]);
-  }, [uyruklar]);
+    return list.concat([{ value: OTHER_VALUE, label: t("common.other") }]);
+  }, [uyruklar, t]);
 
   // ✅ Şehir options
   const sehirOptionsDogum = useMemo(() => {
@@ -138,14 +138,15 @@ export default function PersonalInformation({ definitions }) {
     ikametUlkeId != null && sehirOptionsIkamet.length > 1;
   const ikametIlceHasDb = ikametSehirId != null && ilceOptionsIkamet.length > 1;
 
+  // ✅ GÜNCELLENDİ: Value'lar Backend Enum ID'leri (Number)
   const genderOptions = useMemo(
     () => [
       {
-        value: t("personal.options.gender.female"),
+        value: 1, // Kadin
         label: t("personal.options.gender.female"),
       },
       {
-        value: t("personal.options.gender.male"),
+        value: 2, // Erkek
         label: t("personal.options.gender.male"),
       },
     ],
@@ -155,19 +156,19 @@ export default function PersonalInformation({ definitions }) {
   const maritalOptions = useMemo(
     () => [
       {
-        value: t("personal.options.marital.single"),
+        value: 1, // Bekar
         label: t("personal.options.marital.single"),
       },
       {
-        value: t("personal.options.marital.married"),
+        value: 2, // Evli
         label: t("personal.options.marital.married"),
       },
       {
-        value: t("personal.options.marital.divorced"),
+        value: 3, // Bosanmis
         label: t("personal.options.marital.divorced"),
       },
       {
-        value: t("personal.options.marital.widowed"),
+        value: 4, // Dul
         label: t("personal.options.marital.widowed"),
       },
     ],
@@ -195,6 +196,7 @@ export default function PersonalInformation({ definitions }) {
 
     if (!isValidType || !isValidSize) {
       e.target.value = "";
+      alert(t("personal.errors.photo.invalid"));
       return;
     }
 
@@ -489,7 +491,7 @@ export default function PersonalInformation({ definitions }) {
               <input
                 type="text"
                 placeholder={t("personal.placeholders.cityState")}
-                className="block w-full h-[43px] rounded-lg border px-3 py-2 focus:outline-none bg-white border-gray-300"
+                className="block w-full h-10.75 rounded-lg border px-3 py-2 focus:outline-none bg-white border-gray-300"
                 value={dogumSehirAdi || ""}
                 onChange={(e) => {
                   setValue("personal.DogumSehirId", null);
@@ -532,7 +534,7 @@ export default function PersonalInformation({ definitions }) {
               <input
                 type="text"
                 placeholder={t("personal.placeholders.districtRegion")}
-                className="block w-full h-[43px] rounded-lg border px-3 py-2 focus:outline-none bg-white border-gray-300"
+                className="block w-full h-10.75 rounded-lg border px-3 py-2 focus:outline-none bg-white border-gray-300"
                 value={dogumIlceAdi || ""}
                 onChange={(e) => {
                   setValue("personal.DogumIlceId", null);
@@ -622,7 +624,7 @@ export default function PersonalInformation({ definitions }) {
               <input
                 type="text"
                 placeholder={t("personal.placeholders.cityState")}
-                className="block w-full h-[43px] rounded-lg border px-3 py-2 focus:outline-none bg-white border-gray-300"
+                className="block w-full h-10.75 rounded-lg border px-3 py-2 focus:outline-none bg-white border-gray-300"
                 value={ikametSehirAdi || ""}
                 onChange={(e) => {
                   setValue("personal.IkametgahSehirId", null);
@@ -665,7 +667,7 @@ export default function PersonalInformation({ definitions }) {
               <input
                 type="text"
                 placeholder={t("personal.placeholders.districtRegion")}
-                className="block w-full h-[43px] rounded-lg border px-3 py-2 focus:outline-none bg-white border-gray-300"
+                className="block w-full h-10.75 rounded-lg border px-3 py-2 focus:outline-none bg-white border-gray-300"
                 value={ikametIlceAdi || ""}
                 onChange={(e) => {
                   setValue("personal.IkametgahIlceId", null);
@@ -729,9 +731,9 @@ function InputField({
         placeholder={placeholder}
         maxLength={max}
         {...register(name)}
-        className="block w-full h-[43px] rounded-lg border mt-0.5 px-3 py-2 bg-white text-gray-900 focus:outline-none transition border-gray-300 hover:border-black"
+        className="block w-full h-10.75 rounded-lg border mt-0.5 px-3 py-2 bg-white text-gray-900 focus:outline-none transition border-gray-300 hover:border-black"
       />
-      <div className="mt-1 flex justify-between min-h-[1rem]">
+      <div className="mt-1 flex justify-between min-h-4">
         {error && (
           <p className="text-xs text-red-600 font-medium">{error.message}</p>
         )}
@@ -856,7 +858,7 @@ function TwoColSelectWithOther({
         <input
           type="text"
           placeholder={textPlaceholder}
-          className={`block w-full h-[43px] rounded-lg border px-3 py-2 focus:outline-none transition ${
+          className={`block w-full h-10.75 rounded-lg border px-3 py-2 focus:outline-none transition ${
             inputDisabled
               ? "bg-gray-200 border-gray-300 cursor-not-allowed"
               : "bg-white border-gray-300"
@@ -868,10 +870,13 @@ function TwoColSelectWithOther({
       </div>
 
       {(() => {
-        const root = errors?.personal;
+        // Safe error check
+        if (!errors || !errors.personal) return null;
         const selectKey = selectName.split(".").pop();
         const textKey = textName.split(".").pop();
-        const msg = root?.[selectKey]?.message || root?.[textKey]?.message;
+        const msg =
+          errors.personal[selectKey]?.message ||
+          errors.personal[textKey]?.message;
         return msg ? (
           <p className="text-xs text-red-600 mt-1 font-medium">{msg}</p>
         ) : null;
