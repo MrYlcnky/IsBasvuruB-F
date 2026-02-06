@@ -12,20 +12,13 @@ using System.Threading.Tasks;
 
 namespace IsBasvuru.Infrastructure.Services
 {
-    public class ProgramBilgisiService : IProgramBilgisiService
+    public class ProgramBilgisiService(IsBasvuruContext context, IMapper mapper, IMemoryCache cache) : IProgramBilgisiService
     {
-        private readonly IsBasvuruContext _context;
-        private readonly IMapper _mapper;
-        private readonly IMemoryCache _cache;
+        private readonly IsBasvuruContext _context = context;
+        private readonly IMapper _mapper = mapper;
+        private readonly IMemoryCache _cache = cache;
 
         private const string CacheKey = "program_list";
-
-        public ProgramBilgisiService(IsBasvuruContext context, IMapper mapper, IMemoryCache cache)
-        {
-            _context = context;
-            _mapper = mapper;
-            _cache = cache;
-        }
 
         public async Task<ServiceResponse<List<ProgramBilgisiListDto>>> GetAllAsync()
         {
@@ -36,11 +29,12 @@ namespace IsBasvuru.Infrastructure.Services
 
             var list = await _context.ProgramBilgileri
                 .Include(x => x.Departman)
-                .ThenInclude(x => x.MasterDepartman) 
+                .ThenInclude(x => x!.MasterDepartman!)
                 .AsNoTracking()
                 .ToListAsync();
 
-            var mappedList = _mapper.Map<List<ProgramBilgisiListDto>>(list) ?? new List<ProgramBilgisiListDto>();
+            // Fix: Simplified collection initialization (Collection Expression)
+            var mappedList = _mapper.Map<List<ProgramBilgisiListDto>>(list) ?? [];
 
             var cacheOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromHours(24))

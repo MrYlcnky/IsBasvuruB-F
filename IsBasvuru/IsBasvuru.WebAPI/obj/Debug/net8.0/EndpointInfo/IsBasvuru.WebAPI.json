@@ -2180,7 +2180,8 @@
                   "KisiselBilgiler.Email",
                   "KisiselBilgiler.Soyadi",
                   "KisiselBilgiler.Telefon",
-                  "KisiselBilgiler.TelefonWhatsapp"
+                  "KisiselBilgiler.TelefonWhatsapp",
+                  "NedenBiz"
                 ],
                 "type": "object",
                 "properties": {
@@ -2228,6 +2229,10 @@
                   },
                   "NedenBiz": {
                     "type": "string"
+                  },
+                  "LojmanTalebi": {
+                    "type": "integer",
+                    "format": "int32"
                   },
                   "VesikalikDosyasi": {
                     "type": "string",
@@ -2426,6 +2431,9 @@
                   "style": "form"
                 },
                 "NedenBiz": {
+                  "style": "form"
+                },
+                "LojmanTalebi": {
                   "style": "form"
                 },
                 "VesikalikDosyasi": {
@@ -2620,7 +2628,8 @@
                   "KisiselBilgiler.Email",
                   "KisiselBilgiler.Soyadi",
                   "KisiselBilgiler.Telefon",
-                  "KisiselBilgiler.TelefonWhatsapp"
+                  "KisiselBilgiler.TelefonWhatsapp",
+                  "NedenBiz"
                 ],
                 "type": "object",
                 "properties": {
@@ -2668,6 +2677,10 @@
                   },
                   "NedenBiz": {
                     "type": "string"
+                  },
+                  "LojmanTalebi": {
+                    "type": "integer",
+                    "format": "int32"
                   },
                   "VesikalikDosyasi": {
                     "type": "string",
@@ -2868,6 +2881,9 @@
                 "NedenBiz": {
                   "style": "form"
                 },
+                "LojmanTalebi": {
+                  "style": "form"
+                },
                 "VesikalikDosyasi": {
                   "style": "form"
                 },
@@ -3030,7 +3046,8 @@
                   "KisiselBilgiler.Email",
                   "KisiselBilgiler.Soyadi",
                   "KisiselBilgiler.Telefon",
-                  "KisiselBilgiler.TelefonWhatsapp"
+                  "KisiselBilgiler.TelefonWhatsapp",
+                  "NedenBiz"
                 ],
                 "type": "object",
                 "properties": {
@@ -3038,21 +3055,47 @@
                     "type": "integer",
                     "format": "int32"
                   },
-                  "SubeId": {
-                    "type": "integer",
-                    "format": "int32"
+                  "SubeIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
                   },
-                  "SubeAlanId": {
-                    "type": "integer",
-                    "format": "int32"
+                  "SubeAlanIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
                   },
-                  "DepartmanId": {
-                    "type": "integer",
-                    "format": "int32"
+                  "DepartmanIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
                   },
-                  "DepartmanPozisyonId": {
-                    "type": "integer",
-                    "format": "int32"
+                  "DepartmanPozisyonIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
+                  },
+                  "ProgramIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
+                  },
+                  "OyunIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "format": "int32"
+                    }
                   },
                   "VesikalikFotograf": {
                     "type": "string"
@@ -3060,6 +3103,13 @@
                   "VesikalikDosyasi": {
                     "type": "string",
                     "format": "binary"
+                  },
+                  "NedenBiz": {
+                    "type": "string"
+                  },
+                  "LojmanTalebi": {
+                    "type": "integer",
+                    "format": "int32"
                   },
                   "KisiselBilgiler.Id": {
                     "type": "integer",
@@ -3242,22 +3292,34 @@
                 "Id": {
                   "style": "form"
                 },
-                "SubeId": {
+                "SubeIds": {
                   "style": "form"
                 },
-                "SubeAlanId": {
+                "SubeAlanIds": {
                   "style": "form"
                 },
-                "DepartmanId": {
+                "DepartmanIds": {
                   "style": "form"
                 },
-                "DepartmanPozisyonId": {
+                "DepartmanPozisyonIds": {
+                  "style": "form"
+                },
+                "ProgramIds": {
+                  "style": "form"
+                },
+                "OyunIds": {
                   "style": "form"
                 },
                 "VesikalikFotograf": {
                   "style": "form"
                 },
                 "VesikalikDosyasi": {
+                  "style": "form"
+                },
+                "NedenBiz": {
+                  "style": "form"
+                },
+                "LojmanTalebi": {
                   "style": "form"
                 },
                 "KisiselBilgiler.Id": {

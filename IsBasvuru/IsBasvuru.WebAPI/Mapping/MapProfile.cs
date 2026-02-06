@@ -7,6 +7,7 @@ using IsBasvuru.Domain.DTOs.MasterBasvuruDtos;
 using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.BilgisayarBilgisiDtos;
 using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.DigerKisiselBilgilerDtos;
 using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.EgitimBilgisiDtos;
+using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.IsBasvuruDetayDtos;
 using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.IsDeneyimiDtos;
 using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.KisiselBilgilerDtos;
 using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.KisiselBilgilerListDtos;
@@ -40,6 +41,7 @@ using IsBasvuru.Domain.Entities.PersonelBilgileri;
 using IsBasvuru.Domain.Entities.SirketYapisi;
 using IsBasvuru.Domain.Entities.SirketYapisi.SirketTanimYapisi;
 using IsBasvuru.Domain.Entities.Tanimlamalar;
+using IsBasvuru.Domain.Enums;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -50,12 +52,20 @@ namespace IsBasvuru.WebAPI.Mapping
         public MapProfile()
         {
             // =======================================================
-            // 1. PERSONEL VE DETAYLARI (EN ÖNEMLİ KISIM)
+            // 1. PERSONEL VE DETAYLARI
             // =======================================================
+
+            CreateMap<PersonelCreateDto, IsBasvuruDetay>()
+                .ForMember(dest => dest.LojmanTalebiVarMi, opt => opt.MapFrom(src => (SecimDurumu)src.LojmanTalebi))
+                .ForMember(dest => dest.BasvuruSubeler, opt => opt.Ignore())
+                .ForMember(dest => dest.BasvuruAlanlar, opt => opt.Ignore())
+                .ForMember(dest => dest.BasvuruDepartmanlar, opt => opt.Ignore())
+                .ForMember(dest => dest.BasvuruPozisyonlar, opt => opt.Ignore())
+                .ForMember(dest => dest.BasvuruProgramlar, opt => opt.Ignore())
+                .ForMember(dest => dest.BasvuruOyunlar, opt => opt.Ignore());
 
             // Create (DTO -> Entity)
             CreateMap<PersonelCreateDto, Personel>()
-                // Detayı servis içinde elle yapıyoruz, AutoMapper karışmasın.
                 .ForMember(dest => dest.IsBasvuruDetay, opt => opt.Ignore());
 
             // Update (DTO -> Entity)
@@ -64,21 +74,52 @@ namespace IsBasvuru.WebAPI.Mapping
 
             // List / Get (Entity -> DTO)
             CreateMap<Personel, PersonelListDto>()
-                // Lojman Talebini, Detay tablosundan alıp int'e çeviriyoruz
                 .ForMember(dest => dest.LojmanTalebi, opt => opt.MapFrom(src =>
                     src.IsBasvuruDetay != null ? (int)src.IsBasvuruDetay.LojmanTalebiVarMi : 0))
-
-                // Neden Biz'i Detay tablosundan alıyoruz
                 .ForMember(dest => dest.NedenBiz, opt => opt.MapFrom(src =>
                     src.IsBasvuruDetay != null ? src.IsBasvuruDetay.NedenBiz : string.Empty))
-
-                // Fotoğraf Yolu
                 .ForMember(dest => dest.FotografYolu, opt => opt.MapFrom(src =>
                     src.KisiselBilgiler != null ? src.KisiselBilgiler.VesikalikFotograf : string.Empty))
+                .ForMember(dest => dest.Soyad, opt => opt.MapFrom(src =>
+                    src.KisiselBilgiler != null ? src.KisiselBilgiler.Soyadi : string.Empty))
+                .ForMember(dest => dest.IsBasvuruDetay, opt => opt.MapFrom(src => src.IsBasvuruDetay));
 
-                // Ad Soyad Flattening
-                .ForMember(dest => dest.Ad, opt => opt.MapFrom(src => src.KisiselBilgiler != null ? src.KisiselBilgiler.Ad : ""))
-                .ForMember(dest => dest.Soyad, opt => opt.MapFrom(src => src.KisiselBilgiler != null ? src.KisiselBilgiler.Soyadi : ""));
+            // IsBasvuruDetay -> IsBasvuruDetayDto
+            // Burada listelerin null gelme ihtimaline karşı null check ekliyoruz.
+            // Ayrıca ilişkili nesnelerin (Sube, SubeAlan vb.) null olup olmadığını kontrol ediyoruz.
+            CreateMap<IsBasvuruDetay, IsBasvuruDetayDto>()
+                .ForMember(dest => dest.LojmanTalebiVarMi, opt => opt.MapFrom(src => (int)src.LojmanTalebiVarMi))
+                .ForMember(dest => dest.NedenBiz, opt => opt.MapFrom(src => src.NedenBiz ?? string.Empty))
+
+                .ForMember(dest => dest.BasvuruSubeler, opt => opt.MapFrom(src =>
+                    src.BasvuruSubeler != null
+                        ? src.BasvuruSubeler.Where(x => x.Sube != null).Select(x => x.Sube!).ToList()
+                        : new List<Sube>()))
+
+                .ForMember(dest => dest.BasvuruAlanlar, opt => opt.MapFrom(src =>
+                    src.BasvuruAlanlar != null
+                        ? src.BasvuruAlanlar.Where(x => x.SubeAlan != null).Select(x => x.SubeAlan!).ToList()
+                        : new List<SubeAlan>()))
+
+                .ForMember(dest => dest.BasvuruDepartmanlar, opt => opt.MapFrom(src =>
+                    src.BasvuruDepartmanlar != null
+                        ? src.BasvuruDepartmanlar.Where(x => x.Departman != null).Select(x => x.Departman!).ToList()
+                        : new List<Departman>()))
+
+                .ForMember(dest => dest.BasvuruPozisyonlar, opt => opt.MapFrom(src =>
+                    src.BasvuruPozisyonlar != null
+                        ? src.BasvuruPozisyonlar.Where(x => x.DepartmanPozisyon != null).Select(x => x.DepartmanPozisyon!).ToList()
+                        : new List<DepartmanPozisyon>()))
+
+                .ForMember(dest => dest.BasvuruProgramlar, opt => opt.MapFrom(src =>
+                    src.BasvuruProgramlar != null
+                        ? src.BasvuruProgramlar.Where(x => x.ProgramBilgisi != null).Select(x => x.ProgramBilgisi!).ToList()
+                        : new List<ProgramBilgisi>()))
+
+                .ForMember(dest => dest.BasvuruOyunlar, opt => opt.MapFrom(src =>
+                    src.BasvuruOyunlar != null
+                        ? src.BasvuruOyunlar.Where(x => x.OyunBilgileri != null).Select(x => x.OyunBilgileri!).ToList()
+                        : new List<OyunBilgisi>()));
 
             // =======================================================
             // 2. KİŞİSEL BİLGİLER VE ALT NESNELER
@@ -86,7 +127,6 @@ namespace IsBasvuru.WebAPI.Mapping
             CreateMap<KisiselBilgilerDto, KisiselBilgiler>().ReverseMap();
             CreateMap<KisiselBilgilerListDto, KisiselBilgiler>().ReverseMap();
 
-            // Kişisel Bilgiler List DTO Mapping (Detaylı)
             CreateMap<KisiselBilgiler, KisiselBilgilerListDto>()
                 .ForMember(dest => dest.UyrukAdi, opt => opt.MapFrom(src => src.Uyruk != null ? src.Uyruk.UyrukAdi : src.UyrukAdi))
                 .ForMember(dest => dest.DogumUlkeAdi, opt => opt.MapFrom(src => src.DogumUlke != null ? src.DogumUlke.UlkeAdi : src.DogumUlkeAdi))
@@ -101,7 +141,7 @@ namespace IsBasvuru.WebAPI.Mapping
             CreateMap<DigerKisiselBilgilerListDto, DigerKisiselBilgiler>().ReverseMap();
 
             // =======================================================
-            // 3. EĞİTİM, İŞ, SERTİFİKA VB. (BU KISIM EKSİKTİ)
+            // 3. EĞİTİM, İŞ, SERTİFİKA VB.
             // =======================================================
             CreateMap<EgitimBilgisiCreateDto, EgitimBilgisi>().ReverseMap();
             CreateMap<EgitimBilgisiListDto, EgitimBilgisi>().ReverseMap();
@@ -145,7 +185,7 @@ namespace IsBasvuru.WebAPI.Mapping
             CreateMap<SubeCreateDto, Sube>();
             CreateMap<SubeUpdateDto, Sube>();
 
-            // SubeAlan
+            // SubeAlan (Null Conditional Operator `?.` kullanımı)
             CreateMap<SubeAlan, SubeAlanListDto>()
                 .ForMember(dest => dest.SubeAdi, opt => opt.MapFrom(src => src.Sube != null ? src.Sube.SubeAdi : string.Empty))
                 .ForMember(dest => dest.AlanAdi, opt => opt.MapFrom(src => src.MasterAlan != null ? src.MasterAlan.MasterAlanAdi : string.Empty));

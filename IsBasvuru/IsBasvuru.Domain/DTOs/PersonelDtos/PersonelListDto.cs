@@ -1,15 +1,13 @@
-﻿using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.KisiselBilgilerListDtos;
-using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.BilgisayarBilgisiDtos;
+﻿using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.BilgisayarBilgisiDtos;
 using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.DigerKisiselBilgilerDtos;
 using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.EgitimBilgisiDtos;
+using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.IsBasvuruDetayDtos;
 using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.IsDeneyimiDtos;
+using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.KisiselBilgilerListDtos;
 using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.ReferansBilgisiDtos;
 using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.SertifikaBilgisiDtos;
 using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.YabanciDilBilgisiDtos;
 using IsBasvuru.Domain.DTOs.SirketYapisiDtos.PersonelEhliyetDtos;
-using IsBasvuru.Domain.Entities.PersonelBilgileri;
-using Microsoft.AspNetCore.Http;
-
 
 namespace IsBasvuru.Domain.DTOs.PersonelDtos
 {
@@ -28,14 +26,14 @@ namespace IsBasvuru.Domain.DTOs.PersonelDtos
         public required KisiselBilgilerListDto KisiselBilgiler { get; set; }
         public required DigerKisiselBilgilerListDto DigerKisiselBilgiler { get; set; }
 
-        public List<EgitimBilgisiListDto> EgitimBilgileri { get; set; } = new();
-        public List<IsDeneyimiListDto> IsDeneyimleri { get; set; } = new();
-        public List<YabanciDilBilgisiListDto> YabanciDilBilgileri { get; set; } = new();
-        public List<BilgisayarBilgisiListDto> BilgisayarBilgileri { get; set; } = new();
-        public List<SertifikaBilgisiListDto> SertifikaBilgileri { get; set; } = new();
-        public List<ReferansBilgisiListDto> ReferansBilgileri { get; set; } = new();
-        public List<PersonelEhliyetListDto> PersonelEhliyetler { get; set; } = new();
-        
-        public object? IsBasvuruDetay { get; set; }
+        public List<EgitimBilgisiListDto> EgitimBilgileri { get; set; } = [];
+        public List<IsDeneyimiListDto> IsDeneyimleri { get; set; } = [];
+        public List<YabanciDilBilgisiListDto> YabanciDilBilgileri { get; set; } = [];
+        public List<BilgisayarBilgisiListDto> BilgisayarBilgileri { get; set; } = [];
+        public List<SertifikaBilgisiListDto> SertifikaBilgileri { get; set; } = [];
+        public List<ReferansBilgisiListDto> ReferansBilgileri { get; set; } = [];
+        public List<PersonelEhliyetListDto> PersonelEhliyetler { get; set; } = [];
+
+        public IsBasvuruDetayDto? IsBasvuruDetay { get; set; }
     }
 }

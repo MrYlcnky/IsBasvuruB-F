@@ -12,20 +12,14 @@ using System.Threading.Tasks;
 
 namespace IsBasvuru.Infrastructure.Services
 {
-    public class OyunBilgisiService : IOyunBilgisiService
+    // Fix 1: Use Primary Constructor (C# 12)
+    public class OyunBilgisiService(IsBasvuruContext context, IMapper mapper, IMemoryCache cache) : IOyunBilgisiService
     {
-        private readonly IsBasvuruContext _context;
-        private readonly IMapper _mapper;
-        private readonly IMemoryCache _cache;
+        private readonly IsBasvuruContext _context = context;
+        private readonly IMapper _mapper = mapper;
+        private readonly IMemoryCache _cache = cache;
 
         private const string CacheKey = "oyun_list";
-
-        public OyunBilgisiService(IsBasvuruContext context, IMapper mapper, IMemoryCache cache)
-        {
-            _context = context;
-            _mapper = mapper;
-            _cache = cache;
-        }
 
         public async Task<ServiceResponse<List<OyunBilgisiListDto>>> GetAllAsync()
         {
@@ -36,11 +30,12 @@ namespace IsBasvuru.Infrastructure.Services
 
             var list = await _context.OyunBilgileri
                 .Include(x => x.Departman)
-                .ThenInclude(x => x.MasterDepartman) 
+                .ThenInclude(x => x!.MasterDepartman!) // Nullable warning suppression added
                 .AsNoTracking()
                 .ToListAsync();
 
-            var mappedList = _mapper.Map<List<OyunBilgisiListDto>>(list) ?? new List<OyunBilgisiListDto>();
+            // Fix 2: Simplified collection initialization (Collection Expression)
+            var mappedList = _mapper.Map<List<OyunBilgisiListDto>>(list) ?? [];
 
             var cacheOptions = new MemoryCacheEntryOptions()
                 .SetAbsoluteExpiration(TimeSpan.FromHours(24))

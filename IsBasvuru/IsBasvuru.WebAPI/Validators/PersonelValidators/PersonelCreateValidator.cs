@@ -77,6 +77,13 @@ namespace IsBasvuru.WebAPI.Validators.PersonelValidators
                 .NotNull().WithMessage("Lütfen bir vesikalık fotoğraf yükleyiniz.")
                 .Must(x => x != null && x.Length > 0).WithMessage("Dosya içeriği boş olamaz.");
 
+            RuleFor(x => x.NedenBiz)
+            .NotEmpty().WithMessage("Neden bizle çalışmak istediğinizi belirtiniz.")
+            .MaximumLength(1000).WithMessage("Açıklama çok uzun.");
+
+            RuleFor(x => x.LojmanTalebi)
+                .IsInEnum().WithMessage("Geçersiz lojman talebi seçimi.");
+
 
         }
     }

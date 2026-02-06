@@ -175,7 +175,7 @@ namespace IsBasvuru.WebAPI.Controllers
         [HttpPut]
         public async Task<IActionResult> Update([FromForm] PersonelUpdateDto dto)
         {
-            // Önce mevcut kaydı çekelim (Her durumda lazım olabilir)
+            // Önce mevcut kaydı çekelim
             var mevcutKayitResponse = await _service.GetByIdAsync(dto.Id);
             if (!mevcutKayitResponse.Success || mevcutKayitResponse.Data == null)
             {
@@ -188,11 +188,11 @@ namespace IsBasvuru.WebAPI.Controllers
             {
                 if (mevcutKayit.KisiselBilgiler != null)
                 {
-                    // 1. ESKİ RESMİ SİL (Klasör ismine dikkat: "personel")
+                    // 1. ESKİ RESMİ SİL
                     if (!string.IsNullOrEmpty(mevcutKayit.KisiselBilgiler.VesikalikFotograf))
                     {
-                        // DİKKAT: Klasör adı Create işlemindekiyle AYNI olmalı
-                        await _imageService.DeleteImageAsync(mevcutKayit.KisiselBilgiler.VesikalikFotograf, "personel");
+                        // DÜZELTME: Klasör adı "personel-fotograflari" olmalı (Create ile aynı)
+                        await _imageService.DeleteImageAsync(mevcutKayit.KisiselBilgiler.VesikalikFotograf, "personel-fotograflari");
                     }
 
                     string ad = dto.KisiselBilgiler?.Ad ?? mevcutKayit.KisiselBilgiler.Ad;
@@ -202,25 +202,22 @@ namespace IsBasvuru.WebAPI.Controllers
                     // 2. YENİ RESMİ YÜKLE
                     var uploadResponse = await _imageService.UploadImageAsync(
                         dto.VesikalikDosyasi,
-                        "personel", // DİKKAT: Klasör adı "personel"
+                        "personel-fotograflari", // DÜZELTME: Klasör adı standartlaştırıldı
                         ozelIsim
                     );
 
                     if (!uploadResponse.Success)
-                        return BadRequest(uploadResponse.Message); // Hata varsa dön
+                        return BadRequest(uploadResponse.Message);
 
-                    // DTO'ya yeni resim adını yaz
                     if (dto.KisiselBilgiler != null)
                     {
                         dto.KisiselBilgiler.VesikalikFotograf = uploadResponse.Data;
                     }
                 }
             }
-            // --- YENİ DOSYA YOKSA ---
             else
             {
-                // 3. VERİ KORUMA: Eğer yeni resim gelmediyse, DTO'ya veritabanındaki eski resim adını geri yaz.
-                // Böylece güncelleme sırasında resim alanı boşalmaz (null olmaz).
+                // 3. VERİ KORUMA (Resim gelmediyse eskisini koru)
                 if (dto.KisiselBilgiler != null && mevcutKayit.KisiselBilgiler != null)
                 {
                     dto.KisiselBilgiler.VesikalikFotograf = mevcutKayit.KisiselBilgiler.VesikalikFotograf;

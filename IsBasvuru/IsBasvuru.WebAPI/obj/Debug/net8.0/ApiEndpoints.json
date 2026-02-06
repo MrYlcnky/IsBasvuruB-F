@@ -1450,6 +1450,11 @@
         "IsRequired": false
       },
       {
+        "Name": "LojmanTalebi",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
         "Name": "VesikalikDosyasi",
         "Type": "Microsoft.AspNetCore.Http.IFormFile",
         "IsRequired": false
@@ -1696,23 +1701,33 @@
         "IsRequired": false
       },
       {
-        "Name": "SubeId",
-        "Type": "System.Int32",
+        "Name": "SubeIds",
+        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       },
       {
-        "Name": "SubeAlanId",
-        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "Name": "SubeAlanIds",
+        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       },
       {
-        "Name": "DepartmanId",
-        "Type": "System.Int32",
+        "Name": "DepartmanIds",
+        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       },
       {
-        "Name": "DepartmanPozisyonId",
-        "Type": "System.Int32",
+        "Name": "DepartmanPozisyonIds",
+        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "ProgramIds",
+        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "OyunIds",
+        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
         "IsRequired": false
       },
       {
@@ -1723,6 +1738,16 @@
       {
         "Name": "VesikalikDosyasi",
         "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "NedenBiz",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "LojmanTalebi",
+        "Type": "System.Int32",
         "IsRequired": false
       },
       {
@@ -2041,6 +2066,11 @@
       {
         "Name": "NedenBiz",
         "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "LojmanTalebi",
+        "Type": "System.Int32",
         "IsRequired": false
       },
       {
