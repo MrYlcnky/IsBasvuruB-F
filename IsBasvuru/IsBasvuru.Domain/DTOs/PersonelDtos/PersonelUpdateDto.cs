@@ -21,6 +21,9 @@ namespace IsBasvuru.Domain.DTOs.PersonelDtos
         public int DepartmanPozisyonId { get; set; }
         public string? VesikalikFotograf { get; set; }
         public IFormFile? VesikalikDosyasi { get; set; }
+        public required string NedenBiz { get; set; }
+        public int LojmanTalebi { get; set; }
+
         // İç içe güncelleme
         public required KisiselBilgilerDto KisiselBilgiler { get; set; }
         public required DigerKisiselBilgilerUpdateDto DigerKisiselBilgiler { get; set; }

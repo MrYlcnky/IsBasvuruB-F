@@ -35,8 +35,6 @@ namespace IsBasvuru.Infrastructure.Services
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
             var totalRecords = await _context.Personeller.CountAsync();
 
-         
-
             var list = await _context.Personeller
                 .Include(p => p.KisiselBilgiler)
                 .Include(p => p.IsBasvuruDetay!).ThenInclude(d => d.BasvuruSubeler).ThenInclude(s => s.Sube)
@@ -45,6 +43,7 @@ namespace IsBasvuru.Infrastructure.Services
                 .OrderByDescending(x => x.GuncellemeTarihi)
                 .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
                 .Take(validFilter.PageSize)
+                .AsNoTracking()
                 .ToListAsync();
 
             var mappedData = _mapper.Map<List<PersonelListDto>>(list);
@@ -53,12 +52,12 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<PersonelListDto>> GetByIdAsync(int id)
         {
-           
             var entity = await _context.Personeller
                 .Include(p => p.KisiselBilgiler!).ThenInclude(k => k.Uyruk)
                 .Include(p => p.KisiselBilgiler!).ThenInclude(k => k.DogumUlke)
                 .Include(p => p.KisiselBilgiler!).ThenInclude(k => k.DogumSehir)
-                .Include(p => p.IsBasvuruDetay) 
+                .Include(p => p.IsBasvuruDetay)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             if (entity == null)
@@ -74,9 +73,11 @@ namespace IsBasvuru.Infrastructure.Services
 
             try
             {
+                // 1. PERSONEL NESNESİNİ HAZIRLA
                 var personel = new Personel
                 {
                     GuncellemeTarihi = DateTime.Now,
+                    // Listeleri başlatıyoruz
                     EgitimBilgileri = new List<EgitimBilgisi>(),
                     SertifikaBilgileri = new List<SertifikaBilgisi>(),
                     BilgisayarBilgileri = new List<BilgisayarBilgisi>(),
@@ -84,8 +85,10 @@ namespace IsBasvuru.Infrastructure.Services
                     IsDeneyimleri = new List<IsDeneyimi>(),
                     ReferansBilgileri = new List<ReferansBilgisi>(),
                     PersonelEhliyetler = new List<PersonelEhliyet>()
+                    // BaseEntity alanları (AktifMi, SilindiMi) kaldırıldı, DB default değer atar veya BaseEntity'de yoktur.
                 };
 
+                // 2. KİŞİSEL BİLGİLER MAPLEME
                 personel.KisiselBilgiler = _mapper.Map<KisiselBilgiler>(dto.KisiselBilgiler);
 
                 if (dto.DigerKisiselBilgiler != null)
@@ -93,42 +96,157 @@ namespace IsBasvuru.Infrastructure.Services
                     personel.DigerKisiselBilgiler = _mapper.Map<DigerKisiselBilgiler>(dto.DigerKisiselBilgiler);
                 }
 
-                // DTO'da gelen string null ise boş string'e çeviriyoruz
-                var basvuruDetay = _mapper.Map<IsBasvuruDetay>(dto);
-
-                personel.IsBasvuruDetay = basvuruDetay;
-
-                await _context.Personeller.AddAsync(personel);
-                await _context.SaveChangesAsync();
-
-                if (dto.PersonelEhliyetler != null && dto.PersonelEhliyetler.Any())
+                // 3. İŞ BAŞVURU DETAYLARI VE İLİŞKİLERİ
+                // Context üzerinden değil, nesne üzerinden ekleme yapıyoruz (Graph Insert)
+                var isBasvuruDetay = new IsBasvuruDetay
                 {
-                    var personelEhliyetler = dto.PersonelEhliyetler
-                        .Select(item => new PersonelEhliyet
-                        {
-                            PersonelId = personel.Id,
-                            EhliyetTuruId = item.EhliyetTuruId
-                        })
-                        .ToList();
+                    // PersonelId henüz oluşmadığı için atamıyoruz, EF Core ilişkiyi navigasyon property üzerinden kuracak
+                    NedenBiz = dto.NedenBiz,
+                    LojmanTalebiVarMi = (SecimDurumu)dto.LojmanTalebi,
 
-                    await _context.PersonelEhliyetleri.AddRangeAsync(personelEhliyetler);
-                    await _context.SaveChangesAsync();
+                    // Listeleri başlatıyoruz
+                    BasvuruSubeler = new List<IsBasvuruDetaySube>(),
+                    BasvuruAlanlar = new List<IsBasvuruDetayAlan>(),
+                    BasvuruDepartmanlar = new List<IsBasvuruDetayDepartman>(),
+                    BasvuruPozisyonlar = new List<IsBasvuruDetayPozisyon>(),
+                    BasvuruProgramlar = new List<IsBasvuruDetayProgram>(),
+                    BasvuruOyunlar = new List<IsBasvuruDetayOyun>()
+                };
+
+                // --- İlişkili Tabloları Nesneye Ekleme ---
+
+                // Şubeler
+                if (dto.SubeIds != null && dto.SubeIds.Count > 0)
+                {
+                    foreach (var subeId in dto.SubeIds)
+                    {
+                        isBasvuruDetay.BasvuruSubeler.Add(new IsBasvuruDetaySube { SubeId = subeId });
+                    }
                 }
 
-                if (dto.EgitimBilgileri != null && dto.EgitimBilgileri.Any())
+                // Alanlar (SubeAlanId kullanıyoruz)
+                if (dto.SubeAlanIds != null && dto.SubeAlanIds.Count > 0)
+                {
+                    foreach (var alanId in dto.SubeAlanIds)
+                    {
+                        isBasvuruDetay.BasvuruAlanlar.Add(new IsBasvuruDetayAlan { SubeAlanId = alanId });
+                    }
+                }
+
+                // Departmanlar
+                if (dto.DepartmanIds != null && dto.DepartmanIds.Count > 0)
+                {
+                    foreach (var deptId in dto.DepartmanIds)
+                    {
+                        isBasvuruDetay.BasvuruDepartmanlar.Add(new IsBasvuruDetayDepartman { DepartmanId = deptId });
+                    }
+                }
+
+                // Pozisyonlar
+                if (dto.DepartmanPozisyonIds != null && dto.DepartmanPozisyonIds.Count > 0)
+                {
+                    foreach (var pozId in dto.DepartmanPozisyonIds)
+                    {
+                        isBasvuruDetay.BasvuruPozisyonlar.Add(new IsBasvuruDetayPozisyon { DepartmanPozisyonId = pozId });
+                    }
+                }
+
+                // Programlar
+                if (dto.ProgramIds != null && dto.ProgramIds.Count > 0)
+                {
+                    foreach (var progId in dto.ProgramIds)
+                    {
+                        isBasvuruDetay.BasvuruProgramlar.Add(new IsBasvuruDetayProgram { ProgramBilgisiId = progId });
+                    }
+                }
+
+                // Oyunlar
+                if (dto.OyunIds != null && dto.OyunIds.Count > 0)
+                {
+                    foreach (var oyunId in dto.OyunIds)
+                    {
+                        isBasvuruDetay.BasvuruOyunlar.Add(new IsBasvuruDetayOyun { OyunBilgisiId = oyunId });
+                    }
+                }
+
+                // Detayı Personele Bağla
+                personel.IsBasvuruDetay = isBasvuruDetay;
+
+                // Ehliyetler
+                if (dto.PersonelEhliyetler != null && dto.PersonelEhliyetler.Count > 0)
+                {
+                    foreach (var item in dto.PersonelEhliyetler)
+                    {
+                        personel.PersonelEhliyetler.Add(new PersonelEhliyet { EhliyetTuruId = item.EhliyetTuruId });
+                    }
+                }
+
+                // Eğitim Bilgileri
+                if (dto.EgitimBilgileri != null && dto.EgitimBilgileri.Count > 0)
                 {
                     foreach (var item in dto.EgitimBilgileri)
                     {
                         var egitim = _mapper.Map<EgitimBilgisi>(item);
-                        egitim.PersonelId = personel.Id;
-                        await _context.EgitimBilgileri.AddAsync(egitim);
+                        personel.EgitimBilgileri.Add(egitim);
                     }
-                    await _context.SaveChangesAsync();
                 }
 
+                // İş Deneyimleri
+                if (dto.IsDeneyimleri != null && dto.IsDeneyimleri.Count > 0)
+                {
+                    foreach (var item in dto.IsDeneyimleri)
+                    {
+                        var isDeneyimi = _mapper.Map<IsDeneyimi>(item);
+                        personel.IsDeneyimleri.Add(isDeneyimi);
+                    }
+                }
+
+                // Yabancı Diller
+                if (dto.YabanciDilBilgileri != null && dto.YabanciDilBilgileri.Count > 0)
+                {
+                    foreach (var item in dto.YabanciDilBilgileri)
+                    {
+                        var dil = _mapper.Map<YabanciDilBilgisi>(item);
+                        personel.YabanciDilBilgileri.Add(dil);
+                    }
+                }
+
+                // Bilgisayar Bilgileri
+                if (dto.BilgisayarBilgileri != null && dto.BilgisayarBilgileri.Count > 0)
+                {
+                    foreach (var item in dto.BilgisayarBilgileri)
+                    {
+                        var pc = _mapper.Map<BilgisayarBilgisi>(item);
+                        personel.BilgisayarBilgileri.Add(pc);
+                    }
+                }
+
+                // Sertifikalar
+                if (dto.SertifikaBilgileri != null && dto.SertifikaBilgileri.Count > 0)
+                {
+                    foreach (var item in dto.SertifikaBilgileri)
+                    {
+                        var sertifika = _mapper.Map<SertifikaBilgisi>(item);
+                        personel.SertifikaBilgileri.Add(sertifika);
+                    }
+                }
+
+                // Referanslar
+                if (dto.ReferansBilgileri != null && dto.ReferansBilgileri.Count > 0)
+                {
+                    foreach (var item in dto.ReferansBilgileri)
+                    {
+                        var refBilgi = _mapper.Map<ReferansBilgisi>(item);
+                        personel.ReferansBilgileri.Add(refBilgi);
+                    }
+                }
+
+                await _context.Personeller.AddAsync(personel);
+                await _context.SaveChangesAsync();
 
                 await transaction.CommitAsync();
 
+                // Loglama
                 try
                 {
                     var adSoyad = personel.KisiselBilgiler != null
@@ -150,7 +268,7 @@ namespace IsBasvuru.Infrastructure.Services
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return ServiceResponse<PersonelListDto>.FailureResult($"Kayıt oluşturulurken hata: {ex.Message}");
+                return ServiceResponse<PersonelListDto>.FailureResult($"Kayıt oluşturulurken hata: {ex.Message} {ex.InnerException?.Message}");
             }
         }
 
@@ -158,6 +276,8 @@ namespace IsBasvuru.Infrastructure.Services
         {
             var personel = await _context.Personeller
                 .Include(p => p.KisiselBilgiler)
+                .Include(p => p.DigerKisiselBilgiler)
+                .Include(p => p.IsBasvuruDetay)
                 .FirstOrDefaultAsync(x => x.Id == dto.Id);
 
             if (personel == null)
@@ -175,11 +295,24 @@ namespace IsBasvuru.Infrastructure.Services
                 }
             }
 
+            // Ana map işlemleri
             _mapper.Map(dto, personel);
 
             if (personel.KisiselBilgiler != null)
             {
                 _mapper.Map(dto.KisiselBilgiler, personel.KisiselBilgiler);
+            }
+
+            if (personel.DigerKisiselBilgiler != null)
+            {
+                _mapper.Map(dto.DigerKisiselBilgiler, personel.DigerKisiselBilgiler);
+            }
+
+            // IsBasvuruDetay güncelleme (Basit alanlar)
+            if (personel.IsBasvuruDetay != null)
+            {
+                personel.IsBasvuruDetay.NedenBiz = dto.NedenBiz;
+                personel.IsBasvuruDetay.LojmanTalebiVarMi = (SecimDurumu)dto.LojmanTalebi;
             }
 
             await _context.SaveChangesAsync();
@@ -214,12 +347,12 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<PersonelListDto>> GetByEmailAsync(string email)
         {
-            
             var entity = await _context.Personeller
                 .Include(p => p.KisiselBilgiler!).ThenInclude(k => k.Uyruk)
                 .Include(p => p.EgitimBilgileri)
                 .Include(p => p.IsDeneyimleri)
                 .Include(p => p.IsBasvuruDetay)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.KisiselBilgiler!.Email == email);
 
             if (entity == null)

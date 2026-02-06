@@ -21,8 +21,8 @@ namespace IsBasvuru.Domain.DTOs.PersonelDtos
         public List<int> DepartmanPozisyonIds { get; set; } = new();
         public List<int> ProgramIds { get; set; } = new();
         public List<int> OyunIds { get; set; } = new();
-        public string? NedenBiz { get; set; } 
-
+        public required string NedenBiz { get; set; }
+        public int LojmanTalebi { get; set; }
         // Dosya İşlemleri
         public IFormFile? VesikalikDosyasi { get; set; }
 

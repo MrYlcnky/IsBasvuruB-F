@@ -19,7 +19,9 @@ namespace IsBasvuru.Domain.DTOs.PersonelDtos
         public required string Ad { get; set; }
         public required string Soyad { get; set; }
         public required string FotografYolu { get; set; }
-       
+
+        public required string NedenBiz { get; set; }
+        public int LojmanTalebi { get; set; }
 
         public DateTime GuncellemeTarihi { get; set; }
 
