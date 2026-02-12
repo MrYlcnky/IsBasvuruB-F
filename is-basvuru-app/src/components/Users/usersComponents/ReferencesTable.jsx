@@ -21,7 +21,6 @@ const ReferencesTable = forwardRef(function ReferencesTable(props, ref) {
 
   const notify = (msg) => toast.success(msg);
 
-  // Helper: Enum Value -> Label
   const getKurumLabel = (val) => {
     if (String(val) === "1") return t("references.options.inHouse");
     if (String(val) === "2") return t("references.options.external");
@@ -61,7 +60,9 @@ const ReferencesTable = forwardRef(function ReferencesTable(props, ref) {
   const closeModal = () => setModalOpen(false);
 
   const handleSave = (newData) => {
-    const updatedList = [...rows, newData];
+    // Yeni kayıtlara ID: 0 atıyoruz
+    const itemToAdd = { ...newData, id: 0 };
+    const updatedList = [...rows, itemToAdd];
     setValue("references", updatedList, {
       shouldDirty: true,
       shouldValidate: true,
@@ -73,7 +74,11 @@ const ReferencesTable = forwardRef(function ReferencesTable(props, ref) {
   const handleUpdate = (updatedData) => {
     if (selectedIndex > -1) {
       const updatedList = [...rows];
-      updatedList[selectedIndex] = updatedData;
+      // 🔥 KRİTİK DÜZELTME: Mevcut ID'yi koruyoruz
+      updatedList[selectedIndex] = {
+        ...rows[selectedIndex],
+        ...updatedData,
+      };
       setValue("references", updatedList, {
         shouldDirty: true,
         shouldValidate: true,

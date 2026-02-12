@@ -4,30 +4,35 @@ import { useFormContext, Controller, useWatch } from "react-hook-form";
 import MuiDateStringField from "../Date/MuiDateStringField";
 import SearchSelect from "../Selected/SearchSelect";
 
+// Merkezi formUtils
+import { toNumberOrNull, toStr } from "../modalHooks/formUtils";
+
+// ---------------- AYARLAR (PRODUCTION READY) ----------------
+// Adresi .env dosyasından otomatik çeker.
+// Lokalde: https://localhost:7000 gelir.
+// Canlıda: https://api.seninsiten.com gelir.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+// Resimlerin yüklendiği klasör yolu (wwwroot hariç)
+const IMAGE_UPLOAD_PATH = "/uploads/personel-fotograflari";
+// -------------------------------------------------------------
+
 const OTHER_VALUE = "__OTHER__";
 
 const onlyLettersTR = (s) =>
   (s ?? "").toString().replace(/[^a-zA-ZığüşöçİĞÜŞÖÇ\s]/g, "");
 
-const toNumberOrNull = (v) => {
-  if (v == null || v === "" || v === OTHER_VALUE) return null;
-  const n = Number(v);
-  return Number.isFinite(n) ? n : null;
-};
-
-const toStr = (v) => (v == null ? "" : String(v));
-
 export default function PersonalInformation({ definitions }) {
   const { t } = useTranslation();
+
   const {
     register,
     control,
     setValue,
     formState: { errors },
-    getValues,
   } = useFormContext();
 
-  // ✅ DTO Watch
+  // --- DTO Watch ---
   const dogumUlkeId = useWatch({ name: "personal.DogumUlkeId" });
   const dogumUlkeAdi = useWatch({ name: "personal.DogumUlkeAdi" });
   const dogumSehirId = useWatch({ name: "personal.DogumSehirId" });
@@ -44,11 +49,10 @@ export default function PersonalInformation({ definitions }) {
   const uyrukAdi = useWatch({ name: "personal.UyrukAdi" });
 
   const foto = useWatch({ name: "personal.foto" });
-  const vesikalikFile = useWatch({ name: "personal.VesikalikDosyasi" }); // ✅ kritik
 
   const portalTarget = typeof document !== "undefined" ? document.body : null;
 
-  // ✅ Definitions
+  // --- Definitions ---
   const ulkeler = useMemo(
     () => definitions?.ulkeler ?? [],
     [definitions?.ulkeler],
@@ -70,7 +74,6 @@ export default function PersonalInformation({ definitions }) {
     const list = (ulkeler || [])
       .map((u) => ({ value: toStr(u?.id), label: u?.ulkeAdi ?? "" }))
       .filter((x) => x.value !== "" && x.label);
-
     return list.concat([{ value: OTHER_VALUE, label: t("common.other") }]);
   }, [ulkeler, t]);
 
@@ -78,57 +81,48 @@ export default function PersonalInformation({ definitions }) {
     const list = (uyruklar || [])
       .map((u) => ({ value: toStr(u?.id), label: u?.uyrukAdi ?? "" }))
       .filter((x) => x.value !== "" && x.label);
-
     return list.concat([{ value: OTHER_VALUE, label: t("common.other") }]);
   }, [uyruklar, t]);
 
-  // ✅ Şehir options
+  // --- Şehir Options ---
   const sehirOptionsDogum = useMemo(() => {
     const base = [{ value: "", label: t("personal.placeholders.select") }];
     if (!dogumUlkeId) return base;
-
     const list = (sehirler || [])
       .filter((s) => toStr(s?.ulkeId) === toStr(dogumUlkeId))
       .map((s) => ({ value: toStr(s?.id), label: s?.sehirAdi ?? "" }))
       .filter((x) => x.value !== "" && x.label);
-
     return base.concat(list);
   }, [t, sehirler, dogumUlkeId]);
 
   const sehirOptionsIkamet = useMemo(() => {
     const base = [{ value: "", label: t("personal.placeholders.select") }];
     if (!ikametUlkeId) return base;
-
     const list = (sehirler || [])
       .filter((s) => toStr(s?.ulkeId) === toStr(ikametUlkeId))
       .map((s) => ({ value: toStr(s?.id), label: s?.sehirAdi ?? "" }))
       .filter((x) => x.value !== "" && x.label);
-
     return base.concat(list);
   }, [t, sehirler, ikametUlkeId]);
 
-  // ✅ İlçe options
+  // --- İlçe Options ---
   const ilceOptionsDogum = useMemo(() => {
     const base = [{ value: "", label: t("personal.placeholders.select") }];
     if (!dogumSehirId) return base;
-
     const list = (ilceler || [])
       .filter((i) => toStr(i?.sehirId) === toStr(dogumSehirId))
       .map((i) => ({ value: toStr(i?.id), label: i?.ilceAdi ?? "" }))
       .filter((x) => x.value !== "" && x.label);
-
     return base.concat(list);
   }, [t, ilceler, dogumSehirId]);
 
   const ilceOptionsIkamet = useMemo(() => {
     const base = [{ value: "", label: t("personal.placeholders.select") }];
     if (!ikametSehirId) return base;
-
     const list = (ilceler || [])
       .filter((i) => toStr(i?.sehirId) === toStr(ikametSehirId))
       .map((i) => ({ value: toStr(i?.id), label: i?.ilceAdi ?? "" }))
       .filter((x) => x.value !== "" && x.label);
-
     return base.concat(list);
   }, [t, ilceler, ikametSehirId]);
 
@@ -138,43 +132,23 @@ export default function PersonalInformation({ definitions }) {
     ikametUlkeId != null && sehirOptionsIkamet.length > 1;
   const ikametIlceHasDb = ikametSehirId != null && ilceOptionsIkamet.length > 1;
 
-  // ✅ GÜNCELLENDİ: Value'lar Backend Enum ID'leri (Number)
+  // --- Static Options ---
   const genderOptions = useMemo(
     () => [
-      {
-        value: 1, // Kadin
-        label: t("personal.options.gender.female"),
-      },
-      {
-        value: 2, // Erkek
-        label: t("personal.options.gender.male"),
-      },
+      { value: 1, label: t("personal.options.gender.female") },
+      { value: 2, label: t("personal.options.gender.male") },
     ],
     [t],
   );
-
   const maritalOptions = useMemo(
     () => [
-      {
-        value: 1, // Bekar
-        label: t("personal.options.marital.single"),
-      },
-      {
-        value: 2, // Evli
-        label: t("personal.options.marital.married"),
-      },
-      {
-        value: 3, // Bosanmis
-        label: t("personal.options.marital.divorced"),
-      },
-      {
-        value: 4, // Dul
-        label: t("personal.options.marital.widowed"),
-      },
+      { value: 1, label: t("personal.options.marital.single") },
+      { value: 2, label: t("personal.options.marital.married") },
+      { value: 3, label: t("personal.options.marital.divorced") },
+      { value: 4, label: t("personal.options.marital.widowed") },
     ],
     [t],
   );
-
   const childOptions = useMemo(() => {
     const list = [];
     for (let i = 0; i <= 6; i++)
@@ -183,98 +157,80 @@ export default function PersonalInformation({ definitions }) {
     return list;
   }, [t]);
 
-  // ✅ FOTO UPLOAD
+  // --- Handlers ---
   const handleFotoUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const isValidType =
       file.type === "image/jpeg" ||
       file.type === "image/png" ||
       file.type.startsWith("image/");
     const isValidSize = file.size <= 2 * 1024 * 1024;
-
     if (!isValidType || !isValidSize) {
       e.target.value = "";
       alert(t("personal.errors.photo.invalid"));
       return;
     }
-
-    // 1) Backend'e gidecek ham File
     setValue("personal.VesikalikDosyasi", file, {
       shouldDirty: true,
       shouldTouch: true,
       shouldValidate: true,
     });
-
-    // 2) UI preview (base64)
     const reader = new FileReader();
     reader.onloadend = () => {
       setValue("personal.foto", reader.result, { shouldDirty: true });
     };
     reader.readAsDataURL(file);
-
     e.target.value = "";
   };
 
-  // ✅ Canlı debug
-  const personalLive = useWatch({ control, name: "personal" });
+  //  RESİM GÖSTERİM MANTIĞI
+  const displayFoto = useMemo(() => {
+    if (!foto) return null;
 
-  useEffect(() => {
-    console.log(
-      "👤 [LIVE] personal:",
-      JSON.parse(JSON.stringify(personalLive)),
-    );
-    const f = getValues("personal.VesikalikDosyasi");
-    if (f instanceof File) {
-      console.log("📎 [LIVE] VesikalikDosyasi:", f.name, f.type, f.size);
-    } else {
-      console.log("📎 [LIVE] VesikalikDosyasi: (null/empty)");
+    if (typeof foto === "string") {
+      // 1. Base64 veya Tam URL ise (Yeni yüklenen veya dış link)
+      if (foto.startsWith("data:image") || foto.startsWith("http")) {
+        return foto;
+      }
+
+      // 2. Dosya adı ise (Backend'den gelen). .env dosyasındaki adresi kullanır.
+      if (foto.match(/\.(jpeg|jpg|gif|png|webp)$/i)) {
+        return `${API_BASE_URL}${IMAGE_UPLOAD_PATH}/${foto}`;
+      }
+
+      // 3. Fallback (Ham base64)
+      return `data:image/jpeg;base64,${foto}`;
     }
-  }, [personalLive, getValues]);
-
-  const personalDebug = useMemo(() => {
-    const p = { ...(personalLive || {}) };
-
-    // foto'yu debug'da göstermeyelim
-    delete p.foto;
-
-    // File objesini direkt JSON'a basmak yerine okunur meta gösterelim
-    if (vesikalikFile instanceof File) {
-      p.VesikalikDosyasi = {
-        name: vesikalikFile.name,
-        type: vesikalikFile.type,
-        size: vesikalikFile.size,
-      };
-    } else {
-      p.VesikalikDosyasi = null;
-    }
-
-    return p;
-  }, [personalLive, vesikalikFile]);
-
-  const previewVarAmaFileYok =
-    Boolean(foto) && !(vesikalikFile instanceof File);
+    return null;
+  }, [foto]);
 
   return (
     <div className="bg-gray-50 rounded-b-lg p-4 sm:p-6 lg:p-8 shadow-none overscroll-contain">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Fotoğraf */}
+        {/* FOTOĞRAF KISMI */}
         <div className="flex flex-col sm:flex-row items-start gap-6">
           <div className="relative w-32 h-32 rounded-lg overflow-hidden border-4 border-gray-300 bg-gray-100 shadow-md flex items-center justify-center">
-            {foto ? (
+            {displayFoto ? (
               <img
-                src={foto}
+                src={displayFoto}
                 alt="Profil"
                 className="object-cover w-full h-full"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                  const span = e.currentTarget.parentNode.querySelector("span");
+                  if (span) span.style.display = "block";
+                }}
               />
-            ) : (
-              <span className="text-gray-400 text-sm text-center px-2">
-                {t("personal.placeholders.noPhoto")}
-              </span>
-            )}
-          </div>
+            ) : null}
 
+            <span
+              className="text-gray-400 text-sm text-center px-2"
+              style={{ display: displayFoto ? "none" : "block" }}
+            >
+              {t("personal.placeholders.noPhoto")}
+            </span>
+          </div>
           <div className="flex flex-col">
             <label
               htmlFor="foto"
@@ -283,7 +239,6 @@ export default function PersonalInformation({ definitions }) {
               {t("personal.labels.photo")}{" "}
               <span className="text-red-500">*</span>
             </label>
-
             <div className="flex items-center gap-3">
               <label
                 htmlFor="foto"
@@ -294,7 +249,6 @@ export default function PersonalInformation({ definitions }) {
                   ? t("personal.placeholders.replace")
                   : t("personal.placeholders.upload")}
               </label>
-
               <input
                 type="file"
                 id="foto"
@@ -303,21 +257,10 @@ export default function PersonalInformation({ definitions }) {
                 className="hidden"
               />
             </div>
-
-            {/* ✅ Kritik uyarı */}
-            {previewVarAmaFileYok && (
-              <p className="mt-2 text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 rounded-md px-2 py-1">
-                ⚠️ Fotoğraf önizlemesi var ama dosya yok. Başvuruyu göndermek
-                için{" "}
-                <span className="font-extrabold">
-                  fotoğrafı yeniden yükleyin.
-                </span>
-              </p>
-            )}
           </div>
         </div>
 
-        {/* Temel */}
+        {/* --- DİĞER INPUTLAR --- */}
         <InputField
           name="personal.ad"
           label={t("personal.labels.firstName")}
@@ -364,7 +307,6 @@ export default function PersonalInformation({ definitions }) {
           error={errors.personal?.adres}
         />
 
-        {/* Doğum Tarihi */}
         <div className="shadow-none outline-none">
           <Controller
             name="personal.dogumTarihi"
@@ -409,7 +351,7 @@ export default function PersonalInformation({ definitions }) {
           error={errors.personal?.cocukSayisi}
         />
 
-        {/* Uyruk (Diğer var) */}
+        {/* UYRUK ve ADRESLER */}
         <TwoColSelectWithOther
           containerClassName="lg:col-span-1 mt-1"
           label={t("personal.labels.nationality")}
@@ -426,8 +368,6 @@ export default function PersonalInformation({ definitions }) {
           errors={errors}
           menuPortalTarget={portalTarget}
         />
-
-        {/* DOĞUM ÜLKE */}
         <TwoColSelectWithOther
           label={t("personal.labels.birthCountry")}
           required
@@ -450,13 +390,12 @@ export default function PersonalInformation({ definitions }) {
           menuPortalTarget={portalTarget}
         />
 
-        {/* DOĞUM ŞEHİR + İLÇE */}
+        {/* DOĞUM ŞEHİR/İLÇE */}
         <div className="lg:col-span-2">
           <label className="block text-sm font-bold text-gray-700 mb-1">
             {t("personal.labels.birthCity")}{" "}
             <span className="text-red-500">*</span>
           </label>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {dogumSehirHasDb ? (
               <Controller
@@ -504,7 +443,6 @@ export default function PersonalInformation({ definitions }) {
                 }}
               />
             )}
-
             {dogumIlceHasDb ? (
               <Controller
                 name="personal.DogumIlceId"
@@ -546,7 +484,6 @@ export default function PersonalInformation({ definitions }) {
               />
             )}
           </div>
-
           {(errors.personal?.DogumSehirId ||
             errors.personal?.DogumSehirAdi ||
             errors.personal?.DogumIlceId ||
@@ -583,13 +520,12 @@ export default function PersonalInformation({ definitions }) {
           menuPortalTarget={portalTarget}
         />
 
-        {/* İKAMET ŞEHİR + İLÇE */}
+        {/* İKAMET ŞEHİR/İLÇE */}
         <div className="lg:col-span-2">
           <label className="block text-sm font-bold text-gray-700 mb-1">
             {t("personal.labels.resCity")}{" "}
             <span className="text-red-500">*</span>
           </label>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {ikametSehirHasDb ? (
               <Controller
@@ -637,7 +573,6 @@ export default function PersonalInformation({ definitions }) {
                 }}
               />
             )}
-
             {ikametIlceHasDb ? (
               <Controller
                 name="personal.IkametgahIlceId"
@@ -679,7 +614,6 @@ export default function PersonalInformation({ definitions }) {
               />
             )}
           </div>
-
           {(errors.personal?.IkametgahSehirId ||
             errors.personal?.IkametgahSehirAdi ||
             errors.personal?.IkametgahIlceId ||
@@ -692,18 +626,6 @@ export default function PersonalInformation({ definitions }) {
             </p>
           )}
         </div>
-      </div>
-
-      <div className="mt-6">
-        <details className="bg-white border border-gray-200 rounded-lg p-3">
-          <summary className="cursor-pointer font-semibold text-sm text-gray-700">
-            Debug: Personal (ben ne doldurdum?)
-          </summary>
-
-          <pre className="text-xs mt-2 whitespace-pre-wrap wrap-break-word">
-            {JSON.stringify(personalDebug, null, 2)}
-          </pre>
-        </details>
       </div>
     </div>
   );
@@ -815,7 +737,6 @@ function TwoColSelectWithOther({
       <label className="block text-sm font-bold text-gray-700 mb-1">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Controller
           name={selectName}
@@ -826,7 +747,6 @@ function TwoColSelectWithOther({
               value={displayValue}
               onChange={(opt) => {
                 const val = opt?.value;
-
                 if (!val) {
                   field.onChange(null);
                   setIsOtherMode(false);
@@ -834,7 +754,6 @@ function TwoColSelectWithOther({
                   onSelected?.();
                   return;
                 }
-
                 if (val === OTHER_VALUE) {
                   field.onChange(null);
                   setIsOtherMode(true);
@@ -842,7 +761,6 @@ function TwoColSelectWithOther({
                   onSelected?.();
                   return;
                 }
-
                 field.onChange(toNumberOrNull(val));
                 setIsOtherMode(false);
                 setValue(textName, opt?.label ?? "");
@@ -854,7 +772,6 @@ function TwoColSelectWithOther({
             />
           )}
         />
-
         <input
           type="text"
           placeholder={textPlaceholder}
@@ -868,9 +785,7 @@ function TwoColSelectWithOther({
           onChange={(e) => setValue(textName, onlyLettersTR(e.target.value))}
         />
       </div>
-
       {(() => {
-        // Safe error check
         if (!errors || !errors.personal) return null;
         const selectKey = selectName.split(".").pop();
         const textKey = textName.split(".").pop();

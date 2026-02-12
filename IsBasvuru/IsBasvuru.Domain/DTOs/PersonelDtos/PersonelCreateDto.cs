@@ -7,6 +7,7 @@ using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.ReferansBilgisiDtos;
 using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.SertifikaBilgisiDtos;
 using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.YabanciDilBilgisiDtos;
 using IsBasvuru.Domain.DTOs.SirketYapisiDtos.PersonelEhliyetDtos;
+using IsBasvuru.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 
@@ -20,9 +21,9 @@ namespace IsBasvuru.Domain.DTOs.PersonelDtos
         public List<int> DepartmanIds { get; set; } = new();
         public List<int> DepartmanPozisyonIds { get; set; } = new();
         public List<int> ProgramIds { get; set; } = new();
-        public List<int> OyunIds { get; set; } = new();
+        public List<int>? OyunIds { get; set; } = new();
         public required string NedenBiz { get; set; }
-        public int LojmanTalebi { get; set; }
+        public SecimDurumu LojmanTalebi { get; set; }
         // Dosya İşlemleri
         public IFormFile? VesikalikDosyasi { get; set; }
 

@@ -8,57 +8,56 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import EducationAddModal from "../addModals/EducationAddModal";
+// ✅ YENİ IMPORT: Merkezi dateUtils
 import { formatDate } from "../modalHooks/dateUtils";
 
-/* -------------------- 1. Çeviri Fonksiyonları (Enum -> Text) -------------------- */
-// Backend'den veya Modal'dan gelen ID'leri (1, 2, 3) kullanıcıya anlamlı metne çevirir.
-
+/* -------------------- Çeviri Fonksiyonları -------------------- */
 const getSeviyeLabel = (val, t) => {
   const map = {
-    1: t("education.levels.highschool"), // Lise
-    2: t("education.levels.associate"), // Ön Lisans
-    3: t("education.levels.bachelor"), // Lisans
-    4: t("education.levels.master"), // Yüksek Lisans
-    5: t("education.levels.phd"), // Doktora
-    6: t("education.levels.other"), // Diğer
-  };
-  return map[Number(val)] || val; // Eşleşme yoksa olduğu gibi göster
-};
-
-const getDiplomaLabel = (val, t) => {
-  const map = {
-    1: t("education.diploma.graduated"), // Mezun
-    2: t("education.diploma.continuing"), // Devam
-    3: t("education.diploma.paused"), // Ara Verdi
-    4: t("education.diploma.dropped"), // Terk
+    1: t("education.levels.highschool"),
+    2: t("education.levels.associate"),
+    3: t("education.levels.bachelor"),
+    4: t("education.levels.master"),
+    5: t("education.levels.phd"),
+    6: t("education.levels.other"),
   };
   return map[Number(val)] || val;
 };
 
-// ✅ GÜNCELLEME: Backend Enum ID'lerine göre etiketleme (1=Yüzlük, 2=Dörtlük)
+const getDiplomaLabel = (val, t) => {
+  const map = {
+    1: t("education.diploma.graduated"),
+    2: t("education.diploma.continuing"),
+    3: t("education.diploma.paused"),
+    4: t("education.diploma.dropped"),
+  };
+  return map[Number(val)] || val;
+};
+
 const getNotSistemiLabel = (val, t) => {
   const numVal = Number(val);
-  if (numVal === 1) return t("education.gradeSystem.hundred"); // Yüzlük Sistem
-  if (numVal === 2) return t("education.gradeSystem.four"); // Dörtlük Sistem
+  if (numVal === 1) return t("education.gradeSystem.hundred");
+  if (numVal === 2) return t("education.gradeSystem.four");
   return String(val ?? t("common.dash"));
 };
 
 const EducationTable = forwardRef((props, ref) => {
   const { t } = useTranslation();
-
-  // --- React Hook Form Entegrasyonu ---
   const { control, setValue } = useFormContext();
   const rows = useWatch({ control, name: "education" }) || [];
 
-  // --- Modal State ---
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("create");
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
-  // --- CRUD İşlemleri ---
+  // --- KAYDET (YENİ EKLEME) ---
   const handleSave = (newData) => {
-    const updatedList = [...rows, newData];
+    // Yeni eklenen kayıtta ID genellikle 0 olur.
+    // Garanti olsun diye id:0 ekliyoruz (Backend bunu yeni kayıt anlar).
+    const itemToAdd = { ...newData, id: 0 };
+
+    const updatedList = [...rows, itemToAdd];
     setValue("education", updatedList, {
       shouldDirty: true,
       shouldValidate: true,
@@ -67,10 +66,19 @@ const EducationTable = forwardRef((props, ref) => {
     toast.success(t("toast.saved") || "Kayıt eklendi");
   };
 
+  // --- GÜNCELLEME (KRİTİK BÖLÜM) ---
   const handleUpdate = (updatedData) => {
     if (selectedIndex > -1) {
       const updatedList = [...rows];
-      updatedList[selectedIndex] = updatedData;
+
+      // 🔥🔥🔥 BU SATIR ID KAYBINI ENGELLER 🔥🔥🔥
+      // Mevcut satırdaki verileri (...rows[selectedIndex]) al (burada ID var),
+      // Üzerine Modaldan gelen yeni verileri (...updatedData) yaz.
+      updatedList[selectedIndex] = {
+        ...rows[selectedIndex],
+        ...updatedData,
+      };
+
       setValue("education", updatedList, {
         shouldDirty: true,
         shouldValidate: true,
@@ -92,6 +100,8 @@ const EducationTable = forwardRef((props, ref) => {
     });
 
     if (res.isConfirmed) {
+      // Listeden çıkarınca, Backend'e giden listede bu ID olmayacağı için
+      // Backend'deki UpdateCollection metodu bunu otomatik silecek.
       const updatedList = rows.filter((_, i) => i !== index);
       setValue("education", updatedList, {
         shouldDirty: true,
@@ -115,9 +125,7 @@ const EducationTable = forwardRef((props, ref) => {
     setModalOpen(true);
   };
 
-  useImperativeHandle(ref, () => ({
-    openCreate,
-  }));
+  useImperativeHandle(ref, () => ({ openCreate }));
 
   return (
     <div>
@@ -146,34 +154,26 @@ const EducationTable = forwardRef((props, ref) => {
             <tbody>
               {rows.map((r, idx) => (
                 <tr key={idx} className="bg-white border-t">
-                  {/* Burada ID'leri Label'a çeviriyoruz */}
                   <td className="px-4 py-3 truncate">
                     {getSeviyeLabel(r.seviye, t)}
                   </td>
-
                   <td className="px-4 py-3 truncate" title={r.okul}>
                     {r.okul}
                   </td>
                   <td className="px-4 py-3 truncate" title={r.bolum}>
                     {r.bolum}
                   </td>
-
-                  {/* Not Sistemi Çevirisi */}
                   <td className="px-4 py-3 truncate">
                     {getNotSistemiLabel(r.notSistemi, t)}
                   </td>
-
                   <td className="px-4 py-3 truncate">{r.gano}</td>
                   <td className="px-4 py-3 truncate">
                     {formatDate(r.baslangic)}
                   </td>
                   <td className="px-4 py-3 truncate">{formatDate(r.bitis)}</td>
-
-                  {/* Diploma Durumu Çevirisi */}
                   <td className="px-4 py-3 truncate">
                     {getDiplomaLabel(r.diplomaDurum, t)}
                   </td>
-
                   <td className="px-4 py-3 text-right">
                     <div className="inline-flex items-center gap-2">
                       <button
@@ -198,7 +198,6 @@ const EducationTable = forwardRef((props, ref) => {
           </table>
         </div>
       )}
-
       <EducationAddModal
         open={modalOpen}
         mode={modalMode}

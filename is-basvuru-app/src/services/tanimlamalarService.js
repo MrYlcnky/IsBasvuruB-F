@@ -130,10 +130,9 @@ const tanimlamaService = {
     const response = await axiosClient.get("/OyunBilgisi");
     return unwrap(response);
   },
-  getKktcBelgeler: async () => {
-    const response = await axiosClient.get("/KktcBelge");
-    return response.data;
-  },
+  getKktcBelgeler: async () => unwrap(await axiosClient.get("/KktcBelge")),
+
+  getKvkkList: async () => unwrap(await axiosClient.get("/Kvkk")),
 };
 
 export { tanimlamaService };

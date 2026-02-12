@@ -17,7 +17,6 @@ const formatMoney = (val) => {
   return n.toLocaleString(undefined, { maximumFractionDigits: 2 });
 };
 
-// ✅ DEFINITIONS EKLENDİ
 const JobExperiencesTable = forwardRef(({ definitions }, ref) => {
   const { t } = useTranslation();
   const { control, setValue } = useFormContext();
@@ -47,7 +46,9 @@ const JobExperiencesTable = forwardRef(({ definitions }, ref) => {
   const closeModal = () => setModalOpen(false);
 
   const handleSave = (newData) => {
-    const updatedList = [...rows, newData];
+    // Yeni kayıtlara ID: 0 atıyoruz
+    const itemToAdd = { ...newData, id: 0 };
+    const updatedList = [...rows, itemToAdd];
     setValue("experience", updatedList, {
       shouldDirty: true,
       shouldValidate: true,
@@ -59,7 +60,11 @@ const JobExperiencesTable = forwardRef(({ definitions }, ref) => {
   const handleUpdate = (updatedData) => {
     if (selectedIndex > -1) {
       const updatedList = [...rows];
-      updatedList[selectedIndex] = updatedData;
+      // 🔥 KRİTİK DÜZELTME: Mevcut ID'yi koruyoruz
+      updatedList[selectedIndex] = {
+        ...rows[selectedIndex],
+        ...updatedData,
+      };
       setValue("experience", updatedList, {
         shouldDirty: true,
         shouldValidate: true,
@@ -139,7 +144,7 @@ const JobExperiencesTable = forwardRef(({ definitions }, ref) => {
                     {item.ayrilisSebebi || "-"}
                   </td>
 
-                  {/* Ülke ve Şehir (Modal'dan gelen string'i gösteriyoruz) */}
+                  {/* Ülke ve Şehir */}
                   <td className="px-4 py-3 truncate">{item.ulkeAdi}</td>
                   <td className="px-4 py-3 truncate">{item.sehirAdi}</td>
 
@@ -175,7 +180,7 @@ const JobExperiencesTable = forwardRef(({ definitions }, ref) => {
         onClose={closeModal}
         onSave={handleSave}
         onUpdate={handleUpdate}
-        definitions={definitions} // ✅ MODAL'A AKTARILDI
+        definitions={definitions}
       />
     </div>
   );

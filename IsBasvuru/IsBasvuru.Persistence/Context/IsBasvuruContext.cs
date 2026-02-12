@@ -6,6 +6,7 @@ using IsBasvuru.Domain.Entities.PersonelBilgileri;
 using IsBasvuru.Domain.Entities.SirketYapisi;
 using IsBasvuru.Domain.Entities.SirketYapisi.SirketTanimYapisi;
 using IsBasvuru.Domain.Entities.Tanimlamalar;
+using IsBasvuru.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -15,9 +16,9 @@ using System.Threading.Tasks;
 
 namespace IsBasvuru.Persistence.Context
 {
-    public class IsBasvuruContext:DbContext
+    public class IsBasvuruContext : DbContext
     {
-        public IsBasvuruContext(DbContextOptions<IsBasvuruContext> options):base(options) 
+        public IsBasvuruContext(DbContextOptions<IsBasvuruContext> options) : base(options)
         { }
 
         // 1-Admin Bilgileri
@@ -78,12 +79,12 @@ namespace IsBasvuru.Persistence.Context
 
         // 7- Kimlik Doğrulama
         public DbSet<DogrulamaKodu> DogrulamaKodlari { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Önce base metodunu çağırıyoruz
             base.OnModelCreating(modelBuilder);
 
-            // --- 1. Kisisel Bilgiler ---
+            // 1. Kisisel Bilgiler
             modelBuilder.Entity<KisiselBilgiler>(entity =>
             {
                 // Email kesinlikle benzersiz olsun (İletişim karışıklığını önlemek için)
@@ -91,24 +92,51 @@ namespace IsBasvuru.Persistence.Context
 
                 // Bir personelin sadece bir tane kişisel bilgi kaydı olabilir
                 entity.HasIndex(e => e.PersonelId).IsUnique();
+
+                // TARİH DÜZELTMESİ (Doğum Tarihi - Sadece Tarih)
+                entity.Property(e => e.DogumTarihi).HasColumnType("date");
             });
 
-            // --- 2. Admin Kullanıcıları ---
+            //  2. Admin Kullanıcıları
             modelBuilder.Entity<PanelKullanici>(entity =>
             {
                 // Aynı kullanıcı adıyla ikinci bir admin oluşturulamaz
                 entity.HasIndex(e => e.KullaniciAdi).IsUnique();
             });
 
-            // --- 3. Şirket Yapısı ---
+            //  3. Şirket Yapısı 
             modelBuilder.Entity<Sube>(entity =>
             {
                 // Aynı isimde iki şube olmasın (Örn: İki tane "Girne" şubesi olmasın)
                 entity.HasIndex(e => e.SubeAdi).IsUnique();
             });
 
-            //4. 1-1 İlişki Güvenliği (Personel ID'si tekrar etmesin)
-            // Bu tablolar Personel tablosuna göbekten bağlıdır, her personel için sadece 1 tane olabilirler.
+            //  4. Eğitim Bilgileri 
+            modelBuilder.Entity<EgitimBilgisi>(entity =>
+            {
+                // GANO: 3.24 gibi 2 basamaklı olsun.
+                entity.Property(e => e.Gano).HasColumnType("decimal(4,2)");
+
+                // TARİHLER: Sadece Tarih (Saat yok)
+                entity.Property(e => e.BaslangicTarihi).HasColumnType("date");
+                entity.Property(e => e.BitisTarihi).HasColumnType("date");
+            });
+
+            // 5. Sertifika Bilgileri
+            modelBuilder.Entity<SertifikaBilgisi>(entity =>
+            {
+                entity.Property(e => e.VerilisTarihi).HasColumnType("date");
+                entity.Property(e => e.GecerlilikTarihi).HasColumnType("date");
+            });
+
+            //  6. İş Deneyimi 
+            modelBuilder.Entity<IsDeneyimi>(entity =>
+            {
+                entity.Property(e => e.BaslangicTarihi).HasColumnType("date");
+                entity.Property(e => e.BitisTarihi).HasColumnType("date");
+            });
+
+            // 7. 1-1 İlişki Güvenliği
             modelBuilder.Entity<MasterBasvuru>()
                 .HasIndex(e => e.PersonelId).IsUnique();
 
@@ -121,6 +149,7 @@ namespace IsBasvuru.Persistence.Context
             modelBuilder.Entity<DigerKisiselBilgiler>()
                 .HasIndex(e => e.PersonelId).IsUnique();
 
+            //8. Çoka-Çok İlişki Tekillik
             modelBuilder.Entity<IsBasvuruDetaySube>()
                 .HasIndex(e => new { e.IsBasvuruDetayId, e.SubeId }).IsUnique();
 
@@ -139,12 +168,45 @@ namespace IsBasvuru.Persistence.Context
             modelBuilder.Entity<IsBasvuruDetayOyun>()
                 .HasIndex(e => new { e.IsBasvuruDetayId, e.OyunBilgisiId }).IsUnique();
 
+            // Roller
+            modelBuilder.Entity<Rol>().HasData(
+                new Rol
+                {
+                    Id = (int)RolEnum.SuperAdmin,
+                    RolAdi = "SuperAdmin",
+                    RolTanimi = "Tam yetkili, her şeyi gören ve müdahale eden yönetici."
+                },
+                new Rol
+                {
+                    Id = (int)RolEnum.Admin,
+                    RolAdi = "Admin",
+                    RolTanimi = "İK Müdürü, sistem tanımları ve kullanıcı atamaları yöneticisi."
+                },
+                new Rol
+                {
+                    Id = (int)RolEnum.IkAdmin,
+                    RolAdi = "IkAdmin",
+                    RolTanimi = "Başvuru yönetimi, log görüntüleme ve revize onay yetkilisi."
+                },
+                new Rol
+                {
+                    Id = (int)RolEnum.Ik,
+                    RolAdi = "IK",
+                    RolTanimi = "Başvuru yönetimi ve revize işlemleri (Kısıtlı yetki)."
+                },
+                new Rol
+                {
+                    Id = (int)RolEnum.GenelMudur,
+                    RolAdi = "GenelMudur",
+                    RolTanimi = "Üst düzey başvuru değerlendirme ve onay mercii."
+                },
+                new Rol
+                {
+                    Id = (int)RolEnum.DepartmanMudur,
+                    RolAdi = "DepartmanMudur",
+                    RolTanimi = "İlgili departmana gelen başvuruları değerlendirme mercii."
+                }
+            );
         }
-
-
-
-
     }
-
-
 }

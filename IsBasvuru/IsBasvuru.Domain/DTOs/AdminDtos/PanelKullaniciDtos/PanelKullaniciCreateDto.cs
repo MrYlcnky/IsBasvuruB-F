@@ -8,8 +8,10 @@
         public required string KullaniciSifre { get; set; }
 
         public int RolId { get; set; }
+
         public int? SubeId { get; set; }
-        public int? SubeAlanId { get; set; }
-        public int? DepartmanId { get; set; }
+        public int? MasterAlanId { get; set; }
+        public int? MasterDepartmanId { get; set; }
+
     }
 }

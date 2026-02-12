@@ -35,7 +35,7 @@ namespace IsBasvuru.Infrastructure.Services
 
 
                 var message = new MimeMessage();
-                message.From.Add(new MailboxAddress("İş Başvuru Sistemi", senderEmail));
+                message.From.Add(new MailboxAddress("Chamada Group Başvuru Doğrulama Kodu", senderEmail));
                 message.To.Add(new MailboxAddress("", aliciEposta));
                 message.Subject = "Başvuru Doğrulama Kodu";
 

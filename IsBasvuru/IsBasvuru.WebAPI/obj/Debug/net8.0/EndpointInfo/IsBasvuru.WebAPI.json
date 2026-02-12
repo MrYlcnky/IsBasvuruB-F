@@ -5,6 +5,37 @@
     "version": "v1"
   },
   "paths": {
+    "/api/Auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLoginDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLoginDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/BilgisayarBilgisi": {
       "get": {
         "tags": [
@@ -2020,100 +2051,11 @@
         }
       }
     },
-    "/api/PanelKullanici/login": {
-      "post": {
-        "tags": [
-          "PanelKullanici"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AdminLoginDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AdminLoginDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/AdminLoginDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/PanelKullanici": {
+    "/api/PanelKullanici/getall": {
       "get": {
         "tags": [
           "PanelKullanici"
         ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "PanelKullanici"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PanelKullaniciCreateDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PanelKullaniciCreateDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/PanelKullaniciCreateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "PanelKullanici"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PanelKullaniciUpdateDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PanelKullaniciUpdateDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/PanelKullaniciUpdateDto"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "OK"
@@ -2158,6 +2100,68 @@
             }
           }
         ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PanelKullanici/create": {
+      "post": {
+        "tags": [
+          "PanelKullanici"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PanelKullaniciCreateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PanelKullaniciCreateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PanelKullaniciCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PanelKullanici/update": {
+      "put": {
+        "tags": [
+          "PanelKullanici"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PanelKullaniciUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PanelKullaniciUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PanelKullaniciUpdateDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "OK"
@@ -2231,8 +2235,7 @@
                     "type": "string"
                   },
                   "LojmanTalebi": {
-                    "type": "integer",
-                    "format": "int32"
+                    "$ref": "#/components/schemas/SecimDurumu"
                   },
                   "VesikalikDosyasi": {
                     "type": "string",
@@ -2679,8 +2682,7 @@
                     "type": "string"
                   },
                   "LojmanTalebi": {
-                    "type": "integer",
-                    "format": "int32"
+                    "$ref": "#/components/schemas/SecimDurumu"
                   },
                   "VesikalikDosyasi": {
                     "type": "string",
@@ -3108,8 +3110,7 @@
                     "type": "string"
                   },
                   "LojmanTalebi": {
-                    "type": "integer",
-                    "format": "int32"
+                    "$ref": "#/components/schemas/SecimDurumu"
                   },
                   "KisiselBilgiler.Id": {
                     "type": "integer",
@@ -3247,43 +3248,43 @@
                   "EgitimBilgileri": {
                     "type": "array",
                     "items": {
-                      "$ref": "#/components/schemas/EgitimBilgisiCreateDto"
+                      "$ref": "#/components/schemas/EgitimBilgisiUpdateDto"
                     }
                   },
                   "IsDeneyimleri": {
                     "type": "array",
                     "items": {
-                      "$ref": "#/components/schemas/IsDeneyimiCreateDto"
+                      "$ref": "#/components/schemas/IsDeneyimiUpdateDto"
                     }
                   },
                   "YabanciDilBilgileri": {
                     "type": "array",
                     "items": {
-                      "$ref": "#/components/schemas/YabanciDilBilgisiCreateDto"
+                      "$ref": "#/components/schemas/YabanciDilBilgisiUpdateDto"
                     }
                   },
                   "BilgisayarBilgileri": {
                     "type": "array",
                     "items": {
-                      "$ref": "#/components/schemas/BilgisayarBilgisiCreateDto"
+                      "$ref": "#/components/schemas/BilgisayarBilgisiUpdateDto"
                     }
                   },
                   "SertifikaBilgileri": {
                     "type": "array",
                     "items": {
-                      "$ref": "#/components/schemas/SertifikaBilgisiCreateDto"
+                      "$ref": "#/components/schemas/SertifikaBilgisiUpdateDto"
                     }
                   },
                   "ReferansBilgileri": {
                     "type": "array",
                     "items": {
-                      "$ref": "#/components/schemas/ReferansBilgisiCreateDto"
+                      "$ref": "#/components/schemas/ReferansBilgisiUpdateDto"
                     }
                   },
                   "PersonelEhliyetler": {
                     "type": "array",
                     "items": {
-                      "$ref": "#/components/schemas/PersonelEhliyetCreateDto"
+                      "$ref": "#/components/schemas/PersonelEhliyetUpdateDto"
                     }
                   }
                 }
@@ -3519,6 +3520,15 @@
       "get": {
         "tags": [
           "Personel"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -3920,64 +3930,6 @@
         "tags": [
           "Rol"
         ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Rol"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RolCreateDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RolCreateDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/RolCreateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Rol"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RolUpdateDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RolUpdateDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/RolUpdateDto"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "OK"
@@ -5876,12 +5828,12 @@
             "format": "int32",
             "nullable": true
           },
-          "subeAlanId": {
+          "masterAlanId": {
             "type": "integer",
             "format": "int32",
             "nullable": true
           },
-          "departmanId": {
+          "masterDepartmanId": {
             "type": "integer",
             "format": "int32",
             "nullable": true
@@ -5926,12 +5878,12 @@
             "format": "int32",
             "nullable": true
           },
-          "subeAlanId": {
+          "masterAlanId": {
             "type": "integer",
             "format": "int32",
             "nullable": true
           },
-          "departmanId": {
+          "masterDepartmanId": {
             "type": "integer",
             "format": "int32",
             "nullable": true
@@ -6101,36 +6053,6 @@
         ],
         "type": "integer",
         "format": "int32"
-      },
-      "RolCreateDto": {
-        "required": [
-          "rolAdi"
-        ],
-        "type": "object",
-        "properties": {
-          "rolAdi": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "RolUpdateDto": {
-        "required": [
-          "rolAdi"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "rolAdi": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
       },
       "SecimDurumu": {
         "enum": [
@@ -6493,7 +6415,7 @@
     "securitySchemes": {
       "Bearer": {
         "type": "apiKey",
-        "description": "JWT Token'ı 'Bearer [boşluk] token' formatında giriniz.\nÖrnek: Bearer eyJhbGciOi...",
+        "description": "Enter JWT Token as 'Bearer [space] token'. Example: Bearer eyJhbGciOi...",
         "name": "Authorization",
         "in": "header"
       }

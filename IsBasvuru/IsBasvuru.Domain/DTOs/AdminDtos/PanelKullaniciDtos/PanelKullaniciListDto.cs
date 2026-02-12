@@ -17,11 +17,12 @@ namespace IsBasvuru.Domain.DTOs.AdminDtos.PanelKullaniciDtos
         public int? SubeId { get; set; }
         public string? SubeAdi { get; set; }
 
-        public int? SubeAlanId { get; set; }
-        public string? SubeAlanAdi { get; set; }
+        public int? MasterAlanId { get; set; }
+        public string? MasterAlanAdi { get; set; }
 
-        public int? DepartmanId { get; set; }
-        public  string? DepartmanAdi { get; set; } 
+        public int? MasterDepartmanId { get; set; }
+        public  string? MasterDepartmanAdi { get; set; }
+      
 
         public DateTime SonGirisTarihi { get; set; }
 

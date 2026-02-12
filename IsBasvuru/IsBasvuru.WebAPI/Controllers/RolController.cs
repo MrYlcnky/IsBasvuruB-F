@@ -30,19 +30,7 @@ namespace IsBasvuru.WebAPI.Controllers
             return CreateActionResultInstance(response);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(RolCreateDto dto)
-        {
-            var response = await _service.CreateAsync(dto);
-            return CreateActionResultInstance(response);
-        }
-
-        [HttpPut]
-        public async Task<IActionResult> Update(RolUpdateDto dto)
-        {
-            var response = await _service.UpdateAsync(dto);
-            return CreateActionResultInstance(response);
-        }
+       
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)

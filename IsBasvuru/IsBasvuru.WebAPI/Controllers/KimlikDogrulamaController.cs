@@ -13,19 +13,19 @@ namespace IsBasvuru.WebAPI.Controllers
     public class KimlikDogrulamaController : BaseController
     {
         private readonly IKimlikDogrulamaService _kimlikService;
-        private readonly IPanelKullaniciService _panelKullaniciService; 
+        private readonly IAuthService _authService;
 
-        public KimlikDogrulamaController(IKimlikDogrulamaService kimlikService, IPanelKullaniciService panelKullaniciService)
+        public KimlikDogrulamaController(IKimlikDogrulamaService kimlikService, IAuthService authService)
         {
             _kimlikService = kimlikService;
-            _panelKullaniciService = panelKullaniciService;
+            _authService = authService;
         }
 
         // 1. Admin/Panel Girişi (Token Alma Yeri)
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] AdminLoginDto dto)
         {
-            var result = await _panelKullaniciService.LoginAsync(dto);
+            var result = await _authService.LoginAsync(dto);
             return CreateActionResultInstance(result);
         }
 

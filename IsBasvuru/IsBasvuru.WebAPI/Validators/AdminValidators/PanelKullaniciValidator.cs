@@ -30,12 +30,12 @@ namespace IsBasvuru.WebAPI.Validators.AdminValidators
             RuleFor(x => x.SubeId)
                 .GreaterThan(0).When(x => x.SubeId.HasValue)
                 .WithMessage("Geçersiz şube seçimi.");
-            RuleFor(x => x.SubeAlanId)
-               .GreaterThan(0).When(x => x.SubeAlanId.HasValue)
+            RuleFor(x => x.MasterAlanId)
+               .GreaterThan(0).When(x => x.MasterAlanId.HasValue)
                .WithMessage("Geçersiz alan seçimi.");
 
-            RuleFor(x => x.DepartmanId)
-                .GreaterThan(0).When(x => x.DepartmanId.HasValue)
+            RuleFor(x => x.MasterDepartmanId)
+                .GreaterThan(0).When(x => x.MasterDepartmanId.HasValue)
                 .WithMessage("Geçersiz departman seçimi.");
         }
     }
@@ -59,12 +59,12 @@ namespace IsBasvuru.WebAPI.Validators.AdminValidators
                 .GreaterThan(0).When(x => x.SubeId.HasValue)
                 .WithMessage("Geçersiz şube seçimi.");
 
-            RuleFor(x => x.SubeAlanId)
-              .GreaterThan(0).When(x => x.SubeAlanId.HasValue)
+            RuleFor(x => x.MasterAlanId)
+              .GreaterThan(0).When(x => x.MasterAlanId.HasValue)
               .WithMessage("Geçersiz alan seçimi.");
 
-            RuleFor(x => x.DepartmanId)
-                .GreaterThan(0).When(x => x.DepartmanId.HasValue)
+            RuleFor(x => x.MasterDepartmanId)
+                .GreaterThan(0).When(x => x.MasterDepartmanId.HasValue)
                 .WithMessage("Geçersiz departman seçimi.");
 
            

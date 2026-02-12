@@ -70,6 +70,13 @@ namespace IsBasvuru.WebAPI.Mapping
 
             // Update (DTO -> Entity)
             CreateMap<PersonelUpdateDto, Personel>()
+                .ForMember(dest => dest.EgitimBilgileri, opt => opt.Ignore())
+                .ForMember(dest => dest.IsDeneyimleri, opt => opt.Ignore())
+                .ForMember(dest => dest.YabanciDilBilgileri, opt => opt.Ignore())
+                .ForMember(dest => dest.BilgisayarBilgileri, opt => opt.Ignore())
+                .ForMember(dest => dest.SertifikaBilgileri, opt => opt.Ignore())
+                .ForMember(dest => dest.ReferansBilgileri, opt => opt.Ignore())
+                .ForMember(dest => dest.PersonelEhliyetler, opt => opt.Ignore())
                 .ForMember(dest => dest.IsBasvuruDetay, opt => opt.Ignore());
 
             // List / Get (Entity -> DTO)
@@ -143,23 +150,52 @@ namespace IsBasvuru.WebAPI.Mapping
             // =======================================================
             // 3. EĞİTİM, İŞ, SERTİFİKA VB.
             // =======================================================
-            CreateMap<EgitimBilgisiCreateDto, EgitimBilgisi>().ReverseMap();
-            CreateMap<EgitimBilgisiListDto, EgitimBilgisi>().ReverseMap();
 
+
+
+
+            // --- EĞİTİM BİLGİSİ ---
+            CreateMap<EgitimBilgisiCreateDto, EgitimBilgisi>().ReverseMap();
+            CreateMap<EgitimBilgisiUpdateDto, EgitimBilgisi>();
+            CreateMap<EgitimBilgisi, EgitimBilgisiListDto>()
+                .ForMember(dest => dest.EgitimSeviyesi, opt => opt.MapFrom(src => (int)src.EgitimSeviyesi));
+            CreateMap<EgitimBilgisiListDto, EgitimBilgisi>(); 
+
+
+            // --- İŞ DENEYİMİ ---
             CreateMap<IsDeneyimiCreateDto, IsDeneyimi>().ReverseMap();
             CreateMap<IsDeneyimiListDto, IsDeneyimi>().ReverseMap();
+            CreateMap<IsDeneyimiUpdateDto, IsDeneyimi>();
 
+
+            // --- YABANCI DİL ---
             CreateMap<YabanciDilBilgisiCreateDto, YabanciDilBilgisi>().ReverseMap();
             CreateMap<YabanciDilBilgisiListDto, YabanciDilBilgisi>().ReverseMap();
+            CreateMap<YabanciDilBilgisiUpdateDto, YabanciDilBilgisi>();
 
+
+            // --- BİLGİSAYAR BİLGİSİ ---
             CreateMap<BilgisayarBilgisiCreateDto, BilgisayarBilgisi>().ReverseMap();
             CreateMap<BilgisayarBilgisiListDto, BilgisayarBilgisi>().ReverseMap();
+            CreateMap<BilgisayarBilgisiUpdateDto, BilgisayarBilgisi>();
 
+
+            // --- SERTİFİKA ---
             CreateMap<SertifikaBilgisiCreateDto, SertifikaBilgisi>().ReverseMap();
             CreateMap<SertifikaBilgisiListDto, SertifikaBilgisi>().ReverseMap();
+            CreateMap<SertifikaBilgisiUpdateDto, SertifikaBilgisi>();
 
+
+            // --- REFERANS ---
             CreateMap<ReferansBilgisiCreateDto, ReferansBilgisi>().ReverseMap();
             CreateMap<ReferansBilgisiListDto, ReferansBilgisi>().ReverseMap();
+            CreateMap<ReferansBilgisiUpdateDto, ReferansBilgisi>();
+
+            // PersonelEhliyet
+            CreateMap<PersonelEhliyetCreateDto, PersonelEhliyet>();
+            CreateMap<PersonelEhliyetUpdateDto, PersonelEhliyet>();
+            CreateMap<PersonelEhliyet, PersonelEhliyetListDto>()
+                .ForMember(dest => dest.EhliyetTuruAdi, opt => opt.MapFrom(src => src.EhliyetTuru != null ? src.EhliyetTuru.EhliyetTuruAdi : ""));
 
             // =======================================================
             // 4. ŞİRKET YAPISI VE TANIMLAMALAR (MASTER)
@@ -209,11 +245,7 @@ namespace IsBasvuru.WebAPI.Mapping
             CreateMap<DepartmanPozisyonCreateDto, DepartmanPozisyon>();
             CreateMap<DepartmanPozisyonUpdateDto, DepartmanPozisyon>();
 
-            // PersonelEhliyet
-            CreateMap<PersonelEhliyetCreateDto, PersonelEhliyet>();
-            CreateMap<PersonelEhliyetUpdateDto, PersonelEhliyet>();
-            CreateMap<PersonelEhliyet, PersonelEhliyetListDto>()
-                .ForMember(dest => dest.EhliyetTuruAdi, opt => opt.MapFrom(src => src.EhliyetTuru != null ? src.EhliyetTuru.EhliyetTuruAdi : ""));
+           
 
             // OyunBilgisi
             CreateMap<OyunBilgisi, OyunBilgisiListDto>()
@@ -270,14 +302,13 @@ namespace IsBasvuru.WebAPI.Mapping
             // 6. ADMIN, ROL, LOG
             // =======================================================
             CreateMap<Rol, RolListDto>().ReverseMap();
-            CreateMap<RolCreateDto, Rol>();
-            CreateMap<RolUpdateDto, Rol>();
+            
 
             CreateMap<PanelKullanici, PanelKullaniciListDto>()
                 .ForMember(dest => dest.RolAdi, opt => opt.MapFrom(src => src.Rol != null ? src.Rol.RolAdi : string.Empty))
                 .ForMember(dest => dest.SubeAdi, opt => opt.MapFrom(src => src.Sube != null ? src.Sube.SubeAdi : string.Empty))
-                .ForMember(dest => dest.SubeAlanAdi, opt => opt.MapFrom(src => src.SubeAlan != null && src.SubeAlan.MasterAlan != null ? src.SubeAlan.MasterAlan.MasterAlanAdi : string.Empty))
-                .ForMember(dest => dest.DepartmanAdi, opt => opt.MapFrom(src => src.Departman != null && src.Departman.MasterDepartman != null ? src.Departman.MasterDepartman.MasterDepartmanAdi : string.Empty));
+                .ForMember(dest => dest.MasterAlanAdi, opt => opt.MapFrom(src => src.MasterAlan != null ? src.MasterAlan.MasterAlanAdi : string.Empty)) 
+                .ForMember(dest => dest.MasterDepartmanAdi, opt => opt.MapFrom(src => src.MasterDepartman != null ? src.MasterDepartman.MasterDepartmanAdi : string.Empty));
 
             CreateMap<PanelKullaniciCreateDto, PanelKullanici>();
             CreateMap<PanelKullaniciUpdateDto, PanelKullanici>()

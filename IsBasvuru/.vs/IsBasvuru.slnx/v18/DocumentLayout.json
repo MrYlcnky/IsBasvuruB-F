@@ -3,28 +3,13 @@
   "WorkspaceRootPath": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.Persistence\\Migrations\\20260206210908_update2.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{1A4E0CF4-D87A-A924-21F1-462F587DFD73}|IsBasvuru.WebAPI\\IsBasvuru.WebAPI.csproj|\\\\172.16.0.27\\casino\\it\\ki\u015Fisel\\mehmetyalcinkaya\\mehmetyalcinkaya\\udemy\\proje\\react\\isbasvuru\\isbasvuru.webapi\\controllers\\panelkullanicicontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6736300C-9717-1C0B-01AA-AD7C75D0FAAD}|IsBasvuru.Infrastructure\\IsBasvuru.Infrastructure.csproj|\\\\172.16.0.27\\casino\\it\\ki\u015Fisel\\mehmetyalcinkaya\\mehmetyalcinkaya\\udemy\\proje\\react\\isbasvuru\\isbasvuru.infrastructure\\services\\programbilgisiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{687F6CCC-177A-B506-3BD0-3A9B4C097427}|IsBasvuru.Domain\\IsBasvuru.Domain.csproj|\\\\172.16.0.27\\casino\\it\\ki\u015Fisel\\mehmetyalcinkaya\\mehmetyalcinkaya\\udemy\\proje\\react\\isbasvuru\\isbasvuru.domain\\enums\\roller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{6736300C-9717-1C0B-01AA-AD7C75D0FAAD}|IsBasvuru.Infrastructure\\IsBasvuru.Infrastructure.csproj|\\\\172.16.0.27\\casino\\it\\ki\u015Fisel\\mehmetyalcinkaya\\mehmetyalcinkaya\\udemy\\proje\\react\\isbasvuru\\isbasvuru.infrastructure\\services\\oyunbilgisiservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{687F6CCC-177A-B506-3BD0-3A9B4C097427}|IsBasvuru.Domain\\IsBasvuru.Domain.csproj|\\\\172.16.0.27\\casino\\it\\ki\u015Fisel\\mehmetyalcinkaya\\mehmetyalcinkaya\\udemy\\proje\\react\\isbasvuru\\isbasvuru.domain\\dtos\\personeldtos\\personellistdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{687F6CCC-177A-B506-3BD0-3A9B4C097427}|IsBasvuru.Domain\\IsBasvuru.Domain.csproj|\\\\172.16.0.27\\casino\\it\\ki\u015Fisel\\mehmetyalcinkaya\\mehmetyalcinkaya\\udemy\\proje\\react\\isbasvuru\\isbasvuru.domain\\dtos\\personelbilgileridtos\\isbasvurudetaydtos\\isbasvurudetaydto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{6736300C-9717-1C0B-01AA-AD7C75D0FAAD}|IsBasvuru.Infrastructure\\IsBasvuru.Infrastructure.csproj|\\\\172.16.0.27\\casino\\it\\ki\u015Fisel\\mehmetyalcinkaya\\mehmetyalcinkaya\\udemy\\proje\\react\\isbasvuru\\isbasvuru.infrastructure\\services\\personelservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1A4E0CF4-D87A-A924-21F1-462F587DFD73}|IsBasvuru.WebAPI\\IsBasvuru.WebAPI.csproj|\\\\172.16.0.27\\casino\\it\\ki\u015Fisel\\mehmetyalcinkaya\\mehmetyalcinkaya\\udemy\\proje\\react\\isbasvuru\\isbasvuru.webapi\\controllers\\personelcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{1A4E0CF4-D87A-A924-21F1-462F587DFD73}|IsBasvuru.WebAPI\\IsBasvuru.WebAPI.csproj|\\\\172.16.0.27\\casino\\it\\ki\u015Fisel\\mehmetyalcinkaya\\mehmetyalcinkaya\\udemy\\proje\\react\\isbasvuru\\isbasvuru.webapi\\mapping\\mapprofile.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{CCFF8EC8-E785-F49F-D9BD-B440053B486D}|IsBasvuru.Persistence\\IsBasvuru.Persistence.csproj|\\\\172.16.0.27\\casino\\it\\ki\u015Fisel\\mehmetyalcinkaya\\mehmetyalcinkaya\\udemy\\proje\\react\\isbasvuru\\isbasvuru.persistence\\context\\isbasvurucontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -34,7 +19,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 204,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -42,106 +27,41 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "20260206210908_update2.cs",
-              "DocumentMoniker": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.Persistence\\Migrations\\20260206210908_update2.cs",
-              "RelativeDocumentMoniker": "IsBasvuru.Persistence\\Migrations\\20260206210908_update2.cs",
-              "ToolTip": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.Persistence\\Migrations\\20260206210908_update2.cs",
-              "RelativeToolTip": "IsBasvuru.Persistence\\Migrations\\20260206210908_update2.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 1,
+              "Title": "Roller.cs",
+              "DocumentMoniker": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.Domain\\Enums\\Roller.cs",
+              "RelativeDocumentMoniker": "IsBasvuru.Domain\\Enums\\Roller.cs",
+              "ToolTip": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.Domain\\Enums\\Roller.cs",
+              "RelativeToolTip": "IsBasvuru.Domain\\Enums\\Roller.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-06T21:09:08.366Z",
+              "WhenOpened": "2026-02-12T15:53:50.008Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "OyunBilgisiService.cs",
-              "DocumentMoniker": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.Infrastructure\\Services\\OyunBilgisiService.cs",
-              "RelativeDocumentMoniker": "IsBasvuru.Infrastructure\\Services\\OyunBilgisiService.cs",
-              "ToolTip": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.Infrastructure\\Services\\OyunBilgisiService.cs",
-              "RelativeToolTip": "IsBasvuru.Infrastructure\\Services\\OyunBilgisiService.cs",
-              "ViewState": "AgIAAAIAAAAAAAAAAAAUwBQAAAAAAAAAAAAAAA==",
+              "Title": "IsBasvuruContext.cs",
+              "DocumentMoniker": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.Persistence\\Context\\IsBasvuruContext.cs",
+              "RelativeDocumentMoniker": "IsBasvuru.Persistence\\Context\\IsBasvuruContext.cs",
+              "ToolTip": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.Persistence\\Context\\IsBasvuruContext.cs",
+              "RelativeToolTip": "IsBasvuru.Persistence\\Context\\IsBasvuruContext.cs",
+              "ViewState": "AgIAAKMAAAAAAAAAAAAgwNAAAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-06T20:59:46.501Z",
+              "WhenOpened": "2026-02-12T15:55:41.832Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "ProgramBilgisiService.cs",
-              "DocumentMoniker": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.Infrastructure\\Services\\ProgramBilgisiService.cs",
-              "RelativeDocumentMoniker": "IsBasvuru.Infrastructure\\Services\\ProgramBilgisiService.cs",
-              "ToolTip": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.Infrastructure\\Services\\ProgramBilgisiService.cs",
-              "RelativeToolTip": "IsBasvuru.Infrastructure\\Services\\ProgramBilgisiService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "PanelKullaniciController.cs",
+              "DocumentMoniker": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.WebAPI\\Controllers\\PanelKullaniciController.cs",
+              "RelativeDocumentMoniker": "IsBasvuru.WebAPI\\Controllers\\PanelKullaniciController.cs",
+              "ToolTip": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.WebAPI\\Controllers\\PanelKullaniciController.cs",
+              "RelativeToolTip": "IsBasvuru.WebAPI\\Controllers\\PanelKullaniciController.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAAswCgAAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-06T20:57:27.876Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "PersonelController.cs",
-              "DocumentMoniker": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.WebAPI\\Controllers\\PersonelController.cs",
-              "RelativeDocumentMoniker": "IsBasvuru.WebAPI\\Controllers\\PersonelController.cs",
-              "ToolTip": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.WebAPI\\Controllers\\PersonelController.cs",
-              "RelativeToolTip": "IsBasvuru.WebAPI\\Controllers\\PersonelController.cs",
-              "ViewState": "AgIAABEAAAAAAAAAAAAywOQAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-06T20:38:10.427Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "PersonelListDto.cs",
-              "DocumentMoniker": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.Domain\\DTOs\\PersonelDtos\\PersonelListDto.cs",
-              "RelativeDocumentMoniker": "IsBasvuru.Domain\\DTOs\\PersonelDtos\\PersonelListDto.cs",
-              "ToolTip": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.Domain\\DTOs\\PersonelDtos\\PersonelListDto.cs",
-              "RelativeToolTip": "IsBasvuru.Domain\\DTOs\\PersonelDtos\\PersonelListDto.cs",
-              "ViewState": "AgIAAAoAAAAAAAAAAAAswCIAAABSAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-06T20:32:29.819Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "IsBasvuruDetayDto.cs",
-              "DocumentMoniker": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.Domain\\DTOs\\PersonelBilgileriDtos\\IsBasvuruDetayDtos\\IsBasvuruDetayDto.cs",
-              "RelativeDocumentMoniker": "IsBasvuru.Domain\\DTOs\\PersonelBilgileriDtos\\IsBasvuruDetayDtos\\IsBasvuruDetayDto.cs",
-              "ToolTip": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.Domain\\DTOs\\PersonelBilgileriDtos\\IsBasvuruDetayDtos\\IsBasvuruDetayDto.cs",
-              "RelativeToolTip": "IsBasvuru.Domain\\DTOs\\PersonelBilgileriDtos\\IsBasvuruDetayDtos\\IsBasvuruDetayDto.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAABKAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-06T20:32:07.231Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "MapProfile.cs",
-              "DocumentMoniker": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.WebAPI\\Mapping\\MapProfile.cs",
-              "RelativeDocumentMoniker": "IsBasvuru.WebAPI\\Mapping\\MapProfile.cs",
-              "ToolTip": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.WebAPI\\Mapping\\MapProfile.cs",
-              "RelativeToolTip": "IsBasvuru.WebAPI\\Mapping\\MapProfile.cs",
-              "ViewState": "AgIAAAsAAAAAAAAAAAAYwBUAAAA7AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-06T20:35:21.974Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "PersonelService.cs",
-              "DocumentMoniker": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.Infrastructure\\Services\\PersonelService.cs",
-              "RelativeDocumentMoniker": "IsBasvuru.Infrastructure\\Services\\PersonelService.cs",
-              "ToolTip": "\\\\172.16.0.27\\Casino\\It\\Ki\u015Fisel\\MehmetYalcinkaya\\MehmetYalcinkaya\\Udemy\\Proje\\React\\IsBasvuru\\IsBasvuru.Infrastructure\\Services\\PersonelService.cs",
-              "RelativeToolTip": "IsBasvuru.Infrastructure\\Services\\PersonelService.cs",
-              "ViewState": "AgIAADcAAAAAAAAAAAAAAGMBAAAfAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-06T20:18:15.571Z",
+              "WhenOpened": "2026-02-12T14:54:50.161Z",
               "EditorCaption": ""
             }
           ]

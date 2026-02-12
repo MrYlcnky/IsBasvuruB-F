@@ -1,5 +1,21 @@
 [
   {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.Admin.AuthController",
+    "Method": "Login",
+    "RelativePath": "api/Auth/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.AdminDtos.AdminLoginDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "IsBasvuru.WebAPI.Controllers.BilgisayarBilgisiController",
     "Method": "GetAll",
     "RelativePath": "api/BilgisayarBilgisi",
@@ -1297,48 +1313,6 @@
   },
   {
     "ContainingType": "IsBasvuru.WebAPI.Controllers.PanelKullaniciController",
-    "Method": "GetAll",
-    "RelativePath": "api/PanelKullanici",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "IsBasvuru.WebAPI.Controllers.PanelKullaniciController",
-    "Method": "Create",
-    "RelativePath": "api/PanelKullanici",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "dto",
-        "Type": "IsBasvuru.Domain.DTOs.AdminDtos.PanelKullaniciDtos.PanelKullaniciCreateDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "IsBasvuru.WebAPI.Controllers.PanelKullaniciController",
-    "Method": "Update",
-    "RelativePath": "api/PanelKullanici",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "dto",
-        "Type": "IsBasvuru.Domain.DTOs.AdminDtos.PanelKullaniciDtos.PanelKullaniciUpdateDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "IsBasvuru.WebAPI.Controllers.PanelKullaniciController",
     "Method": "GetById",
     "RelativePath": "api/PanelKullanici/{id}",
     "HttpMethod": "GET",
@@ -1371,15 +1345,41 @@
   },
   {
     "ContainingType": "IsBasvuru.WebAPI.Controllers.PanelKullaniciController",
-    "Method": "Login",
-    "RelativePath": "api/PanelKullanici/login",
+    "Method": "Create",
+    "RelativePath": "api/PanelKullanici/create",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
         "Name": "dto",
-        "Type": "IsBasvuru.Domain.DTOs.AdminDtos.AdminLoginDto",
+        "Type": "IsBasvuru.Domain.DTOs.AdminDtos.PanelKullaniciDtos.PanelKullaniciCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PanelKullaniciController",
+    "Method": "GetAll",
+    "RelativePath": "api/PanelKullanici/getall",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "IsBasvuru.WebAPI.Controllers.PanelKullaniciController",
+    "Method": "Update",
+    "RelativePath": "api/PanelKullanici/update",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "IsBasvuru.Domain.DTOs.AdminDtos.PanelKullaniciDtos.PanelKullaniciUpdateDto",
         "IsRequired": true
       }
     ],
@@ -1451,7 +1451,7 @@
       },
       {
         "Name": "LojmanTalebi",
-        "Type": "System.Int32",
+        "Type": "System.String",
         "IsRequired": false
       },
       {
@@ -1747,7 +1747,7 @@
       },
       {
         "Name": "LojmanTalebi",
-        "Type": "System.Int32",
+        "Type": "System.String",
         "IsRequired": false
       },
       {
@@ -1947,37 +1947,37 @@
       },
       {
         "Name": "EgitimBilgileri",
-        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.EgitimBilgisiDtos.EgitimBilgisiCreateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.EgitimBilgisiDtos.EgitimBilgisiUpdateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": false
       },
       {
         "Name": "IsDeneyimleri",
-        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.IsDeneyimiDtos.IsDeneyimiCreateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.IsDeneyimiDtos.IsDeneyimiUpdateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": false
       },
       {
         "Name": "YabanciDilBilgileri",
-        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.YabanciDilBilgisiDtos.YabanciDilBilgisiCreateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.YabanciDilBilgisiDtos.YabanciDilBilgisiUpdateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": false
       },
       {
         "Name": "BilgisayarBilgileri",
-        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.BilgisayarBilgisiDtos.BilgisayarBilgisiCreateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.BilgisayarBilgisiDtos.BilgisayarBilgisiUpdateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": false
       },
       {
         "Name": "SertifikaBilgileri",
-        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.SertifikaBilgisiDtos.SertifikaBilgisiCreateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.SertifikaBilgisiDtos.SertifikaBilgisiUpdateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": false
       },
       {
         "Name": "ReferansBilgileri",
-        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.ReferansBilgisiDtos.ReferansBilgisiCreateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.ReferansBilgisiDtos.ReferansBilgisiUpdateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": false
       },
       {
         "Name": "PersonelEhliyetler",
-        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.SirketYapisiDtos.PersonelEhliyetDtos.PersonelEhliyetCreateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.ICollection\u00601[[IsBasvuru.Domain.DTOs.SirketYapisiDtos.PersonelEhliyetDtos.PersonelEhliyetUpdateDto, IsBasvuru.Domain, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": false
       }
     ],
@@ -2017,12 +2017,18 @@
   },
   {
     "ContainingType": "IsBasvuru.WebAPI.Controllers.PersonelController",
-    "Method": "GetMyApplication",
+    "Method": "GetBasvurumuGetir",
     "RelativePath": "api/Personel/basvurumu-getir",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "email",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": []
   },
   {
@@ -2070,7 +2076,7 @@
       },
       {
         "Name": "LojmanTalebi",
-        "Type": "System.Int32",
+        "Type": "System.String",
         "IsRequired": false
       },
       {
@@ -2568,38 +2574,6 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "IsBasvuru.WebAPI.Controllers.RolController",
-    "Method": "Create",
-    "RelativePath": "api/Rol",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "dto",
-        "Type": "IsBasvuru.Domain.DTOs.AdminDtos.RolDtos.RolCreateDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "IsBasvuru.WebAPI.Controllers.RolController",
-    "Method": "Update",
-    "RelativePath": "api/Rol",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "dto",
-        "Type": "IsBasvuru.Domain.DTOs.AdminDtos.RolDtos.RolUpdateDto",
-        "IsRequired": true
-      }
-    ],
     "ReturnTypes": []
   },
   {

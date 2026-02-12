@@ -16,7 +16,7 @@
     "emailPlaceholder": "Your email address",
     "fetchBtn": "Fetch",
     "otpTitle": "Verification Code",
-    "otpText": "Enter the verification code sent to {{email}} (Test: 1234):",
+    "otpText": "Enter the verification code sent to {{email}} ",
     "verifyBtn": "Verify and Fetch",
     "emailNotFound": "Error: No application found with this email address.",
     "otpRequired": "Please enter the code",

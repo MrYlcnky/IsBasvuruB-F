@@ -19,7 +19,8 @@ import {
   faRotateLeft,
   faShieldHalved,
   faEnvelope,
-  faTrashAlt,
+  faPenToSquare,
+  faPaperPlane,
 } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
@@ -28,11 +29,14 @@ import "react-toastify/dist/ReactToastify.css";
 import { z } from "zod";
 import { useForm, FormProvider, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+// Schemas
 import { createMainApplicationSchema } from "../../schemas/mainApplicationSchema";
 import { createPersonalSchema } from "../../schemas/personalInfoSchema";
 import { createOtherInfoSchema } from "../../schemas/otherInfoSchema";
 import { createJobDetailsSchema } from "../../schemas/jobDetailsSchema";
 
+// Components
 import PersonalInformation from "./usersComponents/PersonalInformation";
 import EducationTable from "./usersComponents/EducationTable";
 import CertificateTable from "./usersComponents/CertificatesTable";
@@ -44,16 +48,30 @@ import OtherPersonalInformationTable from "./usersComponents/OtherPersonalInform
 import JobApplicationDetails from "./usersComponents/JobApplicationDetails";
 import ApplicationConfirmSection from "./usersComponents/ApplicationConfirmSection";
 
+// Hooks & Services
 import { lockScroll } from "./modalHooks/scrollLock";
 import LanguageSwitcher from "../LanguageSwitcher";
-import { mockCVData } from "../../api/mockCVData";
-
 import { basvuruService } from "../../services/basvuruService";
+import { authService } from "../../services/authService";
 import { tanimlamaService } from "../../services/tanimlamalarService";
-import { objectToFormData } from "../../utils/objectToFormData";
-import { toISODate } from "./modalHooks/dateUtils";
+
+// Utils
+import { toApiDate } from "./modalHooks/dateUtils";
+import {
+  safeEnum,
+  getSafeValue,
+  toFloat,
+  mapArrayToIntList,
+  toIntOrNull,
+  safeStr,
+} from "./modalHooks/formUtils";
 
 const MySwal = withReactContent(Swal);
+
+// --- AYARLAR ---
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "https://localhost:7000";
+const IMAGE_UPLOAD_PATH = "/uploads/personel-fotograflari";
 
 const swalSkyConfig = {
   background: "#1e293b",
@@ -70,6 +88,52 @@ const swalSkyConfig = {
       "shadow-none focus:shadow-none rounded-lg px-5 py-2.5 font-medium",
   },
 };
+
+// 🔥 ASP.NET CORE UYUMLU FORM DATA DÖNÜŞTÜRÜCÜ
+function objectToFormData(obj, form, namespace) {
+  const fd = form || new FormData();
+  let formKey;
+
+  for (const property in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, property)) {
+      const value = obj[property];
+
+      if (namespace) {
+        formKey = namespace + "." + property;
+      } else {
+        formKey = property;
+      }
+
+      if (value === undefined || value === null) {
+        continue;
+      }
+
+      if (value instanceof Date) {
+        fd.append(formKey, value.toISOString());
+      } else if (value instanceof File || value instanceof Blob) {
+        fd.append(formKey, value);
+      } else if (Array.isArray(value)) {
+        value.forEach((item, index) => {
+          const arrayKey = `${formKey}[${index}]`;
+          if (item instanceof File || item instanceof Blob) {
+            fd.append(arrayKey, item);
+          } else if (item instanceof Date) {
+            fd.append(arrayKey, item.toISOString());
+          } else if (typeof item === "object" && item !== null) {
+            objectToFormData(item, fd, arrayKey);
+          } else {
+            fd.append(arrayKey, item);
+          }
+        });
+      } else if (typeof value === "object" && value !== null) {
+        objectToFormData(value, fd, formKey);
+      } else {
+        fd.append(formKey, value);
+      }
+    }
+  }
+  return fd;
+}
 
 const DEFAULT_VALUES = {
   personal: {
@@ -131,271 +195,293 @@ const DEFAULT_VALUES = {
   references: [],
 };
 
-function normalizeLegacyPersonalToDto(p = {}) {
-  const safeStr = (v) => (v == null ? "" : String(v));
+// --- YARDIMCI: URL'den Dosya Oluşturma ---
+async function urlToFile(url, filename, mimeType) {
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`Resim indirilemedi! Status: ${res.status}`);
+    const buf = await res.arrayBuffer();
+    if (buf.byteLength === 0) throw new Error("Dosya boyutu 0 byte.");
+    const file = new File([buf], filename, { type: mimeType });
+    return file;
+  } catch (error) {
+    console.error("❌ Resim dosyaya çevrilirken hata:", error);
+    return null;
+  }
+}
+
+// --- Backend DTO'dan Forma Veri Dönüştürücü ---
+function mapBackendToForm(dto) {
+  if (!dto) return null;
+  const k = dto.kisiselBilgiler || {};
+  const dk = dto.digerKisiselBilgiler || {};
+  const d = dto.isBasvuruDetay || {};
+
+  const toDateInputValue = (dateStr) => (dateStr ? dateStr.split("T")[0] : "");
+
   return {
-    ...p,
-    VesikalikDosyasi: null,
-    DogumUlkeId: p.DogumUlkeId ?? null,
-    DogumUlkeAdi: safeStr(p.DogumUlkeAdi ?? p.dogumUlke ?? ""),
-    DogumSehirId: p.DogumSehirId ?? null,
-    DogumSehirAdi: safeStr(p.DogumSehirAdi ?? p.dogumSehir ?? ""),
-    DogumIlceId: p.DogumIlceId ?? null,
-    DogumIlceAdi: safeStr(p.DogumIlceAdi ?? p.dogumIlce ?? ""),
-    IkametgahUlkeId: p.IkametgahUlkeId ?? null,
-    IkametgahUlkeAdi: safeStr(p.IkametgahUlkeAdi ?? p.ikametUlke ?? ""),
-    IkametgahSehirId: p.IkametgahSehirId ?? null,
-    IkametgahSehirAdi: safeStr(p.IkametgahSehirAdi ?? p.ikametSehir ?? ""),
-    IkametgahIlceId: p.IkametgahIlceId ?? null,
-    IkametgahIlceAdi: safeStr(p.IkametgahIlceAdi ?? p.ikametIlce ?? ""),
-    UyrukId: p.UyrukId ?? null,
-    UyrukAdi: safeStr(p.UyrukAdi ?? p.uyruk ?? ""),
+    personal: {
+      ad: k.ad ?? "",
+      soyad: k.soyadi ?? "",
+      eposta: k.email ?? "",
+      telefon: k.telefon ?? "",
+      whatsapp: k.telefonWhatsapp ?? "",
+      adres: k.adres ?? "",
+      cinsiyet: k.cinsiyet || "",
+      medeniDurum: k.medeniDurum || "",
+      dogumTarihi: toDateInputValue(k.dogumTarihi),
+      cocukSayisi: k.cocukSayisi?.toString() ?? "",
+      DogumUlkeId: k.dogumUlkeId,
+      DogumUlkeAdi: k.dogumUlkeAdi,
+      DogumSehirId: k.dogumSehirId,
+      DogumSehirAdi: k.dogumSehirAdi,
+      DogumIlceId: k.dogumIlceId,
+      DogumIlceAdi: k.dogumIlceAdi,
+      IkametgahUlkeId: k.ikametgahUlkeId,
+      IkametgahUlkeAdi: k.ikametgahUlkeAdi,
+      IkametgahSehirId: k.ikametgahSehirId,
+      IkametgahSehirAdi: k.ikametgahSehirAdi,
+      IkametgahIlceId: k.ikametgahIlceId,
+      IkametgahIlceAdi: k.ikametgahIlceAdi,
+      UyrukId: k.uyrukId,
+      UyrukAdi: k.uyrukAdi,
+      foto: k.fotografYolu || k.vesikalikFotograf || null,
+      VesikalikDosyasi: null,
+    },
+    otherInfo: {
+      kktcGecerliBelge: dk.kktcBelgeId?.toString() ?? "",
+      davaDurumu: dk.davaDurumu?.toString() ?? "",
+      davaNedeni: dk.davaNedeni ?? "",
+      sigara: dk.sigaraKullanimi?.toString() ?? "",
+      askerlik: dk.askerlikDurumu?.toString() ?? "",
+      kaliciRahatsizlik: dk.kaliciRahatsizlik?.toString() ?? "",
+      rahatsizlikAciklama: dk.kaliciRahatsizlikAciklama ?? "",
+      ehliyet: dk.ehliyetDurumu?.toString() ?? "",
+      ehliyetTurleri: (dto.personelEhliyetler || []).map((x) =>
+        x.ehliyetTuruId?.toString(),
+      ),
+      boy: dk.boy?.toString() ?? "",
+      kilo: dk.kilo?.toString() ?? "",
+    },
+    jobDetails: {
+      subeler: (d.basvuruSubeler || []).map((x) => ({ value: String(x.id) })),
+      alanlar: (d.basvuruAlanlar || []).map((x) => ({ value: String(x.id) })),
+      departmanlar: (d.basvuruDepartmanlar || []).map((x) => ({
+        value: String(x.id),
+      })),
+      departmanPozisyonlari: (d.basvuruPozisyonlar || []).map((x) => ({
+        value: String(x.id),
+      })),
+      programlar: (d.basvuruProgramlar || []).map((x) => ({
+        value: String(x.id),
+      })),
+      kagitOyunlari: (d.basvuruOyunlar || []).map((x) => ({
+        value: String(x.id),
+      })),
+      lojman: d.lojmanTalebiVarMi?.toString() ?? "",
+      tercihNedeni: d.nedenBiz ?? "",
+    },
+    // 🔥 DÜZELTME: Alt listelerin ID'lerini saklıyoruz
+    education: (dto.egitimBilgileri || []).map((e) => ({
+      id: e.id, // ✅ ID EKLENDİ
+      seviye: e.egitimSeviyesi,
+      okul: e.okulAdi,
+      bolum: e.bolum,
+      notSistemi: e.notSistemi,
+      gano: e.gano,
+      baslangic: toDateInputValue(e.baslangicTarihi),
+      bitis: toDateInputValue(e.bitisTarihi),
+      diplomaDurum: e.diplomaDurum,
+    })),
+    certificates: (dto.sertifikaBilgileri || []).map((s) => ({
+      id: s.id, // ✅ ID EKLENDİ
+      ad: s.sertifikaAdi,
+      kurum: s.kurumAdi,
+      sure: s.suresi,
+      verilisTarihi: toDateInputValue(s.verilisTarihi),
+      gecerlilikTarihi: toDateInputValue(s.gecerlilikTarihi),
+    })),
+    computer: (dto.bilgisayarBilgileri || []).map((c) => ({
+      id: c.id, // ✅ ID EKLENDİ
+      programAdi: c.programAdi,
+      yetkinlik: c.yetkinlik,
+    })),
+    languages: (dto.yabanciDilBilgileri || []).map((l) => ({
+      id: l.id, // ✅ ID EKLENDİ
+      dilId: l.dilId,
+      digerDilAdi: l.digerDilAdi,
+      konusma: l.konusmaSeviyesi,
+      yazma: l.yazmaSeviyesi,
+      okuma: l.okumaSeviyesi,
+      dinleme: l.dinlemeSeviyesi,
+      ogrenilenKurum: l.nasilOgrenildi,
+    })),
+    experience: (dto.isDeneyimleri || []).map((exp) => ({
+      id: exp.id, // ✅ ID EKLENDİ
+      isAdi: exp.sirketAdi,
+      departman: exp.departman,
+      pozisyon: exp.pozisyon,
+      gorev: exp.gorev,
+      ucret: exp.ucret,
+      baslangicTarihi: toDateInputValue(exp.baslangicTarihi),
+      bitisTarihi: toDateInputValue(exp.bitisTarihi),
+      ayrilisSebebi: exp.ayrilisSebep,
+      ulkeId: exp.ulkeId,
+      ulkeAdi: exp.ulkeAdi,
+      sehirId: exp.sehirId,
+      sehirAdi: exp.sehirAdi,
+    })),
+    references: (dto.referansBilgileri || []).map((r) => ({
+      id: r.id, // ✅ ID EKLENDİ
+      calistigiKurum: r.calistigiKurum,
+      referansAdi: r.referansAdi,
+      referansSoyadi: r.referansSoyadi,
+      referansIsYeri: r.isYeri,
+      referansGorevi: r.gorev,
+      referansTelefon: r.referansTelefon,
+    })),
+    PersonelEhliyetler: (dto.personelEhliyetler || []).map((x) => ({
+      id: x.id, // ID eklenebilir ama many-to-many genelde sil-ekle yapılır.
+      ehliyetTuruId: x.ehliyetTuruId,
+    })),
   };
 }
 
-const isNil = (v) => v === null || v === undefined;
-
-const toYmd = (dateStr) => {
-  if (!dateStr) return "";
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr;
-  const d = new Date(dateStr);
-  if (Number.isNaN(d.getTime())) return "";
-  return d.toISOString().split("T")[0];
-};
-
-const pickIdValue = (x) => {
-  if (isNil(x)) return null;
-  if (typeof x === "object" && x !== null) {
-    if (!isNil(x.value)) return x.value;
-    if (!isNil(x.id)) return x.id;
-  }
-  return x;
-};
-
-const toIntOrNull = (v) => {
-  const n = Number(v);
-  return Number.isFinite(n) ? n : null;
-};
-
-const mapArrayToIntList = (arr) => {
-  if (!Array.isArray(arr)) return [];
-  return arr
-    .map((x) => pickIdValue(x))
-    .map((x) => (x === "" ? null : x))
-    .map(toIntOrNull)
-    .filter((x) => x !== null);
-};
-
-// ✅ ENUM GÜVENLİK FONKSİYONU
-const safeEnum = (val) => {
-  if (val === "" || val === null || val === undefined) return 0;
-  const n = Number(val);
-  return isNaN(n) ? 0 : n;
-};
-
-// RHF Data -> PersonelCreateDto Payload
-function buildPersonelCreateDtoPayload(t, data, testMode = false) {
+// --- Payload Oluşturucu ---
+function buildPersonelCreateDtoPayload(t, data) {
   const p = data.personal ?? {};
   const oi = data.otherInfo ?? {};
   const jd = data.jobDetails ?? {};
+  const safeInt = (val) => getSafeValue(val);
 
-  const pickFirstId = (arr) => {
-    const first = Array.isArray(arr) && arr.length ? arr[0] : null;
-    const v = first?.id ?? first?.value ?? first;
-    const n = Number(v);
-    return Number.isFinite(n) ? [n] : [];
-  };
-
-  // 1. EĞİTİM
-  const educationList = (data.education || []).map((edu) => ({
-    EgitimSeviye: Number(edu.seviye),
-    OkulAdi: edu.okul,
-    Bolum: edu.bolum,
-    BaslangicTarihi: toYmd(edu.baslangic),
-    BitisTarihi: edu.bitis ? toYmd(edu.bitis) : null,
-    DiplomaDurum: Number(edu.diplomaDurum),
-    NotSistemi: Number(edu.notSistemi),
-    Gano: edu.gano ? Number(edu.gano) : null,
-  }));
-
-  // 2. SERTİFİKA
-  const certificateList = (data.certificates || []).map((cert) => ({
-    SertifikaAdi: cert.ad,
-    KurumAdi: cert.kurum,
-    Suresi: cert.sure,
-    VerilisTarihi: toYmd(cert.verilisTarihi),
-    GecerlilikTarihi: cert.gecerlilikTarihi
-      ? toYmd(cert.gecerlilikTarihi)
-      : null,
-  }));
-
-  // 3. BİLGİSAYAR
-  const computerList = (data.computer || []).map((comp) => ({
-    ProgramAdi: comp.programAdi,
-    Yetkinlik: Number(comp.yetkinlik),
-  }));
-
-  // 4. YABANCI DİL
-  const languageList = (data.languages || []).map((lang) => ({
-    DilId: lang.dilId,
-    DigerDilAdi: lang.digerDilAdi,
-    KonusmaSeviyesi: Number(lang.konusma),
-    YazmaSeviyesi: Number(lang.yazma),
-    OkumaSeviyesi: Number(lang.okuma),
-    DinlemeSeviyesi: Number(lang.dinleme),
-    NasilOgrenildi: lang.ogrenilenKurum,
-  }));
-
-  // 5. İŞ DENEYİMİ
-  const experienceList = (data.experience || []).map((exp) => ({
-    SirketAdi: exp.isAdi,
-    Departman: exp.departman,
-    Pozisyon: exp.pozisyon,
-    Gorev: exp.gorev,
-    Ucret: Number(exp.ucret),
-    BaslangicTarihi: toYmd(exp.baslangicTarihi),
-    BitisTarihi: exp.bitisTarihi ? toYmd(exp.bitisTarihi) : null,
-    AyrilisSebep: exp.ayrilisSebebi,
-    UlkeId: exp.ulkeId,
-    UlkeAdi: exp.ulkeAdi,
-    SehirId: exp.sehirId,
-    SehirAdi: exp.sehirAdi,
-  }));
-
-  // 6. REFERANS BİLGİSİ
-  const referenceList = (data.references || []).map((ref) => ({
-    CalistigiKurum: Number(ref.calistigiKurum),
-    ReferansAdi: ref.referansAdi,
-    ReferansSoyadi: ref.referansSoyadi,
-    IsYeri: ref.referansIsYeri,
-    Gorev: ref.referansGorevi,
-    ReferansTelefon: ref.referansTelefon,
-  }));
-
-  const payload = {
-    // --- BAŞVURU DETAYLARI ---
+  return {
     SubeIds: mapArrayToIntList(jd.subeler),
     SubeAlanIds: mapArrayToIntList(jd.alanlar),
     DepartmanIds: mapArrayToIntList(jd.departmanlar),
     DepartmanPozisyonIds: mapArrayToIntList(jd.departmanPozisyonlari),
     ProgramIds: mapArrayToIntList(jd.programlar),
     OyunIds: mapArrayToIntList(jd.kagitOyunlari),
-    NedenBiz: jd.tercihNedeni ?? "",
-
+    NedenBiz: safeStr(jd.tercihNedeni),
+    LojmanTalebi: safeInt(jd.lojman),
     VesikalikDosyasi:
       p.VesikalikDosyasi instanceof File ? p.VesikalikDosyasi : null,
 
     KisiselBilgiler: {
-      Ad: p.ad ?? "",
-      Soyadi: p.soyad ?? "",
-      Email: p.eposta ?? "",
-      Telefon: p.telefon ?? "",
-      TelefonWhatsapp: p.whatsapp ?? "",
-      Adres: p.adres ?? "",
-      DogumTarihi: toYmd(p.dogumTarihi),
+      Ad: safeStr(p.ad),
+      Soyadi: safeStr(p.soyad),
+      Email: safeStr(p.eposta),
+      Telefon: safeStr(p.telefon),
+      TelefonWhatsapp: safeStr(p.whatsapp),
+      Adres: safeStr(p.adres),
+      DogumTarihi: toApiDate(p.dogumTarihi),
       Cinsiyet: safeEnum(p.cinsiyet),
       MedeniDurum: safeEnum(p.medeniDurum),
       CocukSayisi: p.cocukSayisi === "7+" ? 7 : toIntOrNull(p.cocukSayisi),
       VesikalikFotograf: "",
-      DogumUlkeId: p.DogumUlkeId ?? null,
-      DogumUlkeAdi: p.DogumUlkeAdi ?? "",
-      DogumSehirId: p.DogumSehirId ?? null,
-      DogumSehirAdi: p.DogumSehirAdi ?? "",
-      DogumIlceId: p.DogumIlceId ?? null,
-      DogumIlceAdi: p.DogumIlceAdi ?? "",
-      IkametgahUlkeId: p.IkametgahUlkeId ?? null,
-      IkametgahUlkeAdi: p.IkametgahUlkeAdi ?? "",
-      IkametgahSehirId: p.IkametgahSehirId ?? null,
-      IkametgahSehirAdi: p.IkametgahSehirAdi ?? "",
-      IkametgahIlceId: p.IkametgahIlceId ?? null,
-      IkametgahIlceAdi: p.IkametgahIlceAdi ?? "",
-      UyrukId: p.UyrukId ?? null,
-      UyrukAdi: p.UyrukAdi ?? "",
+      DogumUlkeId: toIntOrNull(p.DogumUlkeId),
+      DogumUlkeAdi: safeStr(p.DogumUlkeAdi),
+      DogumSehirId: toIntOrNull(p.DogumSehirId),
+      DogumSehirAdi: safeStr(p.DogumSehirAdi),
+      DogumIlceId: toIntOrNull(p.DogumIlceId),
+      DogumIlceAdi: safeStr(p.DogumIlceAdi),
+      IkametgahUlkeId: toIntOrNull(p.IkametgahUlkeId),
+      IkametgahUlkeAdi: safeStr(p.IkametgahUlkeAdi),
+      IkametgahSehirId: toIntOrNull(p.IkametgahSehirId),
+      IkametgahSehirAdi: safeStr(p.IkametgahSehirAdi),
+      IkametgahIlceId: toIntOrNull(p.IkametgahIlceId),
+      IkametgahIlceAdi: safeStr(p.IkametgahIlceAdi),
+      UyrukId: toIntOrNull(p.UyrukId),
+      UyrukAdi: safeStr(p.UyrukAdi),
     },
-
     DigerKisiselBilgiler: {
       KktcBelgeId: safeEnum(oi.kktcGecerliBelge),
       DavaDurumu: safeEnum(oi.davaDurumu),
-      DavaNedeni: oi.davaNedeni || null,
+      DavaNedeni: safeEnum(oi.davaDurumu) === 2 ? safeStr(oi.davaNedeni) : null,
       SigaraKullanimi: safeEnum(oi.sigara),
       AskerlikDurumu: safeEnum(oi.askerlik),
       KaliciRahatsizlik: safeEnum(oi.kaliciRahatsizlik),
-      KaliciRahatsizlikAciklama: oi.rahatsizlikAciklama || null,
+      KaliciRahatsizlikAciklama:
+        safeEnum(oi.kaliciRahatsizlik) === 2
+          ? safeStr(oi.rahatsizlikAciklama)
+          : null,
       EhliyetDurumu: safeEnum(oi.ehliyet),
       Boy: Number(oi.boy) || 0,
       Kilo: Number(oi.kilo) || 0,
     },
-
-    EgitimBilgileri: educationList,
-    SertifikaBilgileri: certificateList,
-    BilgisayarBilgileri: computerList,
-    YabanciDilBilgileri: languageList,
-    IsDeneyimleri: experienceList,
-    ReferansBilgileri: referenceList,
-
+    // 🔥 DÜZELTME: Alt listeler için ID varsa gönderiyoruz
+    EgitimBilgileri: (data.education || []).map((edu) => ({
+      Id: edu.id || 0, // ✅ Mevcut kayıt ise ID'sini yolla, yoksa 0 (Yeni)
+      EgitimSeviyesi: safeInt(edu.seviye),
+      OkulAdi: safeStr(edu.okul),
+      Bolum: safeStr(edu.bolum),
+      BaslangicTarihi: toApiDate(edu.baslangic),
+      BitisTarihi: edu.bitis ? toApiDate(edu.bitis) : null,
+      DiplomaDurum: safeInt(edu.diplomaDurum),
+      NotSistemi: safeInt(edu.notSistemi),
+      Gano: toFloat(edu.gano),
+    })),
+    SertifikaBilgileri: (data.certificates || []).map((cert) => ({
+      Id: cert.id || 0,
+      SertifikaAdi: safeStr(cert.ad),
+      KurumAdi: safeStr(cert.kurum),
+      Suresi: safeStr(cert.sure),
+      VerilisTarihi: toApiDate(cert.verilisTarihi),
+      GecerlilikTarihi: cert.gecerlilikTarihi
+        ? toApiDate(cert.gecerlilikTarihi)
+        : null,
+    })),
+    BilgisayarBilgileri: (data.computer || []).map((comp) => ({
+      Id: comp.id || 0,
+      ProgramAdi: safeStr(comp.programAdi),
+      Yetkinlik: Number(comp.yetkinlik),
+    })),
+    YabanciDilBilgileri: (data.languages || []).map((lang) => ({
+      Id: lang.id || 0,
+      DilId: lang.dilId,
+      DigerDilAdi: safeStr(lang.digerDilAdi),
+      KonusmaSeviyesi: Number(lang.konusma),
+      YazmaSeviyesi: Number(lang.yazma),
+      OkumaSeviyesi: Number(lang.okuma),
+      DinlemeSeviyesi: Number(lang.dinleme),
+      NasilOgrenildi: safeStr(lang.ogrenilenKurum),
+    })),
+    IsDeneyimleri: (data.experience || []).map((exp) => ({
+      Id: exp.id || 0,
+      SirketAdi: safeStr(exp.isAdi),
+      Departman: safeStr(exp.departman),
+      Pozisyon: safeStr(exp.pozisyon),
+      Gorev: safeStr(exp.gorev),
+      Ucret: Number(exp.ucret),
+      BaslangicTarihi: toApiDate(exp.baslangicTarihi),
+      BitisTarihi: exp.bitisTarihi ? toApiDate(exp.bitisTarihi) : null,
+      AyrilisSebep: safeStr(exp.ayrilisSebebi),
+      UlkeId: exp.ulkeId,
+      UlkeAdi: safeStr(exp.ulkeAdi),
+      SehirId: exp.sehirId,
+      SehirAdi: safeStr(exp.sehirAdi),
+    })),
+    ReferansBilgileri: (data.references || []).map((ref) => ({
+      Id: ref.id || 0,
+      CalistigiKurum: Number(ref.calistigiKurum),
+      ReferansAdi: safeStr(ref.referansAdi),
+      ReferansSoyadi: safeStr(ref.referansSoyadi),
+      IsYeri: safeStr(ref.referansIsYeri),
+      Gorev: safeStr(ref.referansGorevi),
+      ReferansTelefon: safeStr(ref.referansTelefon),
+    })),
     PersonelEhliyetler: (oi.ehliyetTurleri || []).map((id) => ({
       EhliyetTuruId: Number(id),
     })),
   };
-
-  if (testMode) {
-    payload.SubeIds = payload.SubeIds.length
-      ? payload.SubeIds
-      : pickFirstId(data.__defs?.subeler);
-    payload.SubeAlanIds = payload.SubeAlanIds.length
-      ? payload.SubeAlanIds
-      : pickFirstId(data.__defs?.subeAlanlar);
-    payload.DepartmanIds = payload.DepartmanIds.length
-      ? payload.DepartmanIds
-      : pickFirstId(data.__defs?.departmanlar);
-    payload.DepartmanPozisyonIds = payload.DepartmanPozisyonIds.length
-      ? payload.DepartmanPozisyonIds
-      : pickFirstId(data.__defs?.pozisyonlar);
-    payload.ProgramIds = payload.ProgramIds.length
-      ? payload.ProgramIds
-      : pickFirstId(data.__defs?.programlar);
-    payload.OyunIds = payload.OyunIds.length
-      ? payload.OyunIds
-      : pickFirstId(data.__defs?.kagitOyunlari);
-
-    // Test verisi atamaları
-    payload.DigerKisiselBilgiler.Boy = payload.DigerKisiselBilgiler.Boy || 170;
-    payload.DigerKisiselBilgiler.Kilo = payload.DigerKisiselBilgiler.Kilo || 70;
-    payload.DigerKisiselBilgiler.KktcBelgeId =
-      payload.DigerKisiselBilgiler.KktcBelgeId ||
-      pickFirstId(data.__defs?.kktcBelgeler)[0] ||
-      1;
-
-    if (!payload.KisiselBilgiler.Cinsiyet) payload.KisiselBilgiler.Cinsiyet = 2; // Erkek
-    if (!payload.KisiselBilgiler.MedeniDurum)
-      payload.KisiselBilgiler.MedeniDurum = 1; // Bekar
-  }
-
-  return payload;
-}
-
-function formDataEntriesToList(fd) {
-  const rows = [];
-  for (const [k, v] of fd.entries()) {
-    const isFile = v instanceof File;
-    rows.push({
-      key: k,
-      value: isFile
-        ? `[File] ${v.name} (${v.type || "unknown"}, ${v.size} bytes)`
-        : String(v),
-    });
-  }
-  return rows;
-}
-
-function filterPersonalFormDataRows(rows) {
-  return rows.filter(
-    (r) => r.key.startsWith("KisiselBilgiler.") || r.key === "VesikalikDosyasi",
-  );
 }
 
 export default function JobApplicationForm() {
   const { t } = useTranslation();
+  const [resetKey, setResetKey] = useState(0);
+
+  // ✅ STATELER
+  const [existingId, setExistingId] = useState(null);
+  const [skipOtp, setSkipOtp] = useState(false);
 
   useEffect(() => {
     try {
@@ -417,7 +503,6 @@ export default function JobApplicationForm() {
   const [emailError, setEmailError] = useState("");
   const [isLoadingProfile, setIsLoadingProfile] = useState(false);
 
-  // ✅ TÜM LİSTELERİ TUTAN STATE
   const [definitionData, setDefinitionData] = useState({
     ulkeler: [],
     sehirler: [],
@@ -439,61 +524,18 @@ export default function JobApplicationForm() {
       if (typeof fn !== "function") return [];
       const res = await fn(...args);
       return res?.data ?? res ?? [];
-    } catch (e) {
-      console.warn("Definition call failed:", e);
+    } catch {
       return [];
     }
   };
 
-  const departmentRoles = useMemo(
-    () => ({
-      "Casino F&B": [
-        t("jobDetails.roles.waiter"),
-        t("jobDetails.roles.bartender"),
-        t("jobDetails.roles.barback"),
-        t("jobDetails.roles.commis"),
-        t("jobDetails.roles.supervisor"),
-      ],
-      "Casino Kasa": [
-        t("jobDetails.roles.cashier"),
-        t("jobDetails.roles.cageSupervisor"),
-      ],
-      "Casino Slot": [
-        t("jobDetails.roles.slotAttendant"),
-        t("jobDetails.roles.slotTechnician"),
-        t("jobDetails.roles.host"),
-      ],
-      "Casino Canlı Oyun": [
-        t("jobDetails.roles.dealer"),
-        t("jobDetails.roles.inspector"),
-        t("jobDetails.roles.pitboss"),
-      ],
-      "Otel Resepsiyon": [
-        t("jobDetails.roles.receptionist"),
-        t("jobDetails.roles.guestRelations"),
-        t("jobDetails.roles.nightAuditor"),
-      ],
-      "Otel Housekeeping": [
-        t("jobDetails.roles.roomAttendant"),
-        t("jobDetails.roles.floorSupervisor"),
-        t("jobDetails.roles.laundry"),
-      ],
-    }),
-    [t],
-  );
-
-  const mainSchema = useMemo(
-    () => createMainApplicationSchema(t, departmentRoles),
-    [t, departmentRoles],
-  );
-
+  const mainSchema = useMemo(() => createMainApplicationSchema(t, {}), [t]);
   const methods = useForm({
     resolver: zodResolver(mainSchema),
     mode: "onChange",
     defaultValues: DEFAULT_VALUES,
   });
-
-  const { handleSubmit, trigger, reset, control, getValues } = methods;
+  const { handleSubmit, trigger, reset, control, setValue } = methods;
 
   useEffect(() => {
     const loadDefinitions = async () => {
@@ -527,7 +569,6 @@ export default function JobApplicationForm() {
           safeCall(tanimlamaService.getOyunlar),
           safeCall(tanimlamaService.getKktcBelgeler),
         ]);
-
         setDefinitionData({
           ulkeler,
           sehirler,
@@ -547,7 +588,6 @@ export default function JobApplicationForm() {
         console.error("Tanımlamalar yüklenemedi:", error);
       }
     };
-
     loadDefinitions();
   }, [trigger]);
 
@@ -557,28 +597,24 @@ export default function JobApplicationForm() {
   const jobDetailsData = useWatch({ control, name: "jobDetails" });
 
   const statusState = useMemo(() => {
-    const personalOk = createPersonalSchema(t, {
-      ulkeler: definitionData.ulkeler,
-      uyruklar: definitionData.uyruklar,
-      sehirler: definitionData.sehirler,
-      ilceler: definitionData.ilceler,
-    }).safeParse(personalData).success;
-
-    const educationOk =
-      Array.isArray(educationData) && educationData.length > 0;
-    const otherOk = createOtherInfoSchema(t).safeParse(otherInfoData).success;
-    const jobDetailsOk = createJobDetailsSchema(t, departmentRoles).safeParse(
-      jobDetailsData,
-    ).success;
-
-    return { personalOk, educationOk, otherOk, jobDetailsOk };
+    return {
+      personalOk: createPersonalSchema(t, {
+        ulkeler: definitionData.ulkeler,
+        uyruklar: definitionData.uyruklar,
+        sehirler: definitionData.sehirler,
+        ilceler: definitionData.ilceler,
+      }).safeParse(personalData).success,
+      educationOk: Array.isArray(educationData) && educationData.length > 0,
+      otherOk: createOtherInfoSchema(t).safeParse(otherInfoData).success,
+      jobDetailsOk: createJobDetailsSchema(t, {}).safeParse(jobDetailsData)
+        .success,
+    };
   }, [
     personalData,
     educationData,
     otherInfoData,
     jobDetailsData,
     t,
-    departmentRoles,
     definitionData,
   ]);
 
@@ -620,449 +656,288 @@ export default function JobApplicationForm() {
     other: "section-other",
     jobDetails: "section-jobdetails",
   };
-
   const onAddWithScrollLock = (fn) => () => {
     lockScroll();
     fn?.();
   };
 
-  const handleClearAll = async () => {
-    const result = await MySwal.fire({
-      ...swalSkyConfig,
-      title: t("common.areYouSure"),
-      text: t("common.clearAllWarning"),
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: t("common.yesClear"),
-      cancelButtonText: t("actions.cancel"),
-      confirmButtonColor: "#ef4444",
-    });
-
-    if (result.isConfirmed) {
-      reset(DEFAULT_VALUES);
-      setIsReturningUser(false);
-      setReturningEmail("");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      toast.info(t("toast.formCleared"), {
-        theme: "dark",
-        position: "top-center",
-      });
-    }
-  };
-
+  // --- BİLGİLERİ GETİR ---
   const handleFetchProfile = async () => {
     setEmailError("");
     const emailSchema = z.string().email(t("personal.errors.email.invalid"));
     const result = emailSchema.safeParse(returningEmail);
-
     if (!result.success) {
       setEmailError(result.error.errors[0].message);
       return;
     }
 
-    setIsLoadingProfile(true);
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    const userExists = mockCVData.personal.eposta === returningEmail;
-    setIsLoadingProfile(false);
-
-    if (!userExists) {
-      toast.error(t("loadProfile.emailNotFound"), {
-        position: "top-center",
-        theme: "dark",
-      });
-      return;
-    }
-
     try {
+      setIsLoadingProfile(true);
+      const sendRes = await authService.sendCode(returningEmail);
+      setIsLoadingProfile(false);
+
+      if (!sendRes.success) {
+        toast.error(sendRes.message || "Kod gönderilemedi.", { theme: "dark" });
+        return;
+      }
+
       const { value: otpCode } = await MySwal.fire({
         ...swalSkyConfig,
-        title: t("loadProfile.otpTitle"),
-        text: t("loadProfile.otpText", { email: returningEmail }),
+        title: "Güvenlik Doğrulaması",
+        html: `
+          <div style="text-align: center; color: #cbd5e1;">
+            <p style="margin-bottom: 10px; font-size: 0.95rem;">
+              Lütfen <strong style="color: #38bdf8;">${returningEmail}</strong> adresine gönderilen <br/>6 haneli doğrulama kodunu aşağıya giriniz.
+            </p>
+          </div>
+        `,
         input: "text",
-        inputAttributes: { maxlength: 6, autocapitalize: "off" },
+        inputAttributes: {
+          maxlength: 6,
+          style:
+            "text-align: center; letter-spacing: 12px; font-size: 28px; font-weight: bold; color: white; background: #0f172a; border: 1px solid #334155; border-radius: 8px; width: 220px; margin: 0 auto; display: block; height: 50px;",
+        },
         showCancelButton: true,
-        confirmButtonText: t("loadProfile.verifyBtn"),
-        cancelButtonText: t("actions.cancel"),
+        confirmButtonText: "Doğrula ve Getir",
+        cancelButtonText: "Vazgeç",
         showLoaderOnConfirm: true,
         preConfirm: async (code) => {
-          await new Promise((resolve) => setTimeout(resolve, 800));
-          if (!code) Swal.showValidationMessage(t("loadProfile.otpRequired"));
-          if (code !== "1234")
-            Swal.showValidationMessage(t("loadProfile.otpInvalid"));
-          return code === "1234";
+          if (!code || code.length < 6) {
+            Swal.showValidationMessage(
+              "Lütfen 6 haneli kodu eksiksiz giriniz.",
+            );
+            return false;
+          }
+          try {
+            const verifyRes = await authService.verifyCode(
+              returningEmail,
+              code,
+            );
+            if (!verifyRes.success) {
+              Swal.showValidationMessage(
+                verifyRes.message || "Girdiğiniz kod hatalı.",
+              );
+              return false;
+            }
+            return true;
+          } catch (e) {
+            console.error(e);
+            Swal.showValidationMessage("Doğrulama servisine erişilemedi.");
+            return false;
+          }
         },
       });
 
       if (otpCode) {
-        const data = mockCVData;
-
-        reset({
-          personal: normalizeLegacyPersonalToDto(data.personal),
-          education: data.education,
-          certificates: data.certificates,
-          computer: data.computer,
-          languages: data.languages,
-          experience: data.experience,
-          references: data.references,
-          otherInfo: data.otherInfo,
-          jobDetails: data.jobDetails,
-        });
-
-        toast.success(t("loadProfile.success"), {
-          position: "top-right",
+        const loadingToast = toast.loading("Bilgileriniz yükleniyor...", {
           theme: "dark",
         });
+        const response = await basvuruService.getByEmail(returningEmail);
+        toast.dismiss(loadingToast);
 
-        trigger();
+        if (response.success && response.data) {
+          // 1. ID'yi kaydet
+          setExistingId(response.data.id);
+
+          // 2. 30 dakika OTP sormama kuralını başlat
+          setSkipOtp(true);
+          setTimeout(() => setSkipOtp(false), 30 * 60 * 1000);
+
+          const formData = mapBackendToForm(response.data);
+          reset(formData);
+
+          // 3. Resmi indir ve forma ekle
+          if (formData.personal.foto) {
+            const fileName = formData.personal.foto;
+            const fullUrl = fileName.startsWith("http")
+              ? fileName
+              : `${API_BASE_URL}${IMAGE_UPLOAD_PATH}/${fileName}`;
+
+            urlToFile(fullUrl, fileName, "image/png").then((file) => {
+              if (file) {
+                setValue("personal.VesikalikDosyasi", file, {
+                  shouldValidate: true,
+                  shouldDirty: true,
+                });
+              } else {
+                toast.warn(
+                  "Mevcut fotoğrafınız görüntülendi ancak sunucudan fiziksel olarak çekilemedi. Lütfen fotoğrafınızı 'Değiştir' butonuna basarak tekrar yükleyiniz.",
+                  { autoClose: 10000, theme: "dark" },
+                );
+              }
+            });
+          }
+
+          toast.success("Bilgileriniz başarıyla yüklendi.", {
+            position: "top-right",
+            theme: "dark",
+          });
+          trigger();
+        } else {
+          toast.warn("Bu e-posta adresiyle kayıtlı bir başvuru bulunamadı.", {
+            theme: "dark",
+          });
+        }
       }
     } catch (e) {
-      console.error(e);
-      toast.error(t("common.error"), { theme: "dark" });
+      setIsLoadingProfile(false);
+      console.error("Hata:", e);
+      if (e.response && e.response.status === 401) {
+        toast.error("Yetkilendirme hatası (401).", { theme: "dark" });
+      } else {
+        toast.error(t("common.error"), { theme: "dark" });
+      }
     }
   };
 
-  /* -------------------- TEST START -------------------- */
-  const handleTestPersonal = async () => {
-    const current = getValues();
-    const dtoPayload = buildPersonelCreateDtoPayload(t, current);
-    const fd = objectToFormData(dtoPayload);
-    const rows = formDataEntriesToList(fd);
-    const personalRows = filterPersonalFormDataRows(rows);
-    const personalText = personalRows
-      .map((r) => `${r.key} = ${r.value}`)
-      .join("\n");
-
-    // Eğitim
-    const educationList = current.education || [];
-    let educationText = "";
-    if (educationList.length === 0)
-      educationText = "⚠️ Henüz eğitim bilgisi eklenmedi.";
-    else {
-      educationList.forEach((item, index) => {
-        educationText += `\n--- [Eğitim #${index + 1}] ---\n`;
-        educationText += `Okul Adı      : ${item.okul}\n`;
-        educationText += `Bölüm         : ${item.bolum}\n`;
-        educationText += `Başlangıç     : ${toISODate(item.baslangic)}\n`;
-        educationText += `Bitiş         : ${item.bitis ? toISODate(item.bitis) : "Devam"}\n`;
-      });
-    }
-
-    // Sertifika
-    const certList = current.certificates || [];
-    let certText = "";
-    if (certList.length === 0)
-      certText = "⚠️ Henüz sertifika bilgisi eklenmedi.";
-    else {
-      certList.forEach((item, index) => {
-        certText += `\n--- [Sertifika #${index + 1}] ---\n`;
-        certText += `Ad            : ${item.ad}\n`;
-        certText += `Kurum         : ${item.kurum}\n`;
-      });
-    }
-
-    // Bilgisayar
-    const compList = current.computer || [];
-    let compText = "";
-    if (compList.length === 0) compText = "⚠️ Bilgisayar bilgisi yok.";
-    else {
-      compList.forEach((item, index) => {
-        compText += `\n--- [Bilgisayar #${index + 1}] ---\n`;
-        compText += `Program       : ${item.programAdi}\n`;
-      });
-    }
-
-    // Dil
-    const langList = current.languages || [];
-    let langText = "";
-    if (langList.length === 0) langText = "⚠️ Dil bilgisi yok.";
-    else {
-      langList.forEach((item, index) => {
-        langText += `\n--- [Dil #${index + 1}] ---\n`;
-        langText += `Dil ID        : ${item.dilId || "-"}\n`;
-        langText += `Diğer Dil     : ${item.digerDilAdi || "-"}\n`;
-      });
-    }
-
-    // İş Deneyimi
-    const expList = current.experience || [];
-    let expText = "";
-    if (expList.length === 0) expText = "⚠️ İş deneyimi yok.";
-    else {
-      expList.forEach((item, index) => {
-        expText += `\n--- [Deneyim #${index + 1}] ---\n`;
-        expText += `Şirket        : ${item.isAdi}\n`;
-        expText += `Pozisyon      : ${item.pozisyon}\n`;
-      });
-    }
-
-    // Referans
-    const refList = current.references || [];
-    let refText = "";
-    if (refList.length === 0) refText = "⚠️ Referans bilgisi yok.";
-    else {
-      refList.forEach((item, index) => {
-        refText += `\n--- [Referans #${index + 1}] ---\n`;
-        refText += `Ad Soyad      : ${item.referansAdi} ${item.referansSoyadi}\n`;
-      });
-    }
-
-    // ✅ Diğer Bilgiler Görsel Düzeltme (Boşsa - yazsın)
-    const oi = current.otherInfo || {};
-    const mapVarYok = (val) =>
-      val === "1" ? "Var" : val === "2" ? "Yok" : "-";
-    const mapEvetHayir = (val) =>
-      val === "1" ? "Evet" : val === "2" ? "Hayır" : "-";
-
-    let oiText = "";
-    oiText += `KKTC Belge ID : ${oi.kktcGecerliBelge || "-"}\n`;
-    oiText += `Dava Durumu   : ${mapVarYok(oi.davaDurumu)}\n`;
-    oiText += `Sigara        : ${mapEvetHayir(oi.sigara)}\n`;
-    oiText += `Ehliyet       : ${mapVarYok(oi.ehliyet)}\n`;
-    oiText += `Ehliyet Tür   : ${oi.ehliyetTurleri?.length ? oi.ehliyetTurleri.join(", ") : "-"}\n`;
-    oiText += `Boy           : ${oi.boy || "-"}\n`;
-    oiText += `Kilo          : ${oi.kilo || "-"}\n`;
-
-    // ✅ İş Başvuru Detayları (EKLENDİ)
-    const jd = current.jobDetails || {};
-    const getLabels = (arr) =>
-      Array.isArray(arr) && arr.length > 0
-        ? arr.map((x) => x.label).join(", ")
-        : "-";
-
-    let jobDetailsText = "";
-    jobDetailsText += `Şubeler        : ${getLabels(jd.subeler)}\n`;
-    jobDetailsText += `Alanlar        : ${getLabels(jd.alanlar)}\n`;
-    jobDetailsText += `Departmanlar   : ${getLabels(jd.departmanlar)}\n`;
-    jobDetailsText += `Pozisyonlar    : ${getLabels(jd.departmanPozisyonlari)}\n`;
-    jobDetailsText += `Programlar     : ${getLabels(jd.programlar)}\n`;
-    jobDetailsText += `Kağıt Oyunları : ${getLabels(jd.kagitOyunlari)}\n`;
-    jobDetailsText += `Lojman         : ${jd.lojman || "-"}\n`;
-    jobDetailsText += `Tercih Nedeni  : ${jd.tercihNedeni || "-"}\n`;
-
-    await MySwal.fire({
-      ...swalSkyConfig,
-      width: "700px",
-      title: "✅ TEST: Veri Önizleme",
-      html: `
-        <div style="text-align:left; font-size:12px; line-height:1.4; max-height:65vh; overflow-y:auto;">
-          
-          <div style="margin-bottom: 15px;">
-            <h4 style="color:#38bdf8; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #334155; padding-bottom:3px;">
-              👤 Kişisel Bilgiler
-            </h4>
-            <pre style="white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#cbd5e1; padding:10px; border-radius:8px; border:1px solid #334155;">
-${personalText || "Kişisel bilgi verisi oluşmadı."}
-            </pre>
-          </div>
-
-          <div style="margin-bottom: 15px;">
-            <h4 style="color:#fbbf24; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #334155; padding-bottom:3px;">
-              🎓 Eğitim Bilgileri
-            </h4>
-            <pre style="white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#cbd5e1; padding:10px; border-radius:8px; border:1px solid #334155;">
-${educationText}
-            </pre>
-          </div>
-
-          <div style="margin-bottom: 15px;">
-            <h4 style="color:#a78bfa; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #334155; padding-bottom:3px;">
-              🏅 Sertifika Bilgileri
-            </h4>
-            <pre style="white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#cbd5e1; padding:10px; border-radius:8px; border:1px solid #334155;">
-${certText}
-            </pre>
-          </div>
-
-          <div style="margin-bottom: 15px;">
-            <h4 style="color:#f472b6; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #334155; padding-bottom:3px;">
-              💻 Bilgisayar Bilgileri
-            </h4>
-            <pre style="white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#cbd5e1; padding:10px; border-radius:8px; border:1px solid #334155;">
-${compText}
-            </pre>
-          </div>
-
-          <div style="margin-bottom: 15px;">
-            <h4 style="color:#34d399; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #334155; padding-bottom:3px;">
-              🗣️ Yabancı Dil Bilgileri
-            </h4>
-            <pre style="white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#cbd5e1; padding:10px; border-radius:8px; border:1px solid #334155;">
-${langText}
-            </pre>
-          </div>
-
-          <div style="margin-bottom: 15px;">
-            <h4 style="color:#f87171; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #334155; padding-bottom:3px;">
-              💼 İş Deneyimleri
-            </h4>
-            <pre style="white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#cbd5e1; padding:10px; border-radius:8px; border:1px solid #334155;">
-${expText}
-            </pre>
-          </div>
-
-          <div style="margin-bottom: 15px;">
-             <h4 style="color:#0ea5e9; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #334155; padding-bottom:3px;">
-               📋 İş Başvuru Detayları
-             </h4>
-             <pre style="white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#cbd5e1; padding:10px; border-radius:8px; border:1px solid #334155;">
-${jobDetailsText}
-             </pre>
-           </div>
-
-          <div>
-            <h4 style="color:#d8b4fe; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #334155; padding-bottom:3px;">
-              📞 Referans Bilgileri
-            </h4>
-            <pre style="white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#cbd5e1; padding:10px; border-radius:8px; border:1px solid #334155;">
-${refText}
-            </pre>
-          </div>
-
-          <div>
-            <h4 style="color:#94a3b8; font-weight:bold; margin-bottom:5px; border-bottom:1px solid #334155; padding-bottom:3px;">
-              📋 Diğer Bilgiler
-            </h4>
-            <pre style="white-space:pre-wrap; word-break:break-word; background:#0f172a; color:#cbd5e1; padding:10px; border-radius:8px; border:1px solid #334155;">
-${oiText}
-            </pre>
-          </div>
-
-        </div>
-      `,
-      confirmButtonText: "Tamam",
-    });
-  };
-  /* -------------------- TEST END -------------------- */
-
-  const handleTestPersonalToApi = async () => {
-    try {
-      const current = getValues();
-      const dtoPayload = buildPersonelCreateDtoPayload(t, current, false);
-      // NOT: Burada "testMode=false" gönderiyoruz ki sahte veri eklemesin
-
-      const formDataToSend = objectToFormData(dtoPayload);
-      const allRows = formDataEntriesToList(formDataToSend);
-
-      // Sadece dolu olan alanları göster (Temiz görüntü için)
-      const relevantRows = allRows.filter(
-        (r) => r.value !== "" && r.value !== "0" && r.value !== "null",
-      );
-
-      console.table(allRows);
-
-      const res = await basvuruService.testPersonal(formDataToSend);
-
-      await MySwal.fire({
-        ...swalSkyConfig,
-        title: "✅ TEST API Başarılı",
-        width: "700px",
-        html: `
-          <div style="text-align:left; font-size:12px;">
-            <p style="color:#4ade80; font-weight:bold; margin-bottom:10px;">
-              Veriler Backend'e ulaştı! Aşağıda GÖNDERİLEN form datayı görebilirsin:
-            </p>
-            
-            <h4 style="color:#fbbf24; border-bottom:1px solid #334155; margin-bottom:5px;">📦 Gönderilen FormData (Sadece Dolu Alanlar)</h4>
-            <pre style="white-space:pre-wrap; background:#0f172a; padding:10px; border-radius:8px; border:1px solid #334155; max-height:200px; overflow:auto;">
-${relevantRows.length > 0 ? relevantRows.map((r) => `${r.key} = ${r.value}`).join("\n") : "⚠️ Hiçbir veri gönderilmedi (Form boş)"}
-            </pre>
-
-            <h4 style="color:#38bdf8; border-bottom:1px solid #334155; margin:10px 0 5px 0;">📩 API Cevabı</h4>
-            <pre style="white-space:pre-wrap; background:#0f172a; padding:10px; border-radius:8px; border:1px solid #334155;">
-${JSON.stringify(res?.data ?? res, null, 2)}
-            </pre>
-          </div>
-        `,
-      });
-    } catch (e) {
-      console.error("❌ TEST API Hatası:", e);
-      const msg = e?.response?.data?.message || e?.message || "Hata";
-      await MySwal.fire({
-        ...swalSkyConfig,
-        icon: "error",
-        title: "❌ TEST API Hatası",
-        text: JSON.stringify(msg),
-      });
-    }
-  };
-
+  // --- FORMU GÖNDER (KAYIT veya GÜNCELLEME) ---
   const handleFormSubmit = async (data) => {
-    console.log("✅ Form Data (RHF):", data);
-
     try {
-      const applicantEmail = data.personal?.eposta ?? "";
+      const applicantEmail = data.personal?.eposta;
+      if (!applicantEmail) {
+        toast.error(t("personal.errors.email.required"), { theme: "dark" });
+        return;
+      }
 
-      const { value: otpCode } = await MySwal.fire({
-        ...swalSkyConfig,
-        title: t("confirm.otp.title"),
-        html: t("confirm.otp.text", { email: applicantEmail }),
-        input: "text",
-        inputAttributes: { maxlength: 6 },
-        showCancelButton: true,
-        confirmButtonText: t("confirm.otp.verifyAndSubmit"),
-        cancelButtonText: t("actions.cancel"),
-        preConfirm: (code) => {
-          if (!code) Swal.showValidationMessage(t("loadProfile.otpRequired"));
-          return code;
-        },
-      });
+      let isVerified = false;
 
-      if (otpCode === "1234") {
-        const dtoPayload = buildPersonelCreateDtoPayload(t, data);
-        const formDataToSend = objectToFormData(dtoPayload);
-        const rows = formDataEntriesToList(formDataToSend);
-
-        const preview = await MySwal.fire({
+      // 🔥 OTP KONTROLÜ
+      if (skipOtp && existingId) {
+        isVerified = true;
+      } else {
+        Swal.fire({
           ...swalSkyConfig,
-          title: "Başvuru Gönderimi Önizleme",
-          html: `
-      <div style="text-align:left; font-size:12px; line-height:1.4;">
-        <p style="margin:0 0 8px 0; opacity:0.9;">
-          Aşağıdaki veriler <b>FormData</b> olarak API’ye gönderilecek:
-        </p>
-        <pre style="white-space:pre-wrap; word-break:break-word; background:#0b1220; padding:10px; border-radius:10px; border:1px solid #334155; max-height: 420px; overflow:auto;">
-${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
-        </pre>
-      </div>
-    `,
-          showCancelButton: true,
-          confirmButtonText: "Onayla & Gönder",
-          cancelButtonText: t("actions.cancel"),
+          title: "Doğrulama Kodu Gönderiliyor...",
+          text: `${applicantEmail} adresine kod gönderiliyor.`,
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading(),
         });
 
-        if (!preview.isConfirmed) {
-          toast.info("Gönderim iptal edildi.", {
-            theme: "dark",
-            position: "top-center",
+        try {
+          const sendResponse = await authService.sendCode(applicantEmail);
+          if (!sendResponse.success)
+            throw new Error(sendResponse.message || "Kod gönderilemedi.");
+        } catch (err) {
+          await MySwal.fire({
+            ...swalSkyConfig,
+            icon: "error",
+            title: "Kod Gönderilemedi",
+            text: err?.response?.data?.message || "Mail hatası.",
           });
           return;
         }
 
-        const response = await basvuruService.create(formDataToSend);
+        const otpResult = await MySwal.fire({
+          ...swalSkyConfig,
+          title: t("confirm.otp.title"),
+          html: `<div style="text-align: center;"><p>${t("confirm.otp.text", { email: applicantEmail })}</p></div>`,
+          input: "text",
+          inputAttributes: {
+            maxlength: 6,
+            style:
+              "text-align: center; letter-spacing: 12px; font-size: 24px; font-weight: bold; color: white; background: #0f172a; border: 1px solid #334155; width: 220px; margin: 0 auto; display: block; height: 50px;",
+          },
+          showCancelButton: true,
+          confirmButtonText: existingId
+            ? "Doğrula ve Güncelle"
+            : "Doğrula ve Başvur",
+          cancelButtonText: t("actions.cancel"),
+          showLoaderOnConfirm: true,
+          preConfirm: async (inputCode) => {
+            if (!inputCode) {
+              Swal.showValidationMessage("Lütfen kodu giriniz.");
+              return false;
+            }
+            try {
+              const verifyRes = await authService.verifyCode(
+                applicantEmail,
+                inputCode,
+              );
+              if (!verifyRes.success) {
+                Swal.showValidationMessage(
+                  verifyRes.message || "Geçersiz kod.",
+                );
+                return false;
+              }
+              return true;
+            } catch (err) {
+              Swal.showValidationMessage(
+                err?.response?.data?.message || "Hata.",
+              );
+              return false;
+            }
+          },
+        });
+        isVerified = otpResult.value;
+      }
 
-        if (response || response?.success) {
-          toast.success(t("confirm.success.submit"), {
-            theme: "dark",
-            position: "top-center",
+      if (isVerified) {
+        const dtoPayload = buildPersonelCreateDtoPayload(t, data);
+
+        // 🔥 Update ise ana ve alt nesnelere ID ekle
+        if (existingId) {
+          dtoPayload.Id = existingId;
+          if (dtoPayload.KisiselBilgiler)
+            dtoPayload.KisiselBilgiler.Id = existingId;
+          if (dtoPayload.DigerKisiselBilgiler)
+            dtoPayload.DigerKisiselBilgiler.Id = existingId;
+        }
+
+        const formDataToSend = objectToFormData(dtoPayload);
+
+        Swal.fire({
+          ...swalSkyConfig,
+          title: existingId
+            ? "Bilgiler Güncelleniyor..."
+            : "Başvuru Kaydediliyor...",
+          allowOutsideClick: false,
+          didOpen: () => Swal.showLoading(),
+        });
+
+        let response;
+        if (existingId) {
+          response = await basvuruService.update(existingId, formDataToSend);
+        } else {
+          response = await basvuruService.create(formDataToSend);
+        }
+
+        if (
+          response?.success ||
+          response?.status === 200 ||
+          response?.status === 201
+        ) {
+          await MySwal.fire({
+            ...swalSkyConfig,
+            icon: "success",
+            title: t("confirm.success.title"),
+            html: `<div style='font-size:1.1em'>${existingId ? "Bilgileriniz başarıyla güncellendi." : t("confirm.success.submit")}</div>`,
+            confirmButtonText: "Tamam",
           });
+
           reset(DEFAULT_VALUES);
+          setExistingId(null);
+          setSkipOtp(false);
+          setResetKey((prev) => prev + 1);
           window.scrollTo({ top: 0, behavior: "smooth" });
         }
-      } else if (otpCode) {
-        toast.error(t("loadProfile.otpInvalid"), { theme: "dark" });
       }
     } catch (e) {
-      console.error("API Hatası:", e);
-      const errorMsg = e?.response?.data?.message || t("confirm.error.submit");
-      toast.error(errorMsg, { theme: "dark" });
+      let errorMsg =
+        e?.response?.data?.message || e?.message || t("confirm.error.submit");
+      if (errorMsg.includes("Duplicate entry"))
+        errorMsg =
+          "Bu e-posta adresi veya telefon numarası ile daha önce başvuru yapılmış.";
+      await MySwal.fire({
+        ...swalSkyConfig,
+        icon: "error",
+        title: "İşlem Başarısız",
+        text: errorMsg,
+      });
     }
   };
 
   return (
-    <FormProvider
-      {...methods}
-      key={t("langKey", { defaultValue: "" }) + JSON.stringify(departmentRoles)}
-    >
+    <FormProvider {...methods} key={t("langKey", { defaultValue: "" })}>
       <div className="min-h-screen bg-[#020617] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-[#334155] via-[#0f172a] to-black pb-10 shadow-2xl border-x border-gray-800/50">
         <div className="relative overflow-hidden bg-linear-to-br from-black via-[#111827] to-black py-12 sm:py-16 md:py-20 shadow-2xl rounded-b-2xl text-center border-b border-gray-800">
           <div className="absolute flex flex-row top-4 right-4 z-20">
@@ -1096,7 +971,6 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
             </div>
             <div className="mt-10 w-24 h-1 bg-linear-to-r from-transparent via-gray-700 to-transparent rounded-full opacity-60" />
           </div>
-
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-linear-to-b from-transparent via-sky-900/5 to-transparent pointer-events-none" />
         </div>
 
@@ -1142,11 +1016,7 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
                             setReturningEmail(e.target.value);
                             if (emailError) setEmailError("");
                           }}
-                          className={`pl-10 pr-4 py-2.5 w-full sm:w-64 bg-slate-950 border rounded-lg text-white placeholder-gray-500 outline-none text-sm transition-colors ${
-                            emailError
-                              ? "border-red-500 focus:border-red-500"
-                              : "border-slate-600 focus:border-sky-500"
-                          }`}
+                          className={`pl-10 pr-4 py-2.5 w-full sm:w-64 bg-slate-950 border rounded-lg text-white placeholder-gray-500 outline-none text-sm transition-colors ${emailError ? "border-red-500 focus:border-red-500" : "border-slate-600 focus:border-sky-500"}`}
                         />
                       </div>
                       <button
@@ -1193,11 +1063,7 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
           <div className="bg-[#1e293b]/80 rounded-xl border border-slate-700/50 shadow-2xl px-5 py-3 flex flex-col md:flex-row items-center justify-between gap-4 transition-all duration-300">
             <div className="flex items-center gap-3 border-b md:border-b-0 border-slate-700 pb-2 md:pb-0 w-full md:w-auto justify-center md:justify-start">
               <div
-                className={`w-10 h-10 flex items-center justify-center rounded-full border transition-colors ${
-                  allRequiredOk
-                    ? "border-green-500 bg-green-500/10 text-green-400"
-                    : "border-red-500 bg-red-500/10 text-red-400"
-                }`}
+                className={`w-10 h-10 flex items-center justify-center rounded-full border transition-colors ${allRequiredOk ? "border-green-500 bg-green-500/10 text-green-400" : "border-red-500 bg-red-500/10 text-red-400"}`}
               >
                 <FontAwesomeIcon
                   icon={allRequiredOk ? faCheckCircle : faCircleXmark}
@@ -1206,16 +1072,12 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
               </div>
               <div className="flex flex-col">
                 <span
-                  className={`text-xs font-bold uppercase tracking-widest ${
-                    allRequiredOk ? "text-green-400" : "text-red-400"
-                  }`}
+                  className={`text-xs font-bold uppercase tracking-widest ${allRequiredOk ? "text-green-400" : "text-red-400"}`}
                 >
                   {t("statusBar.title")}
                 </span>
                 <span
-                  className={`text-sm font-bold ${
-                    allRequiredOk ? "text-green-400" : "text-red-400"
-                  }`}
+                  className={`text-sm font-bold ${allRequiredOk ? "text-green-400" : "text-red-400"}`}
                 >
                   {allRequiredOk
                     ? t("statusBar.completed")
@@ -1223,7 +1085,6 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
                 </span>
               </div>
             </div>
-
             <div className="flex flex-wrap justify-center md:justify-end gap-2 w-full md:w-auto">
               <StatusPill
                 ok={statusState.personalOk}
@@ -1253,37 +1114,6 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
           </div>
         </div>
 
-        {/* TEST BUTTONS */}
-        <div className="container mx-auto px-3 sm:px-6 lg:px-10 mt-4 flex flex-col sm:flex-row gap-3 items-center justify-center">
-          <button
-            type="button"
-            onClick={handleTestPersonal}
-            className="px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-md transition-all active:scale-95"
-          >
-            ✅ TEST: Kişisel Bilgiler Nasıl Gidiyor?
-          </button>
-
-          <button
-            type="button"
-            onClick={handleTestPersonalToApi}
-            className="px-5 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm shadow-md transition-all active:scale-95"
-          >
-            🚀 TEST: Personal DB'ye Gidiyor mu?
-          </button>
-
-          <button
-            type="button"
-            onClick={handleClearAll}
-            className="group relative inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 font-medium transition-all duration-300 hover:bg-red-600 hover:text-white hover:border-red-600 hover:shadow-lg hover:shadow-red-600/20 active:scale-95"
-          >
-            <FontAwesomeIcon
-              icon={faTrashAlt}
-              className="text-lg transition-transform duration-300 group-hover:rotate-12"
-            />
-            <span>{t("common.clearFormBtn")}</span>
-          </button>
-        </div>
-
         <form
           onSubmit={handleSubmit(handleFormSubmit)}
           className="container mx-auto px-3 sm:px-6 lg:px-10 space-y-8 mt-5"
@@ -1295,7 +1125,6 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
             required
             content={<PersonalInformation definitions={definitionData} />}
           />
-
           <Section
             id={SECTION_IDS.education}
             icon={faGraduationCap}
@@ -1306,7 +1135,6 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
             )}
             content={<EducationTable ref={educationTableRef} />}
           />
-
           <Section
             icon={faAward}
             title={t("sections.certificates")}
@@ -1315,7 +1143,6 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
             )}
             content={<CertificateTable ref={certificatesTableRef} />}
           />
-
           <Section
             icon={faLaptopCode}
             title={t("sections.computer")}
@@ -1326,7 +1153,6 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
               <ComputerInformationTable ref={computerInformationTableRef} />
             }
           />
-
           <Section
             icon={faLanguage}
             title={t("sections.languages")}
@@ -1336,11 +1162,10 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
             content={
               <LanguageTable
                 ref={languageTableRef}
-                definitions={definitionData} // ✅ Definitions Prop'u gönderildi
+                definitions={definitionData}
               />
             }
           />
-
           <Section
             icon={faBriefcase}
             title={t("sections.experience")}
@@ -1354,7 +1179,6 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
               />
             }
           />
-
           <Section
             icon={faPhoneVolume}
             title={t("sections.references")}
@@ -1363,17 +1187,15 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
             )}
             content={<ReferencesTable ref={referencesTableRef} />}
           />
-
           <Section
             id={SECTION_IDS.other}
             icon={faUserCog}
             title={t("sections.other")}
             required
             content={
-              <OtherPersonalInformationTable definitions={definitionData} /> // ✅ Prop
+              <OtherPersonalInformationTable definitions={definitionData} />
             }
           />
-
           <Section
             id={SECTION_IDS.jobDetails}
             icon={faFileSignature}
@@ -1383,11 +1205,16 @@ ${rows.map((r) => `${r.key} = ${r.value}`).join("\n")}
           />
 
           <ApplicationConfirmSection
+            key={resetKey}
             onSubmit={() => handleSubmit(handleFormSubmit)()}
             isValidPersonal={statusState.personalOk}
             isValidEducation={statusState.educationOk}
             isValidOtherInfo={statusState.otherOk}
             isValidJobDetails={statusState.jobDetailsOk}
+            customButtonText={
+              existingId ? "Başvuruyu Güncelle" : "Başvuruyu Tamamla"
+            }
+            customButtonIcon={existingId ? faPenToSquare : faPaperPlane}
           />
         </form>
       </div>
@@ -1404,7 +1231,6 @@ function StatusPill({ ok, label, icon, onClick }) {
   else if (ok === false)
     colors =
       "bg-red-900/20 border-red-500/30 text-red-400 hover:bg-red-900/30 hover:text-red-300";
-
   return (
     <button
       type="button"

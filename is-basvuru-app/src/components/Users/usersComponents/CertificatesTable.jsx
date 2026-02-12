@@ -6,10 +6,7 @@ import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 import CertificatesAddModal from "../addModals/CertificatesAddModal";
-// ✅ GÜNCELLEME: toISODate kullanımı (formatDate yerine standart olsun dersen)
-// Ya da sadece formatDate kullanabilirsin, dateUtils.js içinde ne varsa.
 import { formatDate } from "../modalHooks/dateUtils";
 
 const CertificateTable = forwardRef((props, ref) => {
@@ -39,7 +36,9 @@ const CertificateTable = forwardRef((props, ref) => {
   };
 
   const handleSave = (newData) => {
-    const updatedList = [...rows, newData];
+    // Yeni kayıtlara ID: 0 atıyoruz
+    const itemToAdd = { ...newData, id: 0 };
+    const updatedList = [...rows, itemToAdd];
     setValue("certificates", updatedList, {
       shouldDirty: true,
       shouldValidate: true,
@@ -51,7 +50,11 @@ const CertificateTable = forwardRef((props, ref) => {
   const handleUpdate = (updatedData) => {
     if (selectedIndex > -1) {
       const updatedList = [...rows];
-      updatedList[selectedIndex] = updatedData;
+      // 🔥 KRİTİK DÜZELTME: Mevcut ID'yi koruyoruz (...rows[selectedIndex])
+      updatedList[selectedIndex] = {
+        ...rows[selectedIndex],
+        ...updatedData,
+      };
       setValue("certificates", updatedList, {
         shouldDirty: true,
         shouldValidate: true,
@@ -111,7 +114,6 @@ const CertificateTable = forwardRef((props, ref) => {
             </thead>
             <tbody>
               {rows.map((item, idx) => {
-                // dateUtils içindeki formatDate fonksiyonu (DD.MM.YYYY çevirir)
                 const issued = formatDate(item.verilisTarihi);
                 const valid = item.gecerlilikTarihi
                   ? formatDate(item.gecerlilikTarihi)

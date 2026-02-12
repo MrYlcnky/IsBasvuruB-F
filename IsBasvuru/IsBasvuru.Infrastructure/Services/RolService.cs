@@ -38,37 +38,6 @@ namespace IsBasvuru.Infrastructure.Services
             return ServiceResponse<RolListDto>.SuccessResult(mapped);
         }
 
-        public async Task<ServiceResponse<RolListDto>> CreateAsync(RolCreateDto dto)
-        {
-            // Aynı isimde rol var mı?
-            bool exists = await _context.Roller.AnyAsync(x => x.RolAdi == dto.RolAdi);
-            if (exists)
-                return ServiceResponse<RolListDto>.FailureResult($"'{dto.RolAdi}' isimli rol zaten mevcut.");
-
-            var entity = _mapper.Map<Rol>(dto);
-            await _context.Roller.AddAsync(entity);
-            await _context.SaveChangesAsync();
-
-            var mapped = _mapper.Map<RolListDto>(entity);
-            return ServiceResponse<RolListDto>.SuccessResult(mapped, "Rol başarıyla oluşturuldu.");
-        }
-
-        public async Task<ServiceResponse<bool>> UpdateAsync(RolUpdateDto dto)
-        {
-            var entity = await _context.Roller.FindAsync(dto.Id);
-            if (entity == null)
-                return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
-
-            // İsim çakışması kontrolü
-            bool exists = await _context.Roller.AnyAsync(x => x.RolAdi == dto.RolAdi && x.Id != dto.Id);
-            if (exists)
-                return ServiceResponse<bool>.FailureResult($"'{dto.RolAdi}' isimli rol zaten mevcut.");
-
-            _mapper.Map(dto, entity);
-            await _context.SaveChangesAsync();
-            return ServiceResponse<bool>.SuccessResult(true, "Rol güncellendi.");
-        }
-
         public async Task<ServiceResponse<bool>> DeleteAsync(int id)
         {
             // Bu rol herhangi bir panel kullanıcısına atanmış mı?

@@ -112,6 +112,7 @@ namespace IsBasvuru.WebAPI.Controllers
 
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll([FromQuery] PaginationFilter filter)
         {
             var response = await _service.GetAllAsync(filter);
@@ -119,6 +120,7 @@ namespace IsBasvuru.WebAPI.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetById(int id)
         {
             var response = await _service.GetByIdAsync(id);
@@ -173,6 +175,7 @@ namespace IsBasvuru.WebAPI.Controllers
         }
 
         [HttpPut]
+        [AllowAnonymous]
         public async Task<IActionResult> Update([FromForm] PersonelUpdateDto dto)
         {
             // Önce mevcut kaydı çekelim
@@ -247,20 +250,21 @@ namespace IsBasvuru.WebAPI.Controllers
             return CreateActionResultInstance(deleteResponse);
         }
 
-        [Authorize(Roles = "BasvuruYapan,Admin")]
         [HttpGet("basvurumu-getir")]
-        public async Task<IActionResult> GetMyApplication()
+        [AllowAnonymous] // 1. Token kontrolünü devre dışı bırakır (Herkes erişebilir)
+        public async Task<IActionResult> GetBasvurumuGetir([FromQuery] string email) // 2. E-postayı URL'den parametre olarak alır
         {
-            var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-
-            if (string.IsNullOrEmpty(userEmail))
+            // 3. E-posta boş mu kontrolü (Token'dan değil, parametreden)
+            if (string.IsNullOrEmpty(email))
             {
-                return CreateActionResultInstance<PersonelListDto>(
-                    ServiceResponse<PersonelListDto>.FailureResult("Geçersiz kimlik bilgisi (Token içinde e-posta bulunamadı).")
+                return CreateActionResultInstance(
+                    ServiceResponse<PersonelListDto>.FailureResult("E-posta parametresi zorunludur.")
                 );
             }
 
-            var response = await _service.GetByEmailAsync(userEmail);
+            // 4. Servise parametreden gelen e-postayı gönder
+            var response = await _service.GetByEmailAsync(email);
+
             return CreateActionResultInstance(response);
         }
     }

@@ -9,7 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import ComputerInformationAddModal from "../addModals/ComputerInformationAddModal";
 
-// ✅ YENİ: ID -> Text Çevirici Helper
+// Helper: ID -> Text
 const getYetkinlikLabel = (val, t) => {
   const map = {
     1: t("computer.levels.veryPoor"),
@@ -18,7 +18,7 @@ const getYetkinlikLabel = (val, t) => {
     4: t("computer.levels.good"),
     5: t("computer.levels.veryGood"),
   };
-  return map[Number(val)] || val; // Eşleşme yoksa (belirtilmemişse) olduğu gibi dön
+  return map[Number(val)] || val;
 };
 
 const ComputerInformationTable = forwardRef((props, ref) => {
@@ -48,7 +48,9 @@ const ComputerInformationTable = forwardRef((props, ref) => {
   };
 
   const handleSave = (newData) => {
-    const updatedList = [...rows, newData];
+    // Yeni kayıtlara ID: 0 atıyoruz
+    const itemToAdd = { ...newData, id: 0 };
+    const updatedList = [...rows, itemToAdd];
     setValue("computer", updatedList, {
       shouldDirty: true,
       shouldValidate: true,
@@ -60,7 +62,11 @@ const ComputerInformationTable = forwardRef((props, ref) => {
   const handleUpdate = (updatedData) => {
     if (selectedIndex > -1) {
       const updatedList = [...rows];
-      updatedList[selectedIndex] = updatedData;
+      // 🔥 KRİTİK DÜZELTME: Mevcut ID'yi koruyoruz
+      updatedList[selectedIndex] = {
+        ...rows[selectedIndex],
+        ...updatedData,
+      };
       setValue("computer", updatedList, {
         shouldDirty: true,
         shouldValidate: true,
@@ -117,7 +123,6 @@ const ComputerInformationTable = forwardRef((props, ref) => {
                     {item.programAdi}
                   </td>
 
-                  {/* ✅ GÜNCELLEME: ID yerine Label gösteriyoruz */}
                   <td className="px-4 py-3 text-gray-800 max-w-30 truncate">
                     {getYetkinlikLabel(item.yetkinlik, t)}
                   </td>

@@ -3,16 +3,18 @@ import { createEducationSchema } from "../../../schemas/educationSchema";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXmark } from "@fortawesome/free-solid-svg-icons";
 import useModalDismiss from "../modalHooks/useModalDismiss";
-import {
-  toDateSafe,
-  toISODate,
-  fromISODateString,
-} from "../modalHooks/dateUtils";
 import MuiDateStringField from "../Date/MuiDateStringField";
 import { lockScroll, unlockScroll } from "../modalHooks/scrollLock";
 import { useTranslation } from "react-i18next";
 
-/* -------------------- Enum Sabitleri (Backend ID'leri) -------------------- */
+import {
+  toDateSafe,
+  toISODate,
+  fromISODateString,
+  todayISO,
+} from "../modalHooks/dateUtils";
+
+/* -------------------- Enum Sabitleri -------------------- */
 const EgitimSeviyeEnum = {
   Lise: 1,
   OnLisans: 2,
@@ -21,20 +23,9 @@ const EgitimSeviyeEnum = {
   Doktora: 5,
   Diger: 6,
 };
+const DiplomaDurumEnum = { Mezun: 1, Devam: 2, AraVerdi: 3, Terk: 4 };
+const NotSistemiEnum = { YuzlukSistem: 1, DortlukSistem: 2 };
 
-const DiplomaDurumEnum = {
-  Mezun: 1,
-  Devam: 2,
-  AraVerdi: 3,
-  Terk: 4,
-};
-
-const NotSistemiEnum = {
-  YuzlukSistem: 1, // 100 üzerinden
-  DortlukSistem: 2, // 4.00 üzerinden
-};
-
-/* -------------------- Ortak Stiller -------------------- */
 const BASE_FIELD =
   "w-full rounded-lg border px-3 py-2 transition border-gray-300 hover:border-black focus:outline-none";
 const BASE_SELECT =
@@ -56,7 +47,7 @@ export default function EducationAddModal({
     seviye: "",
     okul: "",
     bolum: "",
-    notSistemi: "2", // Varsayılan 4'lük sistem (ID: 2)
+    notSistemi: "2",
     gano: "",
     baslangic: "",
     bitis: "",
@@ -64,19 +55,7 @@ export default function EducationAddModal({
   });
   const [errors, setErrors] = useState({});
 
-  const today = useMemo(() => {
-    const tdy = new Date();
-    return new Date(
-      tdy.getFullYear(),
-      tdy.getMonth(),
-      tdy.getDate(),
-      0,
-      0,
-      0,
-      0,
-    );
-  }, []);
-  const todayISO = toISODate(today);
+  const todayStr = todayISO(); // utils'den geliyor
 
   useEffect(() => {
     if (open) lockScroll();
@@ -89,7 +68,6 @@ export default function EducationAddModal({
     onClose?.();
   };
 
-  // Modal Açıldığında Verileri Doldur
   useEffect(() => {
     if (!open) return;
     if (mode === "edit" && initialData) {
@@ -99,7 +77,6 @@ export default function EducationAddModal({
         diplomaDurum: initialData.diplomaDurum
           ? String(initialData.diplomaDurum)
           : "",
-        // Backend'den gelen int değeri stringe çeviriyoruz
         notSistemi: initialData.notSistemi
           ? String(initialData.notSistemi)
           : "2",
@@ -117,7 +94,7 @@ export default function EducationAddModal({
         seviye: "",
         okul: "",
         bolum: "",
-        notSistemi: "2", // Yeni kayıt eklerken varsayılan 4'lük (2)
+        notSistemi: "2",
         gano: "",
         baslangic: "",
         bitis: "",
@@ -129,12 +106,10 @@ export default function EducationAddModal({
 
   const onBackdropClick = useModalDismiss(open, handleClose, dialogRef);
 
-  // DEĞİŞİKLİK YÖNETİMİ
   const handleChange = (e) => {
     const { name, value } = e.target;
     let next = { ...formData, [name]: value };
 
-    // Diploma Durumu değişirse Bitiş Tarihini kontrol et
     if (name === "diplomaDurum") {
       const val = Number(value);
       if (val === DiplomaDurumEnum.Devam || val === DiplomaDurumEnum.Terk) {
@@ -144,14 +119,12 @@ export default function EducationAddModal({
     }
     setFormData(next);
 
-    // Validasyon
     const parsed = eduSchema.safeParse(next);
     if (!parsed.success) {
       const issue =
         parsed.error.issues.find((i) => i.path[0] === name) ||
         (name === "diplomaDurum" &&
           parsed.error.issues.find((i) => i.path[0] === "bitis"));
-
       setErrors((p) => ({
         ...p,
         [issue?.path?.[0] || name]: issue ? issue.message : "",
@@ -165,7 +138,6 @@ export default function EducationAddModal({
   const isValid = eduSchema.safeParse(formData).success;
   const disabledTip = !isValid ? t("education.validations.formInvalid") : "";
 
-  // KAYDETME İŞLEMİ
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
     const parsed = eduSchema.safeParse(formData);
@@ -184,13 +156,11 @@ export default function EducationAddModal({
       seviye: Number(parsed.data.seviye),
       diplomaDurum: Number(parsed.data.diplomaDurum),
       notSistemi: Number(parsed.data.notSistemi),
-
       baslangic: fromISODateString(parsed.data.baslangic),
       bitis:
         parsed.data.bitis && parsed.data.bitis !== ""
           ? fromISODateString(parsed.data.bitis)
           : null,
-
       gano:
         parsed.data.gano === "" || parsed.data.gano == null
           ? null
@@ -207,8 +177,6 @@ export default function EducationAddModal({
   const isEndDisabled =
     Number(formData.diplomaDurum) === DiplomaDurumEnum.Devam ||
     Number(formData.diplomaDurum) === DiplomaDurumEnum.Terk;
-
-  // ✅ Placeholder Mantığı Güncellendi: 1 = Yüzlük Sistem
   const isHundredSystem =
     Number(formData.notSistemi) === NotSistemiEnum.YuzlukSistem;
 
@@ -222,7 +190,6 @@ export default function EducationAddModal({
         className="w-full max-w-2xl bg-white rounded-2xl shadow-xl flex flex-col max-h-[90vh] overflow-hidden"
         onMouseDown={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex items-center justify-between bg-linear-to-r from-gray-700 via-gray-600 to-gray-500 text-white px-4 sm:px-6 py-3 sm:py-4">
           <h2 className="text-base sm:text-lg md:text-xl font-semibold truncate">
             {mode === "edit"
@@ -240,7 +207,6 @@ export default function EducationAddModal({
 
         <div className="flex-1 flex flex-col min-h-0">
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
-            {/* Seviye & Okul */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <label className="block text-sm text-gray-600 mb-1">
@@ -276,7 +242,6 @@ export default function EducationAddModal({
                   <p className="mt-1 text-xs text-red-600">{errors.seviye}</p>
                 )}
               </div>
-
               <div className="sm:col-span-2">
                 <label className="block text-sm text-gray-600 mb-1">
                   {t("education.form.school")} *
@@ -299,11 +264,7 @@ export default function EducationAddModal({
                     <span />
                   )}
                   <p
-                    className={`text-xs ${
-                      formData.okul.length >= 90
-                        ? "text-red-500"
-                        : "text-gray-400"
-                    }`}
+                    className={`text-xs ${formData.okul.length >= 90 ? "text-red-500" : "text-gray-400"}`}
                   >
                     {formData.okul.length}/100
                   </p>
@@ -311,7 +272,6 @@ export default function EducationAddModal({
               </div>
             </div>
 
-            {/* Bölüm & Diploma Durumu */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="sm:col-span-2">
                 <label className="block text-sm text-gray-600 mb-1">
@@ -335,17 +295,12 @@ export default function EducationAddModal({
                     <span />
                   )}
                   <p
-                    className={`text-xs ${
-                      formData.bolum.length >= 90
-                        ? "text-red-500"
-                        : "text-gray-400"
-                    }`}
+                    className={`text-xs ${formData.bolum.length >= 90 ? "text-red-500" : "text-gray-400"}`}
                   >
                     {formData.bolum.length}/100
                   </p>
                 </div>
               </div>
-
               <div>
                 <label className="block text-sm text-gray-600 mb-1">
                   {t("education.form.diplomaStatus")} *
@@ -378,13 +333,11 @@ export default function EducationAddModal({
               </div>
             </div>
 
-            {/* Not Sistemi & GANO */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm text-gray-600 mb-1">
                   {t("education.form.gradeSystem")} *
                 </label>
-                {/* ✅ Güncelleme: Enum ID'lerine göre value verildi */}
                 <select
                   name="notSistemi"
                   value={formData.notSistemi}
@@ -403,7 +356,6 @@ export default function EducationAddModal({
                 <label className="block text-sm text-gray-600 mb-1">
                   {t("education.form.gpa")}
                 </label>
-                {/* ✅ Güncelleme: Placeholder mantığı Enum ile kontrol edildi */}
                 <input
                   type="number"
                   name="gano"
@@ -422,7 +374,6 @@ export default function EducationAddModal({
               </div>
             </div>
 
-            {/* Tarihler */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="shadow-none outline-none">
                 <MuiDateStringField
@@ -433,7 +384,7 @@ export default function EducationAddModal({
                   required
                   error={errors.baslangic}
                   min="1950-01-01"
-                  max={todayISO}
+                  max={todayStr}
                 />
               </div>
               <div className="shadow-none outline-none">
@@ -445,7 +396,7 @@ export default function EducationAddModal({
                   required={false}
                   error={errors.bitis}
                   min={formData.baslangic || "1950-01-01"}
-                  max={todayISO}
+                  max={todayStr}
                   disabled={isEndDisabled}
                 />
                 {isEndDisabled && (
@@ -457,7 +408,6 @@ export default function EducationAddModal({
             </div>
           </div>
 
-          {/* Footer Buttons */}
           <div className="border-t bg-white px-6 py-3">
             <div className="flex flex-col sm:flex-row sm:justify-end gap-2 sm:gap-3">
               <button
@@ -472,15 +422,7 @@ export default function EducationAddModal({
                 onClick={handleSubmit}
                 disabled={!isValid}
                 title={disabledTip}
-                className={`w-full sm:w-auto px-4 py-2 rounded-lg text-white transition ${
-                  isValid
-                    ? (mode === "edit"
-                        ? "bg-green-600 hover:bg-green-700"
-                        : "bg-blue-600 hover:bg-blue-700") +
-                      " active:scale-95 cursor-pointer"
-                    : (mode === "edit" ? "bg-green-300" : "bg-blue-300") +
-                      " opacity-90 cursor-not-allowed"
-                }`}
+                className={`w-full sm:w-auto px-4 py-2 rounded-lg text-white transition ${isValid ? (mode === "edit" ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700") + " active:scale-95 cursor-pointer" : (mode === "edit" ? "bg-green-300" : "bg-blue-300") + " opacity-90 cursor-not-allowed"}`}
               >
                 {mode === "edit" ? t("actions.update") : t("actions.save")}
               </button>

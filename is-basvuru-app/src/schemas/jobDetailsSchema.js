@@ -1,9 +1,12 @@
 import { z } from "zod";
 
 export const createJobDetailsSchema = (t) => {
-  // ✅ DÜZELTME 1: roleOptionSchema içinden 'dept' alanını kaldırdık.
-  // Artık sadece value ve label bekliyor, bu sayede "Geçersiz seçim" hatası gidecek.
-  const optionSchema = z.object({ value: z.string(), label: z.string() });
+  // ✅ DÜZELTME: Label opsiyonel yapıldı.
+  // Backend'den veri çekerken sadece {value: "1"} gelebilir, bu durumda hata vermesin.
+  const optionSchema = z.object({
+    value: z.string().min(1), // Value (ID) her zaman olmalı ve boş olmamalı
+    label: z.string().optional(), // Label olmak zorunda değil
+  });
 
   // Array'in boş olmamasını kontrol eden yardımcı fonksiyon
   const arrayNonEmpty = (s, msg) => z.array(s).min(1, msg);
@@ -12,18 +15,20 @@ export const createJobDetailsSchema = (t) => {
     .object({
       subeler: arrayNonEmpty(
         optionSchema,
-        t("jobDetails.errors.branchRequired"),
+        t("jobDetails.errors.branchRequired") || "Şube seçimi zorunludur",
       ),
-      alanlar: arrayNonEmpty(optionSchema, t("jobDetails.errors.areaRequired")),
+      alanlar: arrayNonEmpty(
+        optionSchema,
+        t("jobDetails.errors.areaRequired") || "Alan seçimi zorunludur",
+      ),
       departmanlar: arrayNonEmpty(
         optionSchema,
-        t("jobDetails.errors.departmentRequired"),
+        t("jobDetails.errors.departmentRequired") ||
+          "Departman seçimi zorunludur",
       ),
 
-      // Programlar opsiyonel (IT seçince program yoksa hata vermesin diye)
       programlar: z.array(optionSchema).optional().default([]),
 
-      // Pozisyonlar opsiyonel (Validasyonu aşağıda duruma göre yapacağız veya UI'a bırakacağız)
       departmanPozisyonlari: z.array(optionSchema).optional().default([]),
 
       kagitOyunlari: z.array(optionSchema).optional().default([]),
@@ -31,28 +36,23 @@ export const createJobDetailsSchema = (t) => {
       lojman: z
         .string()
         .refine(
-          (v) => ["Evet", "Hayır"].includes(v),
-          t("jobDetails.errors.housingRequired"),
+          (v) => ["1", "2"].includes(v),
+          t("jobDetails.errors.housingRequired") || "Lojman tercihi yapınız",
         ),
 
       tercihNedeni: z
         .string()
-        .min(1, t("jobDetails.errors.reasonRequired"))
-        .regex(
-          /^[a-zA-Z0-9ığüşöçİĞÜŞÖÇ\s.,]+$/u,
-          t("jobDetails.errors.reasonChars"),
+        .min(
+          1,
+          t("jobDetails.errors.reasonRequired") || "Tercih nedeni zorunludur",
         )
-        .max(500, t("jobDetails.errors.reasonMax")),
+        // Regex kontrolünü biraz daha esnetmek iyi olabilir (örn: sayılar, boşluklar serbest)
+        // Mevcut regexiniz: /^[a-zA-Z0-9ığüşöçİĞÜŞÖÇ\s.,]+$/u
+        .max(500, t("jobDetails.errors.reasonMax") || "En fazla 500 karakter"),
     })
     .superRefine((data, ctx) => {
-      // ✅ DÜZELTME 2: Statik 'departmentRoles' kontrolünü kaldırdık.
-      // Artık veriler dinamik (DB'den) geldiği için, hangi departmanın pozisyonu var bilemeyiz.
-      // Bu kontrolü UI tarafında (Select disable/enable) yaparak yönetiyoruz.
-      // Eğer çok katı validasyon gerekirse backend tarafında yapılmalıdır.
-
-      // Canlı oyun seçildiyse kağıt oyunu zorunlu
-      // Not: Departman ID'si veya Adı üzerinden kontrol edilir.
-      // Basitlik için label içinde "canlı" veya "live" geçiyorsa kontrol ediyoruz.
+      // Departman etiketinde "canlı" veya "live" geçiyorsa oyun seçimi zorunludur.
+      // Label opsiyonel olduğu için ?. (optional chaining) kullanmalıyız.
       const canliOyun = data.departmanlar.some(
         (d) =>
           d.label &&
@@ -67,7 +67,9 @@ export const createJobDetailsSchema = (t) => {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["kagitOyunlari"],
-          message: t("jobDetails.errors.cardGamesRequired"),
+          message:
+            t("jobDetails.errors.cardGamesRequired") ||
+            "Canlı oyun seçimi zorunludur",
         });
       }
     });

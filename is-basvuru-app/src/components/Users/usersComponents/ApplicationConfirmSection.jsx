@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -12,6 +12,7 @@ import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ReCAPTCHA from "react-google-recaptcha";
+import { tanimlamaService } from "../../../services/tanimlamalarService";
 
 const SITE_KEY = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
@@ -21,17 +22,67 @@ const ApplicationConfirmSection = ({
   isValidOtherInfo,
   isValidJobDetails,
   onSubmit,
+  // 👇 Yeni Props: Buton metni ve ikonu dışarıdan yönetilebilir
+  customButtonText,
+  customButtonIcon,
 }) => {
   const { t, i18n } = useTranslation();
 
+  // Checkbox'ların durumu
   const [checks, setChecks] = useState({
     dogruluk: false,
     kvkk: false,
     referans: false,
   });
 
+  // Metinler
+  const [contentTexts, setContentTexts] = useState({
+    dogruluk: t("confirm.cards.truth.text"),
+    kvkk: t("confirm.cards.kvkk.text"),
+    referans: t("confirm.cards.reference.text"),
+  });
+
   const recaptchaRef = useRef(null);
   const [recaptchaToken, setRecaptchaToken] = useState("");
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        // Servisten listeyi çek
+        const data = await tanimlamaService.getKvkkList();
+
+        // Eğer data bir dizi ise ve içinde eleman varsa
+        if (Array.isArray(data) && data.length > 0) {
+          // Genellikle en son eklenen veya ilk sıradaki aktif metni alırız.
+          const activeItem = data[0];
+
+          setContentTexts({
+            dogruluk:
+              activeItem.dogrulukAciklama ||
+              activeItem.DogrulukAciklama ||
+              t("confirm.cards.truth.text"),
+
+            kvkk:
+              activeItem.kvkkAciklama ||
+              activeItem.KvkkAciklama ||
+              t("confirm.cards.kvkk.text"),
+
+            referans:
+              activeItem.referansAciklama ||
+              activeItem.ReferansAciklama ||
+              t("confirm.cards.reference.text"),
+          });
+        }
+      } catch (error) {
+        console.error(
+          "KVKK metinleri yüklenemedi, varsayılanlar kullanılacak.",
+          error,
+        );
+      }
+    };
+
+    fetchContent();
+  }, [t]);
 
   const handleCheck = (e) => {
     const { id, checked } = e.target;
@@ -92,9 +143,8 @@ const ApplicationConfirmSection = ({
 
   return (
     <div className="mt-10 pb-20">
-      {/* KUTU */}
       <div className="bg-[#1e293b] rounded-xl border border-slate-700 shadow-lg overflow-hidden transition-all hover:border-slate-600 hover:shadow-2xl">
-        {/* Başlık (Koyu) */}
+        {/* Başlık */}
         <div className="px-5 sm:px-6 py-5 border-b border-slate-700/80 flex items-center gap-4">
           <div className="w-10 h-10 flex items-center justify-center rounded-lg bg-slate-900/50 border border-slate-700 shadow-inner shrink-0">
             <FontAwesomeIcon
@@ -103,7 +153,6 @@ const ApplicationConfirmSection = ({
             />
           </div>
           <div>
-            {/* DÜZELTME: Başlık ve açıklama çeviriye bağlandı */}
             <h3 className="text-lg font-bold text-slate-100 leading-tight">
               {t("confirm.sectionTitle")}
             </h3>
@@ -113,31 +162,35 @@ const ApplicationConfirmSection = ({
           </div>
         </div>
 
-        {/* İçerik (Açık) */}
+        {/* Kartlar Alanı */}
         <div className="bg-slate-50 border-t border-slate-200/50 p-6 sm:p-8 space-y-8">
-          {/* Kartlar */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* 1. Doğruluk Beyanı */}
             <ConfirmCard
               id="dogruluk"
               icon={faCheckCircle}
               title={t("confirm.cards.truth.title")}
-              text={t("confirm.cards.truth.text")}
+              text={contentTexts.dogruluk}
               checked={checks.dogruluk}
               onChange={handleCheck}
             />
+
+            {/* 2. KVKK */}
             <ConfirmCard
               id="kvkk"
               icon={faUserShield}
               title={t("confirm.cards.kvkk.title")}
-              text={t("confirm.cards.kvkk.text")}
+              text={contentTexts.kvkk}
               checked={checks.kvkk}
               onChange={handleCheck}
             />
+
+            {/* 3. Referans İzni */}
             <ConfirmCard
               id="referans"
               icon={faPhoneVolume}
               title={t("confirm.cards.reference.title")}
-              text={t("confirm.cards.reference.text")}
+              text={contentTexts.referans}
               checked={checks.referans}
               onChange={handleCheck}
             />
@@ -168,25 +221,28 @@ const ApplicationConfirmSection = ({
                 rounded-xl font-bold text-lg shadow-lg transition-all duration-300 ease-out
                 ${
                   recaptchaToken
-                    ? "bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white transform hover:-translate-y-1 hover:shadow-sky-500/25"
+                    ? "bg-linear-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white transform hover:-translate-y-1 hover:shadow-sky-500/25"
                     : "bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300"
                 }
               `}
-              aria-label={t("confirm.submit")}
-              title={t("confirm.submit")}
+              aria-label={customButtonText || t("confirm.submit")}
+              title={customButtonText || t("confirm.submit")}
             >
+              {/* İKON: Parent'tan geliyorsa onu kullan, yoksa varsayılan */}
               <FontAwesomeIcon
-                icon={faPaperPlane}
+                icon={customButtonIcon || faPaperPlane}
                 className={`transition-transform duration-300 ${
                   recaptchaToken
                     ? "group-hover:translate-x-1 group-hover:-translate-y-1"
                     : ""
                 }`}
               />
-              <span>{t("confirm.submit")}</span>
+
+              {/* METİN: Parent'tan geliyorsa onu kullan, yoksa varsayılan */}
+              <span>{customButtonText || t("confirm.submit")}</span>
 
               {recaptchaToken && (
-                <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_2s_infinite] bg-linear-to-r from-transparent via-white/20 to-transparent" />
               )}
             </button>
           </div>
@@ -201,7 +257,7 @@ function ConfirmCard({ id, icon, title, text, checked, onChange }) {
     <label
       htmlFor={id}
       className={`
-        relative flex flex-col p-4 rounded-xl border transition-all duration-200 cursor-pointer select-none group
+        relative flex flex-col p-4 rounded-xl border transition-all duration-200 cursor-pointer select-none group h-full
         ${
           checked
             ? "bg-sky-50 border-sky-500 shadow-md ring-1 ring-sky-500"
@@ -209,7 +265,7 @@ function ConfirmCard({ id, icon, title, text, checked, onChange }) {
         }
       `}
     >
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-4 h-full">
         <div className="relative mt-1">
           <input
             type="checkbox"
@@ -237,21 +293,21 @@ function ConfirmCard({ id, icon, title, text, checked, onChange }) {
           </div>
         </div>
 
-        <div className="flex-1">
+        <div className="flex-1 flex flex-col">
           <h4
-            className={`text-sm font-bold mb-1 transition-colors ${
+            className={`text-sm font-bold mb-2 transition-colors ${
               checked ? "text-sky-700" : "text-gray-800"
             }`}
           >
             {title}
           </h4>
-          <p
-            className={`text-xs leading-relaxed transition-colors ${
+          <div
+            className={`text-xs leading-relaxed transition-colors whitespace-pre-line max-h-40 overflow-y-auto pr-1 ${
               checked ? "text-sky-600" : "text-gray-500"
             }`}
           >
             {text}
-          </p>
+          </div>
         </div>
 
         <FontAwesomeIcon

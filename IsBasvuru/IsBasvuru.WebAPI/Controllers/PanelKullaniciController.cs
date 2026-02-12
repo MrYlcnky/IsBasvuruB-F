@@ -1,5 +1,4 @@
-﻿using IsBasvuru.Domain.DTOs.AdminDtos;
-using IsBasvuru.Domain.DTOs.AdminDtos.PanelKullaniciDtos;
+﻿using IsBasvuru.Domain.DTOs.AdminDtos.PanelKullaniciDtos;
 using IsBasvuru.Domain.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +8,7 @@ namespace IsBasvuru.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PanelKullaniciController : BaseController // 1. BaseController'dan miras al
+    public class PanelKullaniciController : BaseController
     {
         private readonly IPanelKullaniciService _service;
 
@@ -18,50 +17,46 @@ namespace IsBasvuru.WebAPI.Controllers
             _service = service;
         }
 
-        // Login herkese açık olmalı (Authorize yok)
-        [HttpPost("login")]
-        public async Task<IActionResult> Login(AdminLoginDto dto)
-        {
-            var response = await _service.LoginAsync(dto);
-            // BaseController, Success=false ise BadRequest döner, True ise Ok döner.
-            return CreateActionResultInstance(response);
-        }
-
-        // Aşağıdaki metodlara sadece Token ile giriş yapmış kişiler erişebilir
-        [Authorize]
-        [HttpGet]
+        // 1. LİSTELEME
+        [HttpGet("getall")]      
+        [Authorize(Roles = "SuperAdmin, Admin")]
         public async Task<IActionResult> GetAll()
         {
             var response = await _service.GetAllAsync();
             return CreateActionResultInstance(response);
         }
 
-        [Authorize]
+        // 2. DETAY GETİRME
         [HttpGet("{id}")]
+        [Authorize(Roles = "SuperAdmin, Admin")]
         public async Task<IActionResult> GetById(int id)
         {
             var response = await _service.GetByIdAsync(id);
             return CreateActionResultInstance(response);
         }
 
-        [Authorize(Roles = "Admin")] // Sadece Admin rolü olanlar ekleyebilsin 
-        [HttpPost]
+        // 3. EKLEME
+        [HttpPost("create")]
+        //[Authorize(Roles = "SuperAdmin, Admin")]
+        [AllowAnonymous]
         public async Task<IActionResult> Create(PanelKullaniciCreateDto dto)
         {
             var response = await _service.CreateAsync(dto);
             return CreateActionResultInstance(response);
         }
 
-        [Authorize]
-        [HttpPut]
+        // 4. GÜNCELLEME
+        [HttpPut("update")]
+        [Authorize(Roles = "SuperAdmin, Admin")]
         public async Task<IActionResult> Update(PanelKullaniciUpdateDto dto)
         {
             var response = await _service.UpdateAsync(dto);
             return CreateActionResultInstance(response);
         }
 
-        [Authorize]
+        // 5. SİLME
         [HttpDelete("{id}")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> Delete(int id)
         {
             var response = await _service.DeleteAsync(id);

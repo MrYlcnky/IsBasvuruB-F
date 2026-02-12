@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using IsBasvuru.Domain.Entities.Tanimlamalar;
 
 namespace IsBasvuru.Domain.Entities.AdminBilgileri
 {
@@ -15,11 +16,11 @@ namespace IsBasvuru.Domain.Entities.AdminBilgileri
         public int? SubeId { get; set; }
         public virtual Sube? Sube { get; set; }
 
-        public int? SubeAlanId { get; set; }
-        public virtual SubeAlan? SubeAlan { get; set; }
+        public int? MasterAlanId { get; set; }
+        public virtual MasterAlan? MasterAlan { get; set; }
 
-        public int? DepartmanId { get; set; }
-        public virtual Departman? Departman { get; set; }
+        public int? MasterDepartmanId { get; set; }
+        public virtual MasterDepartman? MasterDepartman { get; set; }
 
         public required string KullaniciAdi { get; set; }
         public required string Adi { get; set; }

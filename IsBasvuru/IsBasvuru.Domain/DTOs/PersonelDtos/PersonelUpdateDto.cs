@@ -7,6 +7,7 @@ using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.ReferansBilgisiDtos;
 using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.SertifikaBilgisiDtos;
 using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.YabanciDilBilgisiDtos;
 using IsBasvuru.Domain.DTOs.SirketYapisiDtos.PersonelEhliyetDtos;
+using IsBasvuru.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 
 namespace IsBasvuru.Domain.DTOs.PersonelDtos
@@ -20,22 +21,22 @@ namespace IsBasvuru.Domain.DTOs.PersonelDtos
         public List<int> DepartmanIds { get; set; } = new();
         public List<int> DepartmanPozisyonIds { get; set; } = new();
         public List<int> ProgramIds { get; set; } = new();
-        public List<int> OyunIds { get; set; } = new();
+        public List<int>? OyunIds { get; set; } = new();
         public string? VesikalikFotograf { get; set; }
         public IFormFile? VesikalikDosyasi { get; set; }
         public required string NedenBiz { get; set; }
-        public int LojmanTalebi { get; set; }
+        public SecimDurumu LojmanTalebi { get; set; }
 
         // İç içe güncelleme
         public required KisiselBilgilerDto KisiselBilgiler { get; set; }
         public required DigerKisiselBilgilerUpdateDto DigerKisiselBilgiler { get; set; }
 
-        public ICollection<EgitimBilgisiCreateDto> EgitimBilgileri { get; set; } = new List<EgitimBilgisiCreateDto>();
-        public ICollection<IsDeneyimiCreateDto> IsDeneyimleri { get; set; } = new List<IsDeneyimiCreateDto>();
-        public ICollection<YabanciDilBilgisiCreateDto> YabanciDilBilgileri { get; set; } = new List<YabanciDilBilgisiCreateDto>();
-        public ICollection<BilgisayarBilgisiCreateDto> BilgisayarBilgileri { get; set; } = new List<BilgisayarBilgisiCreateDto>();
-        public ICollection<SertifikaBilgisiCreateDto> SertifikaBilgileri { get; set; } = new List<SertifikaBilgisiCreateDto>();
-        public ICollection<ReferansBilgisiCreateDto> ReferansBilgileri { get; set; } = new List<ReferansBilgisiCreateDto>();
-        public ICollection<PersonelEhliyetCreateDto> PersonelEhliyetler { get; set; } = new List<PersonelEhliyetCreateDto>();
+        public ICollection<EgitimBilgisiUpdateDto> EgitimBilgileri { get; set; } = new List<EgitimBilgisiUpdateDto>();
+        public ICollection<IsDeneyimiUpdateDto> IsDeneyimleri { get; set; } = new List<IsDeneyimiUpdateDto>();
+        public ICollection<YabanciDilBilgisiUpdateDto> YabanciDilBilgileri { get; set; } = new List<YabanciDilBilgisiUpdateDto>();
+        public ICollection<BilgisayarBilgisiUpdateDto> BilgisayarBilgileri { get; set; } = new List<BilgisayarBilgisiUpdateDto>();
+        public ICollection<SertifikaBilgisiUpdateDto> SertifikaBilgileri { get; set; } = new List<SertifikaBilgisiUpdateDto>();
+        public ICollection<ReferansBilgisiUpdateDto> ReferansBilgileri { get; set; } = new List<ReferansBilgisiUpdateDto>();
+        public ICollection<PersonelEhliyetUpdateDto> PersonelEhliyetler { get; set; } = new List<PersonelEhliyetUpdateDto>();
     }
 }

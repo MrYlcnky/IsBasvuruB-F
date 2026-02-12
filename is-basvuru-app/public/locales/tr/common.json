@@ -16,7 +16,7 @@
     "emailPlaceholder": "E-posta adresiniz",
     "fetchBtn": "Getir",
     "otpTitle": "Doğrulama Kodu",
-    "otpText": "{{email}} adresine gönderilen doğrulama kodunu giriniz (Test: 1234):",
+    "otpText": "{{email}} adresine gönderilen doğrulama kodunu giriniz",
     "verifyBtn": "Doğrula ve Getir",
     "emailNotFound": "Hata: Bu e-posta adresi ile kayıtlı başvuru bulunamadı.",
     "otpRequired": "Lütfen kodu giriniz",

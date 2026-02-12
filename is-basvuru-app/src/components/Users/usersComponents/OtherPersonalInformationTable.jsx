@@ -3,7 +3,7 @@ import { useFormContext, Controller, useWatch } from "react-hook-form";
 import Select from "react-select";
 import { useTranslation } from "react-i18next";
 
-// ✅ React-Select Stilleri (Diğer inputlarla birebir uyumlu)
+// React-Select Stilleri (Aynı kalıyor)
 const rsClassNames = {
   control: ({ isFocused }) =>
     `w-full min-h-[100px] rounded-lg border px-3 bg-white shadow-none transition-colors cursor-pointer flex items-start py-2 ${
@@ -19,7 +19,7 @@ const rsClassNames = {
   multiValueLabel: () => "text-xs px-1 text-gray-800",
   multiValueRemove: () =>
     "hover:bg-red-100 hover:text-red-500 rounded-r-sm px-1 cursor-pointer transition-colors",
-  indicatorSeparator: () => "hidden", // Çizgiyi gizle
+  indicatorSeparator: () => "hidden",
   dropdownIndicator: () => "text-gray-400 p-0 hover:text-black",
   menu: () =>
     "mt-1 border border-gray-200 rounded-lg bg-white shadow-lg z-[9999] overflow-hidden",
@@ -43,7 +43,6 @@ export default function OtherPersonalInformationTable({ definitions }) {
     formState: { errors },
   } = useFormContext();
 
-  // API'den gelen tanımlamalar
   const ehliyetListesi = useMemo(
     () => definitions?.ehliyetler ?? [],
     [definitions?.ehliyetler],
@@ -54,18 +53,16 @@ export default function OtherPersonalInformationTable({ definitions }) {
     [definitions?.kktcBelgeler],
   );
 
-  // Anlık İzleme
   const davaDurumu = useWatch({ name: "otherInfo.davaDurumu" });
   const kaliciRahatsizlik = useWatch({ name: "otherInfo.kaliciRahatsizlik" });
   const ehliyet = useWatch({ name: "otherInfo.ehliyet" });
 
-  // --- ENUM OPTIONS ---
+  // ✅ DÜZELTME 1: Backend Enum Uyumlu Değerler (2=Evet, 1=Hayır)
   const yesNoOptions = [
-    { value: "1", label: t("otherInfo.options.yesNo.yes") },
-    { value: "2", label: t("otherInfo.options.yesNo.no") },
+    { value: "2", label: t("otherInfo.options.yesNo.yes") }, // Evet -> 2
+    { value: "1", label: t("otherInfo.options.yesNo.no") }, // Hayır -> 1
   ];
 
-  // KKTC Belge (Dinamik)
   const kktcOptions = useMemo(() => {
     return kktcBelgeListesi.map((item) => ({
       value: String(item.id),
@@ -73,7 +70,6 @@ export default function OtherPersonalInformationTable({ definitions }) {
     }));
   }, [kktcBelgeListesi]);
 
-  // Askerlik Durumu
   const militaryOptions = [
     { value: "1", label: t("otherInfo.options.military.done") },
     { value: "2", label: t("otherInfo.options.military.notDone") },
@@ -81,7 +77,6 @@ export default function OtherPersonalInformationTable({ definitions }) {
     { value: "4", label: t("otherInfo.options.military.exempt") },
   ];
 
-  // Ehliyet Türleri (Dinamik)
   const ehliyetTurOptions = useMemo(() => {
     return ehliyetListesi.map((e) => ({
       value: String(e.id),
@@ -89,23 +84,23 @@ export default function OtherPersonalInformationTable({ definitions }) {
     }));
   }, [ehliyetListesi]);
 
-  // Kontroller
-  const isLawsuitYes = String(davaDurumu) === "1";
-  const isDiseaseYes = String(kaliciRahatsizlik) === "1";
-  const isLicenseYes = String(ehliyet) === "1";
+  // ✅ DÜZELTME 2: Kontroller "2" (Evet) değerine göre yapılıyor
+  const isLawsuitYes = String(davaDurumu) === "2";
+  const isDiseaseYes = String(kaliciRahatsizlik) === "2";
+  const isLicenseYes = String(ehliyet) === "2";
 
-  // Handlers
+  // ✅ DÜZELTME 3: Handlers - Eğer "2" (Evet) değilse alanları temizle
   const handleDavaChange = (val, field) => {
     field.onChange(val);
-    if (val !== "1") setValue("otherInfo.davaNedeni", "");
+    if (val !== "2") setValue("otherInfo.davaNedeni", "");
   };
   const handleDiseaseChange = (val, field) => {
     field.onChange(val);
-    if (val !== "1") setValue("otherInfo.rahatsizlikAciklama", "");
+    if (val !== "2") setValue("otherInfo.rahatsizlikAciklama", "");
   };
   const handleLicenseChange = (val, field) => {
     field.onChange(val);
-    if (val !== "1") setValue("otherInfo.ehliyetTurleri", []);
+    if (val !== "2") setValue("otherInfo.ehliyetTurleri", []);
   };
 
   return (
@@ -136,11 +131,12 @@ export default function OtherPersonalInformationTable({ definitions }) {
         <InputField
           name="otherInfo.davaNedeni"
           label={t("otherInfo.labels.lawsuitReason")}
-          disabled={!isLawsuitYes}
+          disabled={!isLawsuitYes} // Evet (2) değilse disabled olur
           register={register}
           error={errors.otherInfo?.davaNedeni}
           placeholder={t("otherInfo.placeholders.lawsuitReason")}
         />
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
           {/* Sigara */}
           <SelectController
@@ -162,6 +158,7 @@ export default function OtherPersonalInformationTable({ definitions }) {
             placeholder={t("personal.placeholders.select")}
           />
         </div>
+
         {/* Kalıcı Rahatsızlık */}
         <SelectController
           name="otherInfo.kaliciRahatsizlik"
@@ -177,7 +174,7 @@ export default function OtherPersonalInformationTable({ definitions }) {
         <InputField
           name="otherInfo.rahatsizlikAciklama"
           label={t("otherInfo.labels.diseaseDesc")}
-          disabled={!isDiseaseYes}
+          disabled={!isDiseaseYes} // Evet (2) değilse disabled olur
           register={register}
           error={errors.otherInfo?.rahatsizlikAciklama}
           placeholder={t("otherInfo.placeholders.diseaseDesc")}
@@ -194,7 +191,7 @@ export default function OtherPersonalInformationTable({ definitions }) {
           placeholder={t("personal.placeholders.select")}
         />
 
-        {/*  EHLİYET TÜRLERİ (Multi Select - Stil Düzeltildi) */}
+        {/* Ehliyet Türleri */}
         <div>
           <label className="block text-sm font-bold text-gray-700 mb-1">
             {t("otherInfo.labels.licenseTypes")}{" "}
@@ -207,7 +204,7 @@ export default function OtherPersonalInformationTable({ definitions }) {
               <Select
                 {...field}
                 isMulti
-                unstyled // Tailwind sınıflarını kullanmak için
+                unstyled
                 options={ehliyetTurOptions}
                 value={ehliyetTurOptions.filter((o) =>
                   (field.value || []).includes(o.value),
@@ -215,7 +212,7 @@ export default function OtherPersonalInformationTable({ definitions }) {
                 onChange={(val) =>
                   field.onChange(val ? val.map((v) => v.value) : [])
                 }
-                isDisabled={!isLicenseYes}
+                isDisabled={!isLicenseYes} // Evet (2) değilse disabled olur
                 placeholder={t("personal.placeholders.select")}
                 classNames={rsClassNames}
                 noOptionsMessage={() => "Seçenek yok"}
@@ -257,8 +254,7 @@ export default function OtherPersonalInformationTable({ definitions }) {
   );
 }
 
-// --- Helper Components ---
-
+// Yardımcılar (Değişmedi)
 function InputField({
   label,
   name,
@@ -271,7 +267,7 @@ function InputField({
   return (
     <div>
       <label className="block text-sm font-bold text-gray-700 mb-1">
-        {label}{" "}
+        {label} {/* Disabled değilse ve açıklama alanları ise * göster */}
         {!disabled &&
           name !== "otherInfo.davaNedeni" &&
           name !== "otherInfo.rahatsizlikAciklama" && (

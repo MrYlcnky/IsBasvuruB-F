@@ -12,7 +12,7 @@ using Serilog;
 using System.Reflection;
 using System.Text;
 
-// 1. SERILOG BOOTSTRAP YAPILANDIRMASI 
+// 1. SERILOG BOOTSTRAP CONFIGURATION
 var bootstrapConfiguration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -26,26 +26,24 @@ Log.Logger = new LoggerConfiguration()
 
 try
 {
-    Log.Information("Uygulama baþlatýlýyor...");
+    Log.Information("Starting application...");
 
     var builder = WebApplication.CreateBuilder(args);
 
-    // 2. SERILOG'U HOST'A TAM ENTEGRE ET
-    // Bu sayede appsettings.json içindeki Serilog ayarlarýný (File, Console vb.) dinamik okur.
+    // 2. INTEGRATE SERILOG
     builder.Host.UseSerilog((context, services, configuration) => configuration
         .ReadFrom.Configuration(context.Configuration)
         .ReadFrom.Services(services)
         .Enrich.FromLogContext());
 
-    // VERÝTABANI BAÐLANTISI
-    // User Secrets veya Env Variables'dan gelen güvenli connection string.
+    // DATABASE CONNECTION
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     builder.Services.AddDbContext<IsBasvuruContext>(options =>
         options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-    //SERVÝS KAYITLARI (DEPENDENCY INJECTION)
+    // SERVICE REGISTRATIONS
 
-    // Þirket ve Tanýmlamalar
+    // Company & Definitions
     builder.Services.AddScoped<ISubeService, SubeService>();
     builder.Services.AddScoped<ISubeAlanService, SubeAlanService>();
     builder.Services.AddScoped<IDepartmanService, DepartmanService>();
@@ -62,10 +60,10 @@ try
     builder.Services.AddScoped<IOyunBilgisiService, OyunBilgisiService>();
     builder.Services.AddScoped<IProgramBilgisiService, ProgramBilgisiService>();
 
-    // Dosya & Resim
+    // File & Image Services
     builder.Services.AddScoped<IImageService, ImageService>();
 
-    // Personel Bilgileri
+    // Personal Info Services
     builder.Services.AddScoped<IPersonelService, PersonelService>();
     builder.Services.AddScoped<IEgitimBilgisiService, EgitimBilgisiService>();
     builder.Services.AddScoped<IIsDeneyimiService, IsDeneyimiService>();
@@ -75,28 +73,31 @@ try
     builder.Services.AddScoped<IReferansBilgisiService, ReferansBilgisiService>();
     builder.Services.AddScoped<IDigerKisiselBilgilerService, DigerKisiselBilgilerService>();
 
-    // Master Baþvuru & Admin & Auth
+    // Master App & Auth Services
     builder.Services.AddScoped<IMasterBasvuruService, MasterBasvuruService>();
     builder.Services.AddScoped<IPanelKullaniciService, PanelKullaniciService>();
     builder.Services.AddScoped<IRolService, RolService>();
     builder.Services.AddScoped<ILogService, LogService>();
     builder.Services.AddScoped<IKimlikDogrulamaService, KimlikDogrulamaService>();
 
-    // Mail Servisi
+    //Rol
+    builder.Services.AddScoped<IAuthService, AuthService>();
+
+    // Mail Service
     builder.Services.AddScoped<IMailService, MailService>();
 
     // AutoMapper
     builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-    // Önbellekleme (Caching) 
+    // Caching
     builder.Services.AddMemoryCache();
 
-    // VALIDATION (Doðrulama)
+    // VALIDATION
     builder.Services.AddFluentValidationAutoValidation();
     builder.Services.AddFluentValidationClientsideAdapters();
     builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-    // CONTROLLER AYARLARI
+    // CONTROLLER SETTINGS
     builder.Services.AddControllers()
             .AddJsonOptions(options =>
             {
@@ -121,14 +122,14 @@ try
 
     builder.Services.AddEndpointsApiExplorer();
 
-    //SWAGGER AYARLARI
+    // SWAGGER SETTINGS
     builder.Services.AddSwaggerGen(c =>
     {
         c.SwaggerDoc("v1", new OpenApiInfo { Title = "IsBasvuru API", Version = "v1" });
 
         c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
         {
-            Description = "JWT Token'ý 'Bearer [boþluk] token' formatýnda giriniz.\nÖrnek: Bearer eyJhbGciOi...",
+            Description = "Enter JWT Token as 'Bearer [space] token'. Example: Bearer eyJhbGciOi...",
             Name = "Authorization",
             In = ParameterLocation.Header,
             Type = SecuritySchemeType.ApiKey,
@@ -154,7 +155,7 @@ try
         });
     });
 
-    // CORS
+    // CORS SETTINGS
     var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
     builder.Services.AddCors(options =>
     {
@@ -169,6 +170,7 @@ try
                 }
                 else
                 {
+                    // Dev environment: Allow Any
                     policy.AllowAnyOrigin()
                           .AllowAnyHeader()
                           .AllowAnyMethod();
@@ -176,16 +178,16 @@ try
             });
     });
 
-    //JWT AUTHENTICATION
+    // JWT AUTHENTICATION
     var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-    var secretKey = jwtSettings["SecurityKey"];
+    var secretKey = jwtSettings["Key"];
 
     if (string.IsNullOrEmpty(secretKey))
     {
-        throw new Exception("Kritik Hata: JWT SecurityKey yapýlandýrmada bulunamadý! (User Secrets veya Env Var kontrol edin)");
+        throw new Exception("Critical Error: JWT SecurityKey not found in configuration!");
     }
 
-    var key = Encoding.ASCII.GetBytes(secretKey);
+    var key = Encoding.UTF8.GetBytes(secretKey);
 
     builder.Services.AddAuthentication(x =>
     {
@@ -194,7 +196,7 @@ try
     })
     .AddJwtBearer(x =>
     {
-        //Development deðilse HTTPS zorunlu.
+        // Require HTTPS in Production
         x.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
         x.SaveToken = true;
         x.TokenValidationParameters = new TokenValidationParameters
@@ -212,7 +214,7 @@ try
 
     var app = builder.Build();
 
-    //MIDDLEWARE
+    // MIDDLEWARE PIPELINE
 
     if (app.Environment.IsDevelopment())
     {
@@ -221,15 +223,16 @@ try
     }
     else
     {
-        // PRODUCTION GÜVENLÝÐÝ: HSTS
+        // Production Security: HSTS
         app.UseHsts();
     }
 
     app.UseHttpsRedirection();
 
-    app.UseStaticFiles();
-
+    // CORS must be before StaticFiles
     app.UseCors("AllowFrontend");
+
+    app.UseStaticFiles();
 
     app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
@@ -242,7 +245,7 @@ try
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex, "Uygulama beklenmedik bir hata ile durdu! (Fatal Error)");
+    Log.Fatal(ex, "Application terminated unexpectedly! (Fatal Error)");
 }
 finally
 {

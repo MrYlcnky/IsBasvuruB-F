@@ -31,9 +31,7 @@ namespace IsBasvuru.WebAPI.Validators.PersonelValidators
                 .NotNull().WithMessage("Program seçimi zorunludur.")
                 .NotEmpty().WithMessage("Program seçimi zorunludur.");
 
-            RuleFor(x => x.OyunIds)
-                .NotNull().WithMessage("Oyun seçimi zorunludur.")
-                .NotEmpty().WithMessage("Oyun seçimi zorunludur.");
+
 
             RuleForEach(x => x.SubeIds)
                 .GreaterThan(0).WithMessage("Geçersiz Şube seçimi.");

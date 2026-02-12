@@ -9,7 +9,6 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LanguageAddModal from "../addModals/LanguageAddModal";
 
-// ✅ DÜZELTME: 't' parametresini kaldırdık çünkü A1-C2 evrensel kodlar.
 const getLevelLabel = (val) => {
   const levels = ["", "A1", "A2", "B1", "B2", "C1", "C2"];
   return levels[Number(val)] || val;
@@ -48,7 +47,9 @@ const LanguageTable = forwardRef(function LanguageTable({ definitions }, ref) {
   const closeModal = () => setModalOpen(false);
 
   const handleSave = (newData) => {
-    const updatedList = [...rows, newData];
+    // Yeni kayıtlara ID: 0 atıyoruz
+    const itemToAdd = { ...newData, id: 0 };
+    const updatedList = [...rows, itemToAdd];
     setValue("languages", updatedList, {
       shouldDirty: true,
       shouldValidate: true,
@@ -60,7 +61,11 @@ const LanguageTable = forwardRef(function LanguageTable({ definitions }, ref) {
   const handleUpdate = (updatedData) => {
     if (selectedIndex > -1) {
       const updatedList = [...rows];
-      updatedList[selectedIndex] = updatedData;
+      // 🔥 KRİTİK DÜZELTME: Mevcut ID'yi koruyoruz
+      updatedList[selectedIndex] = {
+        ...rows[selectedIndex],
+        ...updatedData,
+      };
       setValue("languages", updatedList, {
         shouldDirty: true,
         shouldValidate: true,
@@ -71,10 +76,8 @@ const LanguageTable = forwardRef(function LanguageTable({ definitions }, ref) {
   };
 
   const handleDelete = async (row, index) => {
-    // Silme mesajında dil adını bulmaya çalış
     let languageName = row.dilAdiGosterim || row.digerDilAdi || "";
 
-    // Eğer isim yoksa ve ID varsa, definitions listesinden bul
     if (!languageName && row.dilId && definitions?.diller) {
       const found = definitions.diller.find((d) => d.id === row.dilId);
       if (found) languageName = found.dilAdi;
@@ -113,7 +116,6 @@ const LanguageTable = forwardRef(function LanguageTable({ definitions }, ref) {
 
   return (
     <div className="">
-      {/* Tablo: Sadece veri varsa görünür */}
       {rows.length !== 0 && (
         <div className="overflow-x-auto rounded-b-lg ring-1 ring-gray-200 bg-white">
           <table className="min-w-full text-sm table-fixed">
@@ -132,10 +134,6 @@ const LanguageTable = forwardRef(function LanguageTable({ definitions }, ref) {
             </thead>
             <tbody>
               {rows.map((item, index) => {
-                // Dil Adını Bulma Mantığı:
-                // 1. Modal'dan gelen hazır gösterim adı varsa onu kullan
-                // 2. Manuel girilmişse onu kullan
-                // 3. ID varsa definitions listesinden bul
                 let displayLanguage = item.dilAdiGosterim || item.digerDilAdi;
                 if (!displayLanguage && item.dilId && definitions?.diller) {
                   const found = definitions.diller.find(

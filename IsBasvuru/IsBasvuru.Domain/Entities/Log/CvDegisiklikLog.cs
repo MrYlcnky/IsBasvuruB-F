@@ -10,7 +10,7 @@ namespace IsBasvuru.Domain.Entities.Log
 {
     public class CvDegisiklikLog : BaseEntity
     {
-        public int MasterBasvuruId { get; set; }
+        public int? MasterBasvuruId { get; set; }
         public virtual MasterBasvuru? MasterBasvuru { get; set; }
 
         public int PersonelId { get; set; }

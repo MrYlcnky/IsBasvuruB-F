@@ -14,7 +14,7 @@ const numOrNull = z.preprocess((v) => {
   return Number.isFinite(n) ? n : null;
 }, z.number().nullable());
 
-// File kontrolü
+// File kontrolü (Sadece yeni dosya yüklemesini kontrol eder)
 const hasRealFile = (v) => {
   if (!v) return false;
   if (v instanceof File) return true;
@@ -41,7 +41,7 @@ const hasDistrictsForCity = (cityId, ilceler = []) => {
 export const createPersonalSchema = (t, defs = {}) => {
   const reqMsg = (key) => ({
     required_error: t(`personal.errors.${key}.required`),
-    invalid_type_error: t(`personal.errors.${key}.required`), // Tip hatasında da zorunlu uyarısı ver
+    invalid_type_error: t(`personal.errors.${key}.required`),
   });
 
   const ilceler = defs?.ilceler ?? [];
@@ -85,7 +85,6 @@ export const createPersonalSchema = (t, defs = {}) => {
         .min(5, t("personal.errors.address.min"))
         .max(90, t("personal.errors.address.max")),
 
-      // Cinsiyet ve Medeni Durum genelde ID (Number) gelir ama String de gelebilir, ikisini de kapsayalım
       cinsiyet: z.union([z.string(), z.number()], reqMsg("gender")),
 
       medeniDurum: z.union([z.string(), z.number()], reqMsg("marital")),
@@ -94,9 +93,9 @@ export const createPersonalSchema = (t, defs = {}) => {
         .string(reqMsg("birthDate"))
         .min(1, t("personal.errors.birthDate.required")),
 
-      cocukSayisi: z.any().optional(), // String ("7+") veya Number gelebilir
+      cocukSayisi: z.any().optional(),
 
-      // --- DTO Alanları (ID ve Adlar) ---
+      // --- DTO Alanları ---
       UyrukId: numOrNull,
       UyrukAdi: z.string().optional().nullable().or(z.literal("")),
 
@@ -114,25 +113,33 @@ export const createPersonalSchema = (t, defs = {}) => {
       IkametgahIlceId: numOrNull,
       IkametgahIlceAdi: z.string().optional().nullable().or(z.literal("")),
 
-      // Vesikalık Dosya (Any yaptık çünkü File objesi Zod ile zor valide edilir)
-      VesikalikDosyasi: z.any(),
+      // Dosya ve Fotoğraf (Her ikisi de optional başlar, superRefine ile kontrol edilir)
+      VesikalikDosyasi: z.any().optional(),
       foto: z.any().optional(),
     })
     .superRefine((data, ctx) => {
-      // 1. Vesikalık Dosya Kontrolü
-      if (!hasRealFile(data.VesikalikDosyasi)) {
+      // -------------------------------------------------------------
+      // ✅ 1. DÜZELTİLMİŞ FOTOĞRAF KONTROLÜ
+      // -------------------------------------------------------------
+      const yeniDosyaVarMi = hasRealFile(data.VesikalikDosyasi);
+      const mevcutFotoVarMi =
+        typeof data.foto === "string" && data.foto.length > 0;
+
+      // Eğer ne yeni dosya var ne de eski fotoğraf varsa hata ver
+      if (!yeniDosyaVarMi && !mevcutFotoVarMi) {
         ctx.addIssue({
-          path: ["VesikalikDosyasi"],
+          path: ["VesikalikDosyasi"], // Hatayı inputun altına bas
           code: z.ZodIssueCode.custom,
           message:
-            "⚠️ Fotoğraf önizlemesi var ama dosya yok. Gönderebilmek için fotoğrafı yeniden yükleyin.",
+            t("personal.errors.photo.required") ||
+            "Lütfen vesikalık fotoğraf yükleyiniz.",
         });
       }
 
       // 2. Uyruk Kontrolü
       if (data.UyrukId == null && !isFilled(data.UyrukAdi)) {
         ctx.addIssue({
-          path: ["UyrukId"], // Hata Select box'ta görünsün
+          path: ["UyrukId"],
           code: z.ZodIssueCode.custom,
           message: t("personal.errors.nationality"),
         });
@@ -155,7 +162,6 @@ export const createPersonalSchema = (t, defs = {}) => {
         });
       }
 
-      // Doğum İlçe (Sadece o şehre ait ilçe varsa zorunlu)
       if (
         data.DogumSehirId != null &&
         hasDistrictsForCity(data.DogumSehirId, ilceler) &&
@@ -187,7 +193,6 @@ export const createPersonalSchema = (t, defs = {}) => {
         });
       }
 
-      // İkamet İlçe (Sadece o şehre ait ilçe varsa zorunlu)
       if (
         data.IkametgahSehirId != null &&
         hasDistrictsForCity(data.IkametgahSehirId, ilceler) &&

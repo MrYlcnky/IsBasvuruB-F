@@ -31,7 +31,6 @@ export const createOtherInfoSchema = (t) => {
       kktcGecerliBelge: z
         .string(reqMsg("kktcDoc"))
         .min(1, t("otherInfo.errors.kktcDoc")),
-
       davaDurumu: z
         .string(reqMsg("lawsuit"))
         .min(1, t("otherInfo.errors.lawsuit")),
@@ -40,9 +39,7 @@ export const createOtherInfoSchema = (t) => {
         .trim()
         .max(250, t("otherInfo.errors.lawsuitReason"))
         .optional(),
-
       sigara: z.string(reqMsg("smoke")).min(1, t("otherInfo.errors.smoke")),
-
       kaliciRahatsizlik: z
         .string(reqMsg("permanentDisease"))
         .min(1, t("otherInfo.errors.permanentDisease")),
@@ -51,16 +48,13 @@ export const createOtherInfoSchema = (t) => {
         .trim()
         .max(250, t("otherInfo.errors.diseaseDesc"))
         .optional(),
-
       ehliyet: z
         .string(reqMsg("license"))
         .min(1, t("otherInfo.errors.license")),
       ehliyetTurleri: z.array(z.string()).optional().default([]),
-
       askerlik: z
         .string(reqMsg("military"))
         .min(1, t("otherInfo.errors.military")),
-
       boy: stringToNumberSchema(
         50,
         250,
@@ -69,7 +63,6 @@ export const createOtherInfoSchema = (t) => {
         t("otherInfo.errors.heightInt"),
         t("otherInfo.errors.heightNum"),
       ),
-
       kilo: stringToNumberSchema(
         30,
         300,
@@ -80,8 +73,11 @@ export const createOtherInfoSchema = (t) => {
       ),
     })
     .superRefine((data, ctx) => {
+      // ✅ Sadece değer "2" (Evet) ise zorunlu tut
+
+      // Dava Nedeni
       if (
-        String(data.davaDurumu) === "1" &&
+        String(data.davaDurumu) === "2" &&
         (!data.davaNedeni || data.davaNedeni.trim().length < 3)
       ) {
         ctx.addIssue({
@@ -91,8 +87,9 @@ export const createOtherInfoSchema = (t) => {
         });
       }
 
+      // Rahatsızlık Açıklama
       if (
-        String(data.kaliciRahatsizlik) === "1" &&
+        String(data.kaliciRahatsizlik) === "2" &&
         (!data.rahatsizlikAciklama ||
           data.rahatsizlikAciklama.trim().length < 3)
       ) {
@@ -103,8 +100,9 @@ export const createOtherInfoSchema = (t) => {
         });
       }
 
+      // Ehliyet Türleri
       if (
-        String(data.ehliyet) === "1" &&
+        String(data.ehliyet) === "2" &&
         (!data.ehliyetTurleri || data.ehliyetTurleri.length === 0)
       ) {
         ctx.addIssue({

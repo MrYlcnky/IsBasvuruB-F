@@ -3,6 +3,7 @@ using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.KisiselBilgilerListDtos;
 using IsBasvuru.Domain.DTOs.PersonelDtos;
 using IsBasvuru.Domain.DTOs.Shared;
 using IsBasvuru.Domain.Entities;
+using IsBasvuru.Domain.Entities.Log;
 using IsBasvuru.Domain.Entities.PersonelBilgileri;
 using IsBasvuru.Domain.Entities.SirketYapisi;
 using IsBasvuru.Domain.Enums;
@@ -13,22 +14,25 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace IsBasvuru.Infrastructure.Services
 {
-    public class PersonelService(IsBasvuruContext context, IMapper mapper, ILogService logService) : IPersonelService
+    public class PersonelService(IsBasvuruContext context, IMapper mapper, ILogService logService, IImageService imageService) : IPersonelService
     {
         private readonly IsBasvuruContext _context = context;
         private readonly IMapper _mapper = mapper;
         private readonly ILogService _logService = logService;
+        private readonly IImageService _imageService = imageService;
 
         public async Task<PagedResponse<List<PersonelListDto>>> GetAllAsync(PaginationFilter filter)
         {
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
             var totalRecords = await _context.Personeller.CountAsync();
 
-            // UYARI GİDERME: Zincirleme erişimlerdeki (ThenInclude) her nullable property'nin sonuna '!' eklendi.
             var list = await _context.Personeller
                 .Include(p => p.KisiselBilgiler)
                 .Include(p => p.IsBasvuruDetay!).ThenInclude(d => d.BasvuruSubeler!).ThenInclude(s => s.Sube!)
@@ -99,14 +103,54 @@ namespace IsBasvuru.Infrastructure.Services
                 {
                     GuncellemeTarihi = DateTime.Now,
                     KisiselBilgiler = _mapper.Map<KisiselBilgiler>(dto.KisiselBilgiler),
-                    DigerKisiselBilgiler = dto.DigerKisiselBilgiler != null ? _mapper.Map<DigerKisiselBilgiler>(dto.DigerKisiselBilgiler) : null,
+                    DigerKisiselBilgiler = dto.DigerKisiselBilgiler != null
+                        ? _mapper.Map<DigerKisiselBilgiler>(dto.DigerKisiselBilgiler)
+                        : null,
 
                     EgitimBilgileri = dto.EgitimBilgileri != null
-                        ? dto.EgitimBilgileri.Select(e => _mapper.Map<EgitimBilgisi>(e)).ToList()
+                        ? dto.EgitimBilgileri.Select(e =>
+                        {
+                            var egitim = _mapper.Map<EgitimBilgisi>(e);
+                            egitim.BaslangicTarihi = egitim.BaslangicTarihi.Date;
+                            if (egitim.BitisTarihi.HasValue)
+                                egitim.BitisTarihi = egitim.BitisTarihi.Value.Date;
+
+                            if (egitim.Gano.HasValue)
+                            {
+                                var gano = (decimal)egitim.Gano.Value;
+                                int notSistemi = (int)e.NotSistemi;
+                                decimal esikDeger = (notSistemi == 1) ? 100m : 4m;
+
+                                while (gano > esikDeger)
+                                {
+                                    gano /= 10;
+                                }
+                                egitim.Gano = Math.Round(gano, 2);
+                            }
+                            return egitim;
+                        }).ToList()
                         : [],
 
                     SertifikaBilgileri = dto.SertifikaBilgileri != null
-                        ? dto.SertifikaBilgileri.Select(s => _mapper.Map<SertifikaBilgisi>(s)).ToList()
+                        ? dto.SertifikaBilgileri.Select(s =>
+                        {
+                            var sertifika = _mapper.Map<SertifikaBilgisi>(s);
+                            sertifika.VerilisTarihi = sertifika.VerilisTarihi.Date;
+                            if (sertifika.GecerlilikTarihi.HasValue)
+                                sertifika.GecerlilikTarihi = sertifika.GecerlilikTarihi.Value.Date;
+                            return sertifika;
+                        }).ToList()
+                        : [],
+
+                    IsDeneyimleri = dto.IsDeneyimleri != null
+                        ? dto.IsDeneyimleri.Select(i =>
+                        {
+                            var isDeneyimi = _mapper.Map<IsDeneyimi>(i);
+                            isDeneyimi.BaslangicTarihi = isDeneyimi.BaslangicTarihi.Date;
+                            if (isDeneyimi.BitisTarihi.HasValue)
+                                isDeneyimi.BitisTarihi = isDeneyimi.BitisTarihi.Value.Date;
+                            return isDeneyimi;
+                        }).ToList()
                         : [],
 
                     BilgisayarBilgileri = dto.BilgisayarBilgileri != null
@@ -115,10 +159,6 @@ namespace IsBasvuru.Infrastructure.Services
 
                     YabanciDilBilgileri = dto.YabanciDilBilgileri != null
                         ? dto.YabanciDilBilgileri.Select(y => _mapper.Map<YabanciDilBilgisi>(y)).ToList()
-                        : [],
-
-                    IsDeneyimleri = dto.IsDeneyimleri != null
-                        ? dto.IsDeneyimleri.Select(i => _mapper.Map<IsDeneyimi>(i)).ToList()
                         : [],
 
                     ReferansBilgileri = dto.ReferansBilgileri != null
@@ -130,11 +170,15 @@ namespace IsBasvuru.Infrastructure.Services
                         : []
                 };
 
+                if (personel.KisiselBilgiler != null)
+                {
+                    personel.KisiselBilgiler.DogumTarihi = personel.KisiselBilgiler.DogumTarihi.Date;
+                }
+
                 var isBasvuruDetay = new IsBasvuruDetay
                 {
                     NedenBiz = dto.NedenBiz,
-                    LojmanTalebiVarMi = (SecimDurumu)dto.LojmanTalebi,
-
+                    LojmanTalebiVarMi = dto.LojmanTalebi,
                     BasvuruSubeler = dto.SubeIds?.Select(id => new IsBasvuruDetaySube { SubeId = id }).ToList() ?? [],
                     BasvuruAlanlar = dto.SubeAlanIds?.Select(id => new IsBasvuruDetayAlan { SubeAlanId = id }).ToList() ?? [],
                     BasvuruDepartmanlar = dto.DepartmanIds?.Select(id => new IsBasvuruDetayDepartman { DepartmanId = id }).ToList() ?? [],
@@ -148,6 +192,17 @@ namespace IsBasvuru.Infrastructure.Services
                 await _context.Personeller.AddAsync(personel);
                 await _context.SaveChangesAsync();
 
+                if (dto.VesikalikDosyasi != null && dto.VesikalikDosyasi.Length > 0)
+                {
+                    var imageResponse = await _imageService.UploadImageAsync(dto.VesikalikDosyasi, "personel");
+                    if (imageResponse != null && imageResponse.Success)
+                    {
+                        personel.KisiselBilgiler!.VesikalikFotograf = imageResponse.Data;
+                        _context.KisiselBilgileri.Update(personel.KisiselBilgiler);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+
                 var masterBasvuru = new MasterBasvuru
                 {
                     PersonelId = personel.Id,
@@ -159,30 +214,26 @@ namespace IsBasvuru.Infrastructure.Services
                 await _context.MasterBasvurular.AddAsync(masterBasvuru);
                 await _context.SaveChangesAsync();
 
-                await transaction.CommitAsync();
-
-                try
-                {
-                    var adSoyad = personel.KisiselBilgiler != null
+                var adSoyad = personel.KisiselBilgiler != null
                         ? $"{personel.KisiselBilgiler.Ad} {personel.KisiselBilgiler.Soyadi}"
                         : "Bilinmeyen Personel";
 
-                    await _logService.LogBasvuruIslemAsync(
-                        personel.Id,
-                        null,
-                        LogIslemTipi.YeniBasvuru,
-                        $"Yeni başvuru alındı: {adSoyad} (v1.0)"
-                    );
-                }
-                catch { }
+                await _logService.LogBasvuruIslemAsync(
+                    masterBasvuru.Id,
+                    null,
+                    LogIslemTipi.YeniBasvuru,
+                    $"Yeni başvuru alındı: {adSoyad} (v1.0)"
+                );
+
+                await transaction.CommitAsync();
 
                 var mapped = _mapper.Map<PersonelListDto>(personel);
-                return ServiceResponse<PersonelListDto>.SuccessResult(mapped, "Başvurunuz başarıyla alındı ve onay sürecine gönderildi.");
+                return ServiceResponse<PersonelListDto>.SuccessResult(mapped, "Başvurunuz başarıyla alındı.");
             }
             catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                return ServiceResponse<PersonelListDto>.FailureResult($"Başvuru sırasında hata oluştu: {ex.Message} {ex.InnerException?.Message}");
+                return ServiceResponse<PersonelListDto>.FailureResult($"Sistem Hatası: {ex.Message}");
             }
         }
 
@@ -191,16 +242,41 @@ namespace IsBasvuru.Infrastructure.Services
             var personel = await _context.Personeller
                 .Include(p => p.KisiselBilgiler)
                 .Include(p => p.DigerKisiselBilgiler)
+                .Include(p => p.PersonelEhliyetler)
+                .Include(p => p.EgitimBilgileri)
+                .Include(p => p.SertifikaBilgileri)
+                .Include(p => p.BilgisayarBilgileri)
+                .Include(p => p.YabanciDilBilgileri)
+                .Include(p => p.IsDeneyimleri)
+                .Include(p => p.ReferansBilgileri)
                 .Include(p => p.IsBasvuruDetay!).ThenInclude(d => d.BasvuruSubeler)
                 .Include(p => p.IsBasvuruDetay!).ThenInclude(d => d.BasvuruAlanlar)
                 .Include(p => p.IsBasvuruDetay!).ThenInclude(d => d.BasvuruDepartmanlar)
                 .Include(p => p.IsBasvuruDetay!).ThenInclude(d => d.BasvuruPozisyonlar)
                 .Include(p => p.IsBasvuruDetay!).ThenInclude(d => d.BasvuruProgramlar)
                 .Include(p => p.IsBasvuruDetay!).ThenInclude(d => d.BasvuruOyunlar)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(x => x.Id == dto.Id);
 
-            if (personel == null)
-                return ServiceResponse<bool>.FailureResult("Personel bulunamadı.");
+            if (personel == null) return ServiceResponse<bool>.FailureResult("Personel bulunamadı.");
+            
+           var egitimListesi = dto.EgitimBilgileri;
+           var sertifikaListesi = dto.SertifikaBilgileri;
+           var bilgisayarListesi = dto.BilgisayarBilgileri;
+           var dilListesi = dto.YabanciDilBilgileri;
+           var isListesi = dto.IsDeneyimleri;
+           var referansListesi = dto.ReferansBilgileri;
+           var ehliyetListesi = dto.PersonelEhliyetler;
+            
+          // AutoMapper listeleri ezmemesi için DTO içini temizliyoruz
+          dto.EgitimBilgileri = null!;
+          dto.SertifikaBilgileri = null!;
+          dto.BilgisayarBilgileri = null!;
+          dto.YabanciDilBilgileri = null!;
+          dto.IsDeneyimleri = null!;
+          dto.ReferansBilgileri = null!;
+          dto.PersonelEhliyetler = null!;
+          
 
             if (personel.KisiselBilgiler != null && dto.KisiselBilgiler != null)
             {
@@ -209,112 +285,128 @@ namespace IsBasvuru.Infrastructure.Services
                     bool emailVarMi = await _context.KisiselBilgileri
                         .AnyAsync(x => x.Email == dto.KisiselBilgiler.Email && x.PersonelId != dto.Id);
 
-                    if (emailVarMi)
-                        return ServiceResponse<bool>.FailureResult("Bu e-posta adresi kullanımda.");
+                    if (emailVarMi) return ServiceResponse<bool>.FailureResult("Bu e-posta adresi kullanımda.");
                 }
             }
 
             _mapper.Map(dto, personel);
             personel.GuncellemeTarihi = DateTime.Now;
 
-            if (personel.KisiselBilgiler != null && dto.KisiselBilgiler != null)
-                _mapper.Map(dto.KisiselBilgiler, personel.KisiselBilgiler);
+            if (personel.KisiselBilgiler != null)
+            {
+                if (dto.KisiselBilgiler != null)
+                {
+                    _mapper.Map(dto.KisiselBilgiler, personel.KisiselBilgiler);
+                }
+                personel.KisiselBilgiler.PersonelId = personel.Id;
+                personel.KisiselBilgiler.DogumTarihi = personel.KisiselBilgiler.DogumTarihi.Date;
+            }
 
-            if (personel.DigerKisiselBilgiler != null && dto.DigerKisiselBilgiler != null)
-                _mapper.Map(dto.DigerKisiselBilgiler, personel.DigerKisiselBilgiler);
+            if (personel.DigerKisiselBilgiler != null)
+            {
+                if (dto.DigerKisiselBilgiler != null)
+                {
+                    _mapper.Map(dto.DigerKisiselBilgiler, personel.DigerKisiselBilgiler);
+                }
+                personel.DigerKisiselBilgiler.PersonelId = personel.Id;
+            }
 
             if (personel.IsBasvuruDetay == null)
             {
                 personel.IsBasvuruDetay = new IsBasvuruDetay
                 {
                     PersonelId = personel.Id,
-                    NedenBiz = dto.NedenBiz,
-                    LojmanTalebiVarMi = (SecimDurumu)dto.LojmanTalebi,
-                    BasvuruSubeler = [],
-                    BasvuruAlanlar = [],
-                    BasvuruDepartmanlar = [],
-                    BasvuruPozisyonlar = [],
-                    BasvuruProgramlar = [],
-                    BasvuruOyunlar = []
+                    NedenBiz = dto.NedenBiz ?? "",
+                    LojmanTalebiVarMi = (SecimDurumu)dto.LojmanTalebi
                 };
             }
             else
             {
-                personel.IsBasvuruDetay.NedenBiz = dto.NedenBiz;
+                personel.IsBasvuruDetay.NedenBiz = dto.NedenBiz ?? "";
                 personel.IsBasvuruDetay.LojmanTalebiVarMi = (SecimDurumu)dto.LojmanTalebi;
             }
 
             var detay = personel.IsBasvuruDetay;
+            detay.BasvuruSubeler ??= new List<IsBasvuruDetaySube>();
+            detay.BasvuruAlanlar ??= new List<IsBasvuruDetayAlan>();
+            detay.BasvuruDepartmanlar ??= new List<IsBasvuruDetayDepartman>();
+            detay.BasvuruPozisyonlar ??= new List<IsBasvuruDetayPozisyon>();
+            detay.BasvuruProgramlar ??= new List<IsBasvuruDetayProgram>();
+            detay.BasvuruOyunlar ??= new List<IsBasvuruDetayOyun>();
 
-            detay.BasvuruSubeler ??= [];
-            detay.BasvuruAlanlar ??= [];
-            detay.BasvuruDepartmanlar ??= [];
-            detay.BasvuruPozisyonlar ??= [];
-            detay.BasvuruProgramlar ??= [];
-            detay.BasvuruOyunlar ??= [];
+            UpdateDetailList(detay.BasvuruSubeler, dto.SubeIds, id => new IsBasvuruDetaySube { SubeId = id }, x => x.SubeId);
+            UpdateDetailList(detay.BasvuruAlanlar, dto.SubeAlanIds, id => new IsBasvuruDetayAlan { SubeAlanId = id }, x => x.SubeAlanId);
+            UpdateDetailList(detay.BasvuruDepartmanlar, dto.DepartmanIds, id => new IsBasvuruDetayDepartman { DepartmanId = id }, x => x.DepartmanId);
+            UpdateDetailList(detay.BasvuruPozisyonlar, dto.DepartmanPozisyonIds, id => new IsBasvuruDetayPozisyon { DepartmanPozisyonId = id }, x => x.DepartmanPozisyonId);
+            UpdateDetailList(detay.BasvuruProgramlar, dto.ProgramIds, id => new IsBasvuruDetayProgram { ProgramBilgisiId = id }, x => x.ProgramBilgisiId);
+            UpdateDetailList(detay.BasvuruOyunlar, dto.OyunIds, id => new IsBasvuruDetayOyun { OyunBilgisiId = id }, x => x.OyunBilgisiId);
 
-            // A. Şubeler
-            var subeIds = new HashSet<int>(dto.SubeIds ?? []);
-            var subeToRemove = detay.BasvuruSubeler.Where(x => !subeIds.Contains(x.SubeId)).ToList();
-            if (subeToRemove.Count > 0)
-                foreach (var item in subeToRemove) detay.BasvuruSubeler.Remove(item);
+            var gelenEhliyetIds = new HashSet<int>(ehliyetListesi?.Select(x => x.EhliyetTuruId) ?? []);
+            personel.PersonelEhliyetler ??= new List<PersonelEhliyet>();
 
-            var existingSubeIds = detay.BasvuruSubeler.Select(x => x.SubeId).ToHashSet();
-            foreach (var id in subeIds.Except(existingSubeIds))
-                detay.BasvuruSubeler.Add(new IsBasvuruDetaySube { SubeId = id });
+            foreach (var item in personel.PersonelEhliyetler.ToList())
+                if (!gelenEhliyetIds.Contains(item.EhliyetTuruId)) _context.Set<PersonelEhliyet>().Remove(item);
 
-            // B. Alanlar
-            var alanIds = new HashSet<int>(dto.SubeAlanIds ?? []);
-            var alanToRemove = detay.BasvuruAlanlar.Where(x => !alanIds.Contains(x.SubeAlanId)).ToList();
-            if (alanToRemove.Count > 0)
-                foreach (var item in alanToRemove) detay.BasvuruAlanlar.Remove(item);
+            var mevcutEhliyetIds = personel.PersonelEhliyetler.Select(x => x.EhliyetTuruId).ToHashSet();
+            foreach (var id in gelenEhliyetIds)
+                if (!mevcutEhliyetIds.Contains(id)) personel.PersonelEhliyetler.Add(new PersonelEhliyet { PersonelId = personel.Id, EhliyetTuruId = id });
 
-            var existingAlanIds = detay.BasvuruAlanlar.Select(x => x.SubeAlanId).ToHashSet();
-            foreach (var id in alanIds.Except(existingAlanIds))
-                detay.BasvuruAlanlar.Add(new IsBasvuruDetayAlan { SubeAlanId = id });
+            personel.EgitimBilgileri ??= new List<EgitimBilgisi>();
+            UpdateCollection(personel.EgitimBilgileri, egitimListesi, (entity, dtoItem) =>
+            {
+                _mapper.Map(dtoItem, entity);
 
-            // C. Departmanlar
-            var deptIds = new HashSet<int>(dto.DepartmanIds ?? []);
-            var deptToRemove = detay.BasvuruDepartmanlar.Where(x => !deptIds.Contains(x.DepartmanId)).ToList();
-            if (deptToRemove.Count > 0)
-                foreach (var item in deptToRemove) detay.BasvuruDepartmanlar.Remove(item);
+                if (entity.Gano > 0)
+                {
+                    int notSistemi = (int)entity.NotSistemi;
+                    decimal esikDeger = (notSistemi == 1) ? 100m : 4m;
+                    decimal gano = (decimal)entity.Gano;
 
-            var existingDeptIds = detay.BasvuruDepartmanlar.Select(x => x.DepartmanId).ToHashSet();
-            foreach (var id in deptIds.Except(existingDeptIds))
-                detay.BasvuruDepartmanlar.Add(new IsBasvuruDetayDepartman { DepartmanId = id });
+                    while (gano > esikDeger)
+                    {
+                        gano /= 10;
+                    }
+                    entity.Gano = Math.Round(gano, 2);
+                }
+            }, personel.Id);
 
-            // D. Pozisyonlar
-            var pozIds = new HashSet<int>(dto.DepartmanPozisyonIds ?? []);
-            var pozToRemove = detay.BasvuruPozisyonlar.Where(x => !pozIds.Contains(x.DepartmanPozisyonId)).ToList();
-            if (pozToRemove.Count > 0)
-                foreach (var item in pozToRemove) detay.BasvuruPozisyonlar.Remove(item);
+            personel.SertifikaBilgileri ??= new List<SertifikaBilgisi>();
+            UpdateCollection(personel.SertifikaBilgileri, sertifikaListesi, (entity, dtoItem) => _mapper.Map(dtoItem, entity), personel.Id);
 
-            var existingPozIds = detay.BasvuruPozisyonlar.Select(x => x.DepartmanPozisyonId).ToHashSet();
-            foreach (var id in pozIds.Except(existingPozIds))
-                detay.BasvuruPozisyonlar.Add(new IsBasvuruDetayPozisyon { DepartmanPozisyonId = id });
+            personel.BilgisayarBilgileri ??= new List<BilgisayarBilgisi>();
+            UpdateCollection(personel.BilgisayarBilgileri, bilgisayarListesi, (entity, dtoItem) => _mapper.Map(dtoItem, entity), personel.Id);
 
-            // E. Programlar
-            var progIds = new HashSet<int>(dto.ProgramIds ?? []);
-            var progToRemove = detay.BasvuruProgramlar.Where(x => !progIds.Contains(x.ProgramBilgisiId)).ToList();
-            if (progToRemove.Count > 0)
-                foreach (var item in progToRemove) detay.BasvuruProgramlar.Remove(item);
+            personel.YabanciDilBilgileri ??= new List<YabanciDilBilgisi>();
+            UpdateCollection(personel.YabanciDilBilgileri, dilListesi, (entity, dtoItem) => _mapper.Map(dtoItem, entity), personel.Id);
 
-            var existingProgIds = detay.BasvuruProgramlar.Select(x => x.ProgramBilgisiId).ToHashSet();
-            foreach (var id in progIds.Except(existingProgIds))
-                detay.BasvuruProgramlar.Add(new IsBasvuruDetayProgram { ProgramBilgisiId = id });
+            personel.IsDeneyimleri ??= new List<IsDeneyimi>();
+            UpdateCollection(personel.IsDeneyimleri, isListesi, (entity, dtoItem) => _mapper.Map(dtoItem, entity), personel.Id);
 
-            // F. Oyunlar
-            var oyunIds = new HashSet<int>(dto.OyunIds ?? []);
-            var oyunToRemove = detay.BasvuruOyunlar.Where(x => !oyunIds.Contains(x.OyunBilgisiId)).ToList();
-            if (oyunToRemove.Count > 0)
-                foreach (var item in oyunToRemove) detay.BasvuruOyunlar.Remove(item);
+            personel.ReferansBilgileri ??= new List<ReferansBilgisi>();
+            UpdateCollection(personel.ReferansBilgileri, referansListesi, (entity, dtoItem) => _mapper.Map(dtoItem, entity), personel.Id);
 
-            var existingOyunIds = detay.BasvuruOyunlar.Select(x => x.OyunBilgisiId).ToHashSet();
-            foreach (var id in oyunIds.Except(existingOyunIds))
-                detay.BasvuruOyunlar.Add(new IsBasvuruDetayOyun { OyunBilgisiId = id });
+            LogCvDegisiklikleri(personel.Id);
 
-            await _context.SaveChangesAsync();
-            return ServiceResponse<bool>.SuccessResult(true, "Bilgiler güncellendi.");
+            try
+            {
+                await _context.SaveChangesAsync();
+                return ServiceResponse<bool>.SuccessResult(true, "Bilgiler güncellendi.");
+            }
+            catch (DbUpdateException ex)
+            {
+                var message = ex.Message;
+                var inner = ex.InnerException;
+                while (inner != null)
+                {
+                    message += " | DETAY: " + inner.Message;
+                    inner = inner.InnerException;
+                }
+                return ServiceResponse<bool>.FailureResult($"Veritabanı Hatası: {message}");
+            }
+            catch (Exception ex)
+            {
+                return ServiceResponse<bool>.FailureResult($"Sistem Hatası: {ex.Message}");
+            }
         }
 
         public async Task<ServiceResponse<bool>> UpdateVesikalikAsync(int id, string dosyaAdi)
@@ -346,11 +438,27 @@ namespace IsBasvuru.Infrastructure.Services
         public async Task<ServiceResponse<PersonelListDto>> GetByEmailAsync(string email)
         {
             var entity = await _context.Personeller
-                .Include(p => p.KisiselBilgiler!).ThenInclude(k => k.Uyruk)
+                .Include(p => p.KisiselBilgiler!).ThenInclude(k => k.Uyruk!)
+                .Include(p => p.KisiselBilgiler!).ThenInclude(k => k.DogumUlke!)
+                .Include(p => p.KisiselBilgiler!).ThenInclude(k => k.DogumSehir!)
+                .Include(p => p.DigerKisiselBilgiler)
+
+                .Include(p => p.IsBasvuruDetay).ThenInclude(d => d!.BasvuruSubeler!).ThenInclude(s => s.Sube)
+                .Include(p => p.IsBasvuruDetay).ThenInclude(d => d!.BasvuruAlanlar!).ThenInclude(a => a.SubeAlan)
+                .Include(p => p.IsBasvuruDetay).ThenInclude(d => d!.BasvuruDepartmanlar!).ThenInclude(dp => dp.Departman)
+                .Include(p => p.IsBasvuruDetay).ThenInclude(d => d!.BasvuruPozisyonlar!).ThenInclude(pz => pz.DepartmanPozisyon)
+                .Include(p => p.IsBasvuruDetay).ThenInclude(d => d!.BasvuruProgramlar!).ThenInclude(pr => pr.ProgramBilgisi)
+                .Include(p => p.IsBasvuruDetay).ThenInclude(d => d!.BasvuruOyunlar!).ThenInclude(o => o.OyunBilgileri)
+
                 .Include(p => p.EgitimBilgileri)
                 .Include(p => p.IsDeneyimleri)
-                .Include(p => p.IsBasvuruDetay)
+                .Include(p => p.SertifikaBilgileri)
+                .Include(p => p.YabanciDilBilgileri)
+                .Include(p => p.BilgisayarBilgileri)
+                .Include(p => p.ReferansBilgileri)
+                .Include(p => p.PersonelEhliyetler)
                 .AsNoTracking()
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(x => x.KisiselBilgiler!.Email == email);
 
             if (entity == null)
@@ -358,6 +466,244 @@ namespace IsBasvuru.Infrastructure.Services
 
             var mapped = _mapper.Map<PersonelListDto>(entity);
             return ServiceResponse<PersonelListDto>.SuccessResult(mapped);
+        }
+
+        private void LogCvDegisiklikleri(int personelId)
+        {
+            // 1. İlgili Master Başvuru ID'sini bul
+            var sonBasvuru = _context.MasterBasvurular
+                .Where(x => x.PersonelId == personelId)
+                .OrderByDescending(x => x.BasvuruTarihi)
+                .FirstOrDefault();
+            int? masterBasvuruId = sonBasvuru?.Id;
+
+            // 2. Değişiklikleri Yakala
+            var changes = _context.ChangeTracker.Entries()
+                .Where(x => x.State == EntityState.Added || x.State == EntityState.Modified || x.State == EntityState.Deleted)
+                .ToList();
+
+            var logListesi = new List<CvDegisiklikLog>();
+            var islemZamani = DateTime.Now;
+
+            // --- AYARLAR ---
+
+            // A) Kesinlikle Loglanmayacak Teknik Alanlar
+            var gizliAlanlar = new HashSet<string>
+    {
+        "Id", "PersonelId", "MasterBasvuruId", "IsBasvuruDetayId",
+        "GuncellemeTarihi", "OlusturmaTarihi", "Silindi", "AktifMi", "NotSistemi"
+    };
+
+            // B) Loglanmasına İZİN VERİLEN Foreign Key'ler (Seçim Kutuları)
+            // Normalde FK'lar loglanmaz ama bunlar kullanıcının seçtiği değerler olduğu için loglanmalı.
+            var izinVerilenIdler = new HashSet<string>
+    {
+        "EhliyetTuruId",        // PersonelEhliyet
+        "SubeId",               // IsBasvuruDetaySube
+        "SubeAlanId",           // IsBasvuruDetayAlan
+        "DepartmanId",          // IsBasvuruDetayDepartman
+        "DepartmanPozisyonId",  // IsBasvuruDetayPozisyon
+        "ProgramBilgisiId",     // IsBasvuruDetayProgram
+        "OyunBilgisiId",        // IsBasvuruDetayOyun
+        "KktcBelgeId",          // DigerKisiselBilgiler
+        "UlkeId", "SehirId",    // Adres veya İş Deneyimi
+        "DilId"                 // Yabancı Dil
+    };
+
+            foreach (var entry in changes)
+            {
+                // Log tablosunun kendisini loglama :)
+                if (entry.Entity is CvDegisiklikLog) continue;
+
+                string tabloAdi = entry.Entity.GetType().Name.Replace("Proxy", "");
+
+                // Kaydın ID'sini al (Varsa)
+                int kayitId = 0;
+                var idProp = entry.Entity.GetType().GetProperty("Id");
+                if (idProp != null) kayitId = (int?)idProp.GetValue(entry.Entity) ?? 0;
+
+                foreach (var prop in entry.Properties)
+                {
+                    string alanAdi = prop.Metadata.Name;
+
+                    // --- FİLTRELEME MANTIĞI ---
+
+                    // 1. Gizli alan ise ATLA
+                    if (gizliAlanlar.Contains(alanAdi)) continue;
+
+                    // 2. Eğer alan bir Foreign Key ise VE İzin verilenler listesinde YOKSA -> ATLA
+                    // (Örn: PersonelId FK'dır ama izin listesinde yok -> Atla)
+                    // (Örn: EhliyetTuruId FK'dır ama izin listesinde var -> Logla)
+                    if (prop.Metadata.IsForeignKey() && !izinVerilenIdler.Contains(alanAdi)) continue;
+
+                    string? eskiDeger = null;
+                    string? yeniDeger = null;
+                    bool logEkle = false;
+                    LogIslemTipi islemTipi = LogIslemTipi.Guncelleme;
+
+                    // --- DURUMA GÖRE LOGLAMA ---
+
+                    // Durum 1: GÜNCELLEME (Modified)
+                    if (entry.State == EntityState.Modified && prop.IsModified)
+                    {
+                        eskiDeger = prop.OriginalValue?.ToString();
+                        yeniDeger = prop.CurrentValue?.ToString();
+
+                        // Değer değişmemişse loglama
+                        if (eskiDeger == yeniDeger) continue;
+
+                        logEkle = true;
+                        islemTipi = LogIslemTipi.Guncelleme;
+                    }
+                    // Durum 2: YENİ KAYIT (Added)
+                    else if (entry.State == EntityState.Added)
+                    {
+                        yeniDeger = prop.CurrentValue?.ToString();
+                        // Boş değerleri "Eklendi" diye loglamaya gerek yok
+                        if (!string.IsNullOrEmpty(yeniDeger))
+                        {
+                            eskiDeger = null;
+                            logEkle = true;
+                            islemTipi = LogIslemTipi.Ekleme;
+                        }
+                    }
+                    // Durum 3: SİLME (Deleted)
+                    else if (entry.State == EntityState.Deleted)
+                    {
+                        eskiDeger = prop.OriginalValue?.ToString();
+                        if (!string.IsNullOrEmpty(eskiDeger))
+                        {
+                            yeniDeger = null;
+                            logEkle = true;
+                            islemTipi = LogIslemTipi.Silme;
+                        }
+                    }
+
+                    // Kayıt Ekleme
+                    if (logEkle)
+                    {
+                        logListesi.Add(new CvDegisiklikLog
+                        {
+                            PersonelId = personelId,
+                            MasterBasvuruId = masterBasvuruId,
+                            DegisenTabloAdi = tabloAdi,
+                            DegisenKayitId = kayitId,
+                            DegisenAlanAdi = alanAdi,
+                            EskiDeger = eskiDeger,
+                            YeniDeger = yeniDeger,
+                            DegisiklikTipi = islemTipi,
+                            DegisiklikTarihi = islemZamani
+                        });
+                    }
+                }
+            }
+
+            // Toplu Kayıt
+            if (logListesi.Count > 0) _context.Set<CvDegisiklikLog>().AddRange(logListesi);
+        }
+
+        private static void UpdateDetailList<TEntity>(ICollection<TEntity> dbList, List<int>? newIds, Func<int, TEntity> creator, Func<TEntity, int> idSelector) where TEntity : class
+        {
+            var ids = new HashSet<int>(newIds ?? new List<int>());
+            var toRemove = dbList.Where(x => !ids.Contains(idSelector(x))).ToList();
+            foreach (var item in toRemove) dbList.Remove(item);
+
+            var existingIds = dbList.Select(idSelector).ToHashSet();
+            foreach (var id in ids.Except(existingIds)) dbList.Add(creator(id));
+        }
+
+        // Bu metodun amacı: DB'deki listeyi, DTO'dan gelen listeyle eşitlemektir.
+        private static void UpdateCollection<TEntity, TDto>(ICollection<TEntity> dbList, IEnumerable<TDto>? dtoList, Action<TEntity, TDto> mapAction, int personelId)
+            where TEntity : class
+            where TDto : class
+        {
+            if (dbList == null) return;
+            dtoList ??= new List<TDto>();
+
+            // --- DEBUG BAŞLANGIÇ ---
+            Console.WriteLine($"--- UpdateCollection Çalışıyor: {typeof(TEntity).Name} ---");
+            foreach (var item in dtoList)
+            {
+                var idProp = item.GetType().GetProperty("Id");
+                var val = idProp?.GetValue(item);
+                Console.WriteLine($"Gelen DTO ID: {val}");
+                // Eğer burada '0' veya 'null' yazıyorsa DTO bozuktur. 
+                // Eğer '38' yazıyorsa kod çalışmalı.
+            }
+            // --- DEBUG BİTİŞ ---
+
+            // 1. DTO'dan gelen ID'leri topla (Frontend'den ID'lerin dolu geldiğine EMIN OL!)
+            var incomingIds = new HashSet<int>();
+            foreach (var dtoItem in dtoList)
+            {
+                var idProp = dtoItem.GetType().GetProperty("Id");
+                if (idProp != null)
+                {
+                    var val = idProp.GetValue(dtoItem);
+                    if (val is int idVal && idVal > 0)
+                    {
+                        incomingIds.Add(idVal);
+                    }
+                }
+            }
+
+            // 2. SİLME İŞLEMİ (Delete)
+            // DB'de var ama DTO'da yoksa -> Kullanıcı silmiş demektir.
+            var toRemove = dbList.Where(entity =>
+            {
+                var idProp = entity.GetType().GetProperty("Id");
+                var idVal = (int?)idProp?.GetValue(entity) ?? 0;
+                return !incomingIds.Contains(idVal); // Listede yoksa silinecekler arasına al
+            }).ToList();
+
+            foreach (var item in toRemove)
+            {
+                // EF Core bunu "Deleted" olarak işaretler
+                dbList.Remove(item);
+            }
+
+            // 3. GÜNCELLEME ve EKLEME İŞLEMİ
+            foreach (var dtoItem in dtoList)
+            {
+                var idProp = dtoItem.GetType().GetProperty("Id");
+                var dtoId = (int?)idProp?.GetValue(dtoItem) ?? 0;
+
+                if (dtoId > 0)
+                {
+                    // --- GÜNCELLEME (Update) ---
+                    // DB listesinden bu ID'ye sahip kaydı bul
+                    var existingEntity = dbList.FirstOrDefault(e =>
+                    {
+                        var eId = (int?)e.GetType().GetProperty("Id")?.GetValue(e) ?? 0;
+                        return eId == dtoId;
+                    });
+
+                    if (existingEntity != null)
+                    {
+                        // VAR OLAN NESNEYİ GÜNCELLİYORUZ (Silip eklemek yok!)
+                        // Bu sayede EF Core State = Modified olur.
+                        mapAction(existingEntity, dtoItem);
+
+                        // ID ve Parent ID'nin bozulmadığından emin ol
+                        var pIdProp = existingEntity.GetType().GetProperty("PersonelId");
+                        if (pIdProp != null && pIdProp.CanWrite) pIdProp.SetValue(existingEntity, personelId);
+                    }
+                }
+                else
+                {
+                    // --- EKLEME (Insert) ---
+                    var newEntity = Activator.CreateInstance<TEntity>();
+                    if (newEntity != null)
+                    {
+                        mapAction(newEntity, dtoItem);
+
+                        var pIdProp = newEntity.GetType().GetProperty("PersonelId");
+                        if (pIdProp != null && pIdProp.CanWrite) pIdProp.SetValue(newEntity, personelId);
+
+                        dbList.Add(newEntity);
+                    }
+                }
+            }
         }
     }
 }

@@ -9,8 +9,6 @@ namespace IsBasvuru.Domain.Interfaces
     {
         Task<ServiceResponse<List<RolListDto>>> GetAllAsync();
         Task<ServiceResponse<RolListDto>> GetByIdAsync(int id);
-        Task<ServiceResponse<RolListDto>> CreateAsync(RolCreateDto dto);
-        Task<ServiceResponse<bool>> UpdateAsync(RolUpdateDto dto);
         Task<ServiceResponse<bool>> DeleteAsync(int id);
     }
 }

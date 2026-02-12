@@ -8,7 +8,6 @@ namespace IsBasvuru.Domain.Interfaces
 {
     public interface IPanelKullaniciService
     {
-        Task<ServiceResponse<LoginResponseDto>> LoginAsync(AdminLoginDto dto);
         Task<ServiceResponse<List<PanelKullaniciListDto>>> GetAllAsync();
         Task<ServiceResponse<PanelKullaniciListDto>> GetByIdAsync(int id);
         Task<ServiceResponse<PanelKullaniciListDto>> CreateAsync(PanelKullaniciCreateDto dto);

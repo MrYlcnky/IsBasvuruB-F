@@ -28,21 +28,60 @@ const customStyles = {
   menuPortal: (base) => ({ ...base, zIndex: 9999 }),
 };
 
-// --- YARDIMCI FONKSİYON: TEKİLLEŞTİRME ---
-// Listeyi "Label" (Görünen İsim) bazında tekil hale getirir.
-const getUniqueOptions = (items, labelFn, valueFn) => {
-  const uniqueMap = new Map();
-  items.forEach((item) => {
-    const label = labelFn(item);
-    // Eğer label varsa ve haritada yoksa ekle
-    if (label && !uniqueMap.has(label)) {
-      uniqueMap.set(label, {
-        value: String(valueFn(item)), // İlk bulunanın ID'si value olur (Arka planda tüm ID'leri kapsayacağız)
-        label: label,
-      });
-    }
+// --- YARDIMCI FONKSİYONLAR ---
+
+const safeGet = (item, ...keys) => {
+  if (!item) return null;
+  for (const key of keys) {
+    if (item[key] !== undefined && item[key] !== null) return item[key];
+  }
+  return null;
+};
+
+// Benzersiz seçenekler oluşturmak için yardımcı fonksiyon (Label'a göre)
+const getUniqueOptionsByLabel = (options) => {
+  const seen = new Set();
+  return options.filter((opt) => {
+    if (!opt.label) return false;
+    if (seen.has(opt.label)) return false;
+    seen.add(opt.label);
+    return true;
   });
-  return Array.from(uniqueMap.values());
+};
+
+// Hidrasyon Fonksiyonu: Formdaki ID'yi (Value) alıp, Label'ı (İsim) bulur.
+const getValueObjects = (
+  formValue,
+  options,
+  allRawData,
+  labelKey = "Label",
+) => {
+  if (!formValue) return [];
+  const valueArray = Array.isArray(formValue) ? formValue : [formValue];
+
+  return valueArray
+    .map((item) => {
+      const valStr = String(item.value || item);
+
+      // 1. Önce filtrelenmiş options listesinde ara
+      let found = options.find((opt) => String(opt.value) === valStr);
+
+      // 2. Bulamazsan, API ham verisi (allRawData) içinde ara
+      if (!found && allRawData) {
+        const rawFound = allRawData.find(
+          (d) => String(safeGet(d, "id", "Id")) === valStr,
+        );
+        if (rawFound) {
+          found = {
+            value: valStr,
+            label: safeGet(rawFound, labelKey, labelKey.toLowerCase()),
+          };
+        }
+      }
+
+      return found || null;
+    })
+    .filter((v) => v !== null);
 };
 
 export default function JobApplicationDetails({ definitions }) {
@@ -53,8 +92,9 @@ export default function JobApplicationDetails({ definitions }) {
     register,
     formState: { errors },
   } = useFormContext();
+  const portalTarget = typeof document !== "undefined" ? document.body : null;
 
-  // --- API Verileri ---
+  // --- API Verileri (Memoized) ---
   const apiSubeler = useMemo(() => definitions?.subeler ?? [], [definitions]);
   const apiSubeAlanlar = useMemo(
     () => definitions?.subeAlanlar ?? [],
@@ -108,177 +148,219 @@ export default function JobApplicationDetails({ definitions }) {
   const rawTercihNedeni = useWatch({ name: "jobDetails.tercihNedeni" });
   const tercihNedeni = useMemo(() => rawTercihNedeni || "", [rawTercihNedeni]);
 
-  // --- FİLTRELEME VE TEKİLLEŞTİRME MANTIĞI ---
+  // =========================================================
+  // OPTIONS OLUŞTURMA (Dropdown Listeleri)
+  // =========================================================
 
-  // 1. ŞUBELER (Tekilleştirmeye gerek yok, şubeler zaten benzersizdir)
-  const subeOptions = useMemo(
-    () => apiSubeler.map((s) => ({ value: String(s.id), label: s.subeAdi })),
-    [apiSubeler],
-  );
+  const subeOptions = useMemo(() => {
+    const opts = apiSubeler.map((s) => ({
+      value: String(safeGet(s, "id", "Id")),
+      label: safeGet(s, "subeAdi", "SubeAdi"),
+    }));
+    return getUniqueOptionsByLabel(opts);
+  }, [apiSubeler]);
 
-  // 2. ALANLAR (Seçili Şubelere Göre -> İsme Göre Tekilleştir)
   const alanOptions = useMemo(() => {
-    if (subeler.length === 0) return [];
-    const selectedSubeIds = subeler.map((s) => Number(s.value));
+    if (!subeler || subeler.length === 0) return [];
+    const selectedSubeIds = subeler.map((s) => String(s.value));
 
-    // Seçili şubelerin alanlarını bul
-    const filteredRaw = apiSubeAlanlar.filter((a) =>
-      selectedSubeIds.includes(a.subeId),
-    );
-
-    // Tekilleştir (Örn: Hem Girne hem Prestige'de "Casino" varsa tek satır yap)
-    return getUniqueOptions(
-      filteredRaw,
-      (item) => item.alanAdi ?? item.subeAlanAdi, // Label (Backend DTO güncellemesine uygun)
-      (item) => item.id, // Value
-    );
+    const opts = apiSubeAlanlar
+      .filter((a) => {
+        const sId = String(safeGet(a, "subeId", "SubeId"));
+        return selectedSubeIds.includes(sId);
+      })
+      .map((a) => ({
+        value: String(safeGet(a, "id", "Id")),
+        label: safeGet(a, "alanAdi", "AlanAdi"),
+      }));
+    return getUniqueOptionsByLabel(opts);
   }, [apiSubeAlanlar, subeler]);
 
-  // 3. DEPARTMANLAR (Seçili Alan İSİMLERİNE Göre -> İsme Göre Tekilleştir)
   const departmanOptions = useMemo(() => {
-    if (alanlar.length === 0) return [];
+    if (!alanlar || alanlar.length === 0) return [];
+    // İsim bazlı filtreleme için label kullanıyoruz
+    const selectedAlanLabels = alanlar
+      .map((a) => a.label || "")
+      .filter(Boolean);
 
-    // 1. Kullanıcının seçtiği Alan İsimlerini al (Örn: ["Casino"])
-    const selectedLabels = alanlar.map((a) => a.label);
-    const selectedSubeIds = subeler.map((s) => Number(s.value));
+    // Eğer label yoksa (profil yükleme anı), ID ile API'den isim bulup ekle
+    if (selectedAlanLabels.length === 0 && alanlar.length > 0) {
+      alanlar.forEach((a) => {
+        const raw = apiSubeAlanlar.find(
+          (r) => String(safeGet(r, "id", "Id")) === String(a.value),
+        );
+        if (raw) selectedAlanLabels.push(safeGet(raw, "alanAdi", "AlanAdi"));
+      });
+    }
 
-    // 2. Seçili şubelerde, ismi bu olan TÜM SubeAlan ID'lerini bul
-    // (Örn: Girne Casino ID'si VE Prestige Casino ID'si)
-    const validSubeAlanIds = apiSubeAlanlar
-      .filter(
-        (a) =>
-          selectedSubeIds.includes(a.subeId) &&
-          selectedLabels.includes(a.alanAdi ?? a.subeAlanAdi),
-      )
-      .map((a) => a.id);
+    const opts = apiDepartmanlar
+      .filter((d) => {
+        const relatedAlan = apiSubeAlanlar.find(
+          (a) =>
+            String(safeGet(a, "id", "Id")) ===
+            String(safeGet(d, "subeAlanId", "SubeAlanId", "alanId")),
+        );
+        const alanName = safeGet(relatedAlan, "alanAdi", "AlanAdi");
+        return selectedAlanLabels.includes(alanName);
+      })
+      .map((d) => ({
+        value: String(safeGet(d, "id", "Id")),
+        label: safeGet(d, "departmanAdi", "DepartmanAdi"),
+      }));
+    return getUniqueOptionsByLabel(opts);
+  }, [apiDepartmanlar, alanlar, apiSubeAlanlar]);
 
-    // 3. Bu ID'lere bağlı departmanları getir
-    const filteredRaw = apiDepartmanlar.filter((d) =>
-      validSubeAlanIds.includes(d.subeAlanId),
-    );
-
-    // 4. Tekilleştir (Örn: İkisinde de "Canlı Oyun" varsa tek satır yap)
-    return getUniqueOptions(
-      filteredRaw,
-      (item) => item.departmanAdi,
-      (item) => item.id,
-    );
-  }, [apiDepartmanlar, alanlar, subeler, apiSubeAlanlar]);
-
-  // 4. POZİSYONLAR (Seçili Departman İSİMLERİNE Göre -> Tekilleştir)
   const pozisyonOptions = useMemo(() => {
-    if (departmanlar.length === 0) return [];
+    if (!departmanlar || departmanlar.length === 0) return [];
+    const selectedDepartmanLabels = departmanlar
+      .map((d) => d.label || "")
+      .filter(Boolean);
 
-    // Zincirleme Mantık: Şube -> Alan -> Departman ID'lerini bulmamız lazım
-    const selectedLabels = departmanlar.map((d) => d.label);
-    const selectedAlanLabels = alanlar.map((a) => a.label);
-    const selectedSubeIds = subeler.map((s) => Number(s.value));
+    if (selectedDepartmanLabels.length === 0 && departmanlar.length > 0) {
+      departmanlar.forEach((d) => {
+        const raw = apiDepartmanlar.find(
+          (r) => String(safeGet(r, "id", "Id")) === String(d.value),
+        );
+        if (raw)
+          selectedDepartmanLabels.push(
+            safeGet(raw, "departmanAdi", "DepartmanAdi"),
+          );
+      });
+    }
 
-    // Geçerli ŞubeAlan ID'leri
-    const validSubeAlanIds = apiSubeAlanlar
-      .filter(
-        (a) =>
-          selectedSubeIds.includes(a.subeId) &&
-          selectedAlanLabels.includes(a.alanAdi ?? a.subeAlanAdi),
-      )
-      .map((a) => a.id);
+    const opts = apiPozisyonlar
+      .filter((p) => {
+        const relatedDept = apiDepartmanlar.find(
+          (d) =>
+            String(safeGet(d, "id", "Id")) ===
+            String(safeGet(p, "departmanId", "DepartmanId")),
+        );
+        const deptName = safeGet(relatedDept, "departmanAdi", "DepartmanAdi");
+        return selectedDepartmanLabels.includes(deptName);
+      })
+      .map((p) => ({
+        value: String(safeGet(p, "id", "Id")),
+        label: safeGet(p, "pozisyonAdi", "PozisyonAdi"),
+      }));
+    return getUniqueOptionsByLabel(opts);
+  }, [apiPozisyonlar, departmanlar, apiDepartmanlar]);
 
-    // Geçerli Departman ID'leri (İsmi eşleşenler)
-    const validDepartmanIds = apiDepartmanlar
-      .filter(
-        (d) =>
-          validSubeAlanIds.includes(d.subeAlanId) &&
-          selectedLabels.includes(d.departmanAdi),
-      )
-      .map((d) => d.id);
-
-    // Pozisyonları getir
-    const filteredRaw = apiPozisyonlar.filter((p) =>
-      validDepartmanIds.includes(p.departmanId),
-    );
-
-    return getUniqueOptions(
-      filteredRaw,
-      (item) => item.pozisyonAdi ?? item.departmanPozisyonAdi,
-      (item) => item.id,
-    );
-  }, [
-    apiPozisyonlar,
-    departmanlar,
-    alanlar,
-    subeler,
-    apiSubeAlanlar,
-    apiDepartmanlar,
-  ]);
-
-  // 5. PROGRAMLAR (Seçili Departman İSİMLERİNE Göre -> Tekilleştir)
   const programOptions = useMemo(() => {
-    if (departmanlar.length === 0) return [];
+    if (!departmanlar || departmanlar.length === 0) return [];
+    const selectedDepartmanLabels = departmanlar
+      .map((d) => d.label || "")
+      .filter(Boolean);
 
-    const selectedLabels = departmanlar.map((d) => d.label);
-    const selectedAlanLabels = alanlar.map((a) => a.label);
-    const selectedSubeIds = subeler.map((s) => Number(s.value));
+    if (selectedDepartmanLabels.length === 0 && departmanlar.length > 0) {
+      departmanlar.forEach((d) => {
+        const raw = apiDepartmanlar.find(
+          (r) => String(safeGet(r, "id", "Id")) === String(d.value),
+        );
+        if (raw)
+          selectedDepartmanLabels.push(
+            safeGet(raw, "departmanAdi", "DepartmanAdi"),
+          );
+      });
+    }
 
-    const validSubeAlanIds = apiSubeAlanlar
-      .filter(
-        (a) =>
-          selectedSubeIds.includes(a.subeId) &&
-          selectedAlanLabels.includes(a.alanAdi ?? a.subeAlanAdi),
-      )
-      .map((a) => a.id);
-
-    const validDepartmanIds = apiDepartmanlar
-      .filter(
-        (d) =>
-          validSubeAlanIds.includes(d.subeAlanId) &&
-          selectedLabels.includes(d.departmanAdi),
-      )
-      .map((d) => d.id);
-
-    const filteredRaw = apiProgramlar.filter((pr) =>
-      validDepartmanIds.includes(pr.departmanId),
-    );
-
-    return getUniqueOptions(
-      filteredRaw,
-      (item) => item.programAdi,
-      (item) => item.id,
-    );
-  }, [
-    apiProgramlar,
-    departmanlar,
-    alanlar,
-    subeler,
-    apiSubeAlanlar,
-    apiDepartmanlar,
-  ]);
-
-  // 6. KAĞIT OYUNLARI
-  const isLiveGameSelected = useMemo(() => {
-    return departmanlar.some(
-      (d) =>
-        d.label.toLowerCase().includes("canlı") ||
-        d.label.toLowerCase().includes("live"),
-    );
-  }, [departmanlar]);
+    const opts = apiProgramlar
+      .filter((pr) => {
+        const relatedDept = apiDepartmanlar.find(
+          (d) =>
+            String(safeGet(d, "id", "Id")) ===
+            String(safeGet(pr, "departmanId", "DepartmanId")),
+        );
+        const deptName = safeGet(relatedDept, "departmanAdi", "DepartmanAdi");
+        return selectedDepartmanLabels.includes(deptName);
+      })
+      .map((pr) => ({
+        value: String(safeGet(pr, "id", "Id")),
+        label: safeGet(pr, "programAdi", "ProgramAdi"),
+      }));
+    return getUniqueOptionsByLabel(opts);
+  }, [apiProgramlar, departmanlar, apiDepartmanlar]);
 
   const oyunOptions = useMemo(() => {
-    // API'den gelen tüm oyunları tekilleştir
-    return getUniqueOptions(
-      apiOyunlar,
-      (item) => item.oyunAdi,
-      (item) => item.id,
-    );
+    const opts = apiOyunlar.map((o) => ({
+      value: String(safeGet(o, "id", "Id")),
+      label: safeGet(o, "oyunAdi", "OyunAdi"),
+    }));
+    return getUniqueOptionsByLabel(opts);
   }, [apiOyunlar]);
 
-  // Lojman (Statik)
+  // --- HYDRATION (Seçili Verileri Gösterme) ---
+  // 🔥 DÜZELTME: "getUniqueOptionsByLabel" kullanarak, seçili gelen verilerdeki
+  // çift kayıtları (Örn: 2 tane Casino) görsel olarak teke indiriyoruz.
+
+  const selectedSubelerHydrated = useMemo(() => {
+    const raw = getValueObjects(subeler, subeOptions, apiSubeler, "subeAdi");
+    return getUniqueOptionsByLabel(raw);
+  }, [subeler, subeOptions, apiSubeler]);
+
+  const selectedAlanlarHydrated = useMemo(() => {
+    const raw = getValueObjects(
+      alanlar,
+      alanOptions,
+      apiSubeAlanlar,
+      "alanAdi",
+    );
+    return getUniqueOptionsByLabel(raw);
+  }, [alanlar, alanOptions, apiSubeAlanlar]);
+
+  const selectedDepartmanlarHydrated = useMemo(() => {
+    const raw = getValueObjects(
+      departmanlar,
+      departmanOptions,
+      apiDepartmanlar,
+      "departmanAdi",
+    );
+    return getUniqueOptionsByLabel(raw);
+  }, [departmanlar, departmanOptions, apiDepartmanlar]);
+
+  const selectedPozisyonlarHydrated = useMemo(() => {
+    const raw = getValueObjects(
+      departmanPozisyonlari,
+      pozisyonOptions,
+      apiPozisyonlar,
+      "pozisyonAdi",
+    );
+    return getUniqueOptionsByLabel(raw);
+  }, [departmanPozisyonlari, pozisyonOptions, apiPozisyonlar]);
+
+  const selectedProgramlarHydrated = useMemo(() => {
+    const raw = getValueObjects(
+      programlar,
+      programOptions,
+      apiProgramlar,
+      "programAdi",
+    );
+    return getUniqueOptionsByLabel(raw);
+  }, [programlar, programOptions, apiProgramlar]);
+
+  const selectedOyunlarHydrated = useMemo(() => {
+    const raw = getValueObjects(
+      kagitOyunlari,
+      oyunOptions,
+      apiOyunlar,
+      "oyunAdi",
+    );
+    return getUniqueOptionsByLabel(raw);
+  }, [kagitOyunlari, oyunOptions, apiOyunlar]);
+
+  // Casino Kontrolü
+  const isLiveGameSelected = useMemo(() => {
+    return selectedDepartmanlarHydrated.some((d) => {
+      const label = d?.label || "";
+      return /canl[ıi]|live|casino/i.test(label);
+    });
+  }, [selectedDepartmanlarHydrated]);
+
   const lojmanOptions = [
-    { value: "Evet", label: t("jobDetails.housing.yes") },
-    { value: "Hayır", label: t("jobDetails.housing.no") },
+    { value: "2", label: t("jobDetails.housing.yes") || "Evet" },
+    { value: "1", label: t("jobDetails.housing.no") || "Hayır" },
   ];
 
-  // --- Handlers (Zincirleme Temizlik) ---
-
+  // --- HANDLERS ---
   const handleSubeChange = (val, field) => {
     field.onChange(val);
     setValue("jobDetails.alanlar", []);
@@ -299,15 +381,15 @@ export default function JobApplicationDetails({ definitions }) {
     setValue("jobDetails.departmanPozisyonlari", []);
     setValue("jobDetails.programlar", []);
 
-    const hasLive = (val || []).some((d) =>
-      d.label.toLowerCase().includes("canlı"),
-    );
+    const hasLive = (val || []).some((v) => {
+      const opt = departmanOptions.find((o) => o.value === v.value);
+      return opt?.label && /canl[ıi]|live|casino/i.test(opt.label);
+    });
     if (!hasLive) setValue("jobDetails.kagitOyunlari", []);
   };
 
   return (
     <div className="bg-gray-50 rounded-b-lg p-4 sm:p-6 lg:p-8">
-      {/* Bilgilendirme */}
       <div className="mb-6 bg-blue-50 border-l-4 border-blue-400 text-blue-700 p-4 rounded-md shadow-sm">
         <p className="text-sm sm:text-base leading-relaxed">
           <strong>📋 {t("jobDetails.info.title")}</strong>{" "}
@@ -316,7 +398,6 @@ export default function JobApplicationDetails({ definitions }) {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-        {/* Şubeler */}
         <Controller
           name="jobDetails.subeler"
           control={control}
@@ -325,15 +406,16 @@ export default function JobApplicationDetails({ definitions }) {
               label={t("jobDetails.labels.branches")}
               options={subeOptions}
               {...field}
+              value={selectedSubelerHydrated}
               onChange={(val) => handleSubeChange(val, field)}
               placeholder={t("jobDetails.placeholders.selectBranch")}
               error={errors.jobDetails?.subeler}
               isMulti
+              menuPortalTarget={portalTarget}
             />
           )}
         />
 
-        {/* Alanlar */}
         <Controller
           name="jobDetails.alanlar"
           control={control}
@@ -342,16 +424,16 @@ export default function JobApplicationDetails({ definitions }) {
               label={t("jobDetails.labels.areas")}
               options={alanOptions}
               {...field}
+              value={selectedAlanlarHydrated}
               onChange={(val) => handleAlanChange(val, field)}
               placeholder={t("jobDetails.placeholders.selectArea")}
-              isDisabled={subeler.length === 0}
               error={errors.jobDetails?.alanlar}
               isMulti
+              menuPortalTarget={portalTarget}
             />
           )}
         />
 
-        {/* Departmanlar */}
         <Controller
           name="jobDetails.departmanlar"
           control={control}
@@ -360,16 +442,16 @@ export default function JobApplicationDetails({ definitions }) {
               label={t("jobDetails.labels.departments")}
               options={departmanOptions}
               {...field}
+              value={selectedDepartmanlarHydrated}
               onChange={(val) => handleDepartmanChange(val, field)}
               placeholder={t("jobDetails.placeholders.selectDepartment")}
-              isDisabled={alanlar.length === 0}
               error={errors.jobDetails?.departmanlar}
               isMulti
+              menuPortalTarget={portalTarget}
             />
           )}
         />
 
-        {/* Pozisyonlar */}
         <Controller
           name="jobDetails.departmanPozisyonlari"
           control={control}
@@ -378,15 +460,15 @@ export default function JobApplicationDetails({ definitions }) {
               label={t("jobDetails.labels.roles")}
               options={pozisyonOptions}
               {...field}
+              value={selectedPozisyonlarHydrated}
               placeholder={t("jobDetails.placeholders.selectRoles")}
-              isDisabled={departmanlar.length === 0}
               error={errors.jobDetails?.departmanPozisyonlari}
               isMulti
+              menuPortalTarget={portalTarget}
             />
           )}
         />
 
-        {/* Programlar */}
         <Controller
           name="jobDetails.programlar"
           control={control}
@@ -395,15 +477,15 @@ export default function JobApplicationDetails({ definitions }) {
               label={t("jobDetails.labels.programs")}
               options={programOptions}
               {...field}
+              value={selectedProgramlarHydrated}
               placeholder={t("jobDetails.placeholders.selectProgram")}
-              isDisabled={departmanlar.length === 0}
               error={errors.jobDetails?.programlar}
               isMulti
+              menuPortalTarget={portalTarget}
             />
           )}
         />
 
-        {/* Oyunlar */}
         <Controller
           name="jobDetails.kagitOyunlari"
           control={control}
@@ -412,17 +494,18 @@ export default function JobApplicationDetails({ definitions }) {
               label={t("jobDetails.labels.cardGames")}
               options={oyunOptions}
               {...field}
+              value={selectedOyunlarHydrated}
               placeholder={t("jobDetails.placeholders.selectCardGame")}
               isDisabled={!isLiveGameSelected}
               error={errors.jobDetails?.kagitOyunlari}
               isMulti
+              menuPortalTarget={portalTarget}
             />
           )}
         />
       </div>
 
       <div className="mt-4 grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-6">
-        {/* Lojman */}
         <div className="lg:col-span-2">
           <Controller
             name="jobDetails.lojman"
@@ -432,17 +515,19 @@ export default function JobApplicationDetails({ definitions }) {
                 label={t("jobDetails.labels.housing")}
                 options={lojmanOptions}
                 {...field}
-                value={lojmanOptions.find((o) => o.value === field.value)}
+                value={lojmanOptions.find(
+                  (o) => o.value === String(field.value),
+                )}
                 onChange={(opt) => field.onChange(opt ? opt.value : "")}
                 placeholder={t("jobDetails.placeholders.selectHousing")}
                 error={errors.jobDetails?.lojman}
                 isMulti={false}
+                menuPortalTarget={portalTarget}
               />
             )}
           />
         </div>
 
-        {/* Tercih Nedeni */}
         <div className="lg:col-span-10">
           <label className="block text-sm font-semibold text-gray-700 mb-1">
             {t("jobDetails.labels.whyUs")}{" "}
@@ -468,16 +553,15 @@ export default function JobApplicationDetails({ definitions }) {
         </div>
       </div>
 
-      {/* Önizleme */}
       <PreviewSection
         t={t}
         data={{
-          subeler,
-          alanlar,
-          departmanlar,
-          departmanPozisyonlari,
-          programlar,
-          kagitOyunlari,
+          subeler: selectedSubelerHydrated,
+          alanlar: selectedAlanlarHydrated,
+          departmanlar: selectedDepartmanlarHydrated,
+          departmanPozisyonlari: selectedPozisyonlarHydrated,
+          programlar: selectedProgramlarHydrated,
+          kagitOyunlari: selectedOyunlarHydrated,
           lojman,
         }}
       />
@@ -485,20 +569,14 @@ export default function JobApplicationDetails({ definitions }) {
   );
 }
 
-// --- Yardımcı Bileşenler ---
-
 function SelectField({ label, error, ...props }) {
   let errorMessage = null;
   if (error) {
-    if (typeof error === "string") {
-      errorMessage = error;
-    } else if (typeof error === "object" && error.message) {
+    if (typeof error === "string") errorMessage = error;
+    else if (typeof error === "object" && error.message)
       errorMessage = error.message;
-    } else {
-      errorMessage = "Geçersiz seçim.";
-    }
+    else errorMessage = "Geçersiz seçim.";
   }
-
   return (
     <div className="w-full">
       <label className="block text-sm sm:text-[15px] font-semibold text-gray-700 mb-1">
@@ -506,10 +584,8 @@ function SelectField({ label, error, ...props }) {
       </label>
       <Select
         styles={customStyles}
-        menuPortalTarget={
-          typeof document !== "undefined" ? document.body : null
-        }
         menuPosition="fixed"
+        noOptionsMessage={() => "Seçenek bulunamadı"}
         {...props}
       />
       {errorMessage && (
@@ -552,11 +628,10 @@ function PreviewSection({ t, data }) {
       val: data.kagitOyunlari,
     },
   ];
-
   return (
     <div className="mt-10 bg-white rounded-lg border border-gray-200 shadow-sm p-5">
       <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-        <FontAwesomeIcon icon={faEye} className="text-red-600" />
+        <FontAwesomeIcon icon={faEye} className="text-red-600" />{" "}
         {t("jobDetails.preview.title")}
       </h3>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm text-gray-700">
@@ -577,7 +652,13 @@ function PreviewSection({ t, data }) {
           <FontAwesomeIcon icon={faHouseUser} className="text-gray-400 mt-1" />
           <div>
             <strong>{t("jobDetails.preview.housing")}:</strong>
-            <div className="text-gray-900">{data.lojman || "—"}</div>
+            <div className="text-gray-900">
+              {data.lojman === "2"
+                ? t("jobDetails.housing.yes")
+                : data.lojman === "1"
+                  ? t("jobDetails.housing.no")
+                  : "—"}
+            </div>
           </div>
         </div>
       </div>

@@ -34,9 +34,6 @@ namespace IsBasvuru.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int?>("DepartmanId")
-                        .HasColumnType("int");
-
                     b.Property<string>("KullaniciAdi")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
@@ -44,6 +41,12 @@ namespace IsBasvuru.Persistence.Migrations
                     b.Property<string>("KullaniciSifre")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<int?>("MasterAlanId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MasterDepartmanId")
+                        .HasColumnType("int");
 
                     b.Property<int>("RolId")
                         .HasColumnType("int");
@@ -55,22 +58,19 @@ namespace IsBasvuru.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int?>("SubeAlanId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("SubeId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DepartmanId");
-
                     b.HasIndex("KullaniciAdi")
                         .IsUnique();
 
-                    b.HasIndex("RolId");
+                    b.HasIndex("MasterAlanId");
 
-                    b.HasIndex("SubeAlanId");
+                    b.HasIndex("MasterDepartmanId");
+
+                    b.HasIndex("RolId");
 
                     b.HasIndex("SubeId");
 
@@ -96,6 +96,44 @@ namespace IsBasvuru.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roller");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            RolAdi = "SuperAdmin",
+                            RolTanimi = "Tam yetkili, her şeyi gören ve müdahale eden yönetici."
+                        },
+                        new
+                        {
+                            Id = 2,
+                            RolAdi = "Admin",
+                            RolTanimi = "İK Müdürü, sistem tanımları ve kullanıcı atamaları yöneticisi."
+                        },
+                        new
+                        {
+                            Id = 3,
+                            RolAdi = "IkAdmin",
+                            RolTanimi = "Başvuru yönetimi, log görüntüleme ve revize onay yetkilisi."
+                        },
+                        new
+                        {
+                            Id = 4,
+                            RolAdi = "IK",
+                            RolTanimi = "Başvuru yönetimi ve revize işlemleri (Kısıtlı yetki)."
+                        },
+                        new
+                        {
+                            Id = 5,
+                            RolAdi = "GenelMudur",
+                            RolTanimi = "Üst düzey başvuru değerlendirme ve onay mercii."
+                        },
+                        new
+                        {
+                            Id = 6,
+                            RolAdi = "DepartmanMudur",
+                            RolTanimi = "İlgili departmana gelen başvuruları değerlendirme mercii."
+                        });
                 });
 
             modelBuilder.Entity("IsBasvuru.Domain.Entities.KimlikDogrulama.DogrulamaKodu", b =>
@@ -184,7 +222,7 @@ namespace IsBasvuru.Persistence.Migrations
                     b.Property<string>("EskiDeger")
                         .HasColumnType("longtext");
 
-                    b.Property<int>("MasterBasvuruId")
+                    b.Property<int?>("MasterBasvuruId")
                         .HasColumnType("int");
 
                     b.Property<int>("PersonelId")
@@ -370,10 +408,10 @@ namespace IsBasvuru.Persistence.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("BaslangicTarihi")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("date");
 
                     b.Property<DateTime?>("BitisTarihi")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("date");
 
                     b.Property<string>("Bolum")
                         .IsRequired()
@@ -386,7 +424,7 @@ namespace IsBasvuru.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal?>("Gano")
-                        .HasColumnType("decimal(65,30)");
+                        .HasColumnType("decimal(4,2)");
 
                     b.Property<int>("NotSistemi")
                         .HasColumnType("int");
@@ -443,10 +481,10 @@ namespace IsBasvuru.Persistence.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<DateTime>("BaslangicTarihi")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("date");
 
                     b.Property<DateTime?>("BitisTarihi")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("date");
 
                     b.Property<string>("Departman")
                         .IsRequired()
@@ -528,7 +566,7 @@ namespace IsBasvuru.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<DateTime>("DogumTarihi")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("date");
 
                     b.Property<string>("DogumUlkeAdi")
                         .HasColumnType("longtext");
@@ -660,7 +698,7 @@ namespace IsBasvuru.Persistence.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("GecerlilikTarihi")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("date");
 
                     b.Property<string>("KurumAdi")
                         .IsRequired()
@@ -678,7 +716,7 @@ namespace IsBasvuru.Persistence.Migrations
                         .HasColumnType("longtext");
 
                     b.Property<DateTime>("VerilisTarihi")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("date");
 
                     b.HasKey("Id");
 
@@ -1261,9 +1299,13 @@ namespace IsBasvuru.Persistence.Migrations
 
             modelBuilder.Entity("IsBasvuru.Domain.Entities.AdminBilgileri.PanelKullanici", b =>
                 {
-                    b.HasOne("IsBasvuru.Domain.Entities.SirketYapisi.SirketTanimYapisi.Departman", "Departman")
+                    b.HasOne("IsBasvuru.Domain.Entities.Tanimlamalar.MasterAlan", "MasterAlan")
                         .WithMany()
-                        .HasForeignKey("DepartmanId");
+                        .HasForeignKey("MasterAlanId");
+
+                    b.HasOne("IsBasvuru.Domain.Entities.Tanimlamalar.MasterDepartman", "MasterDepartman")
+                        .WithMany()
+                        .HasForeignKey("MasterDepartmanId");
 
                     b.HasOne("IsBasvuru.Domain.Entities.AdminBilgileri.Rol", "Rol")
                         .WithMany("PanelKullanicilari")
@@ -1271,21 +1313,17 @@ namespace IsBasvuru.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("IsBasvuru.Domain.Entities.SirketYapisi.SirketTanimYapisi.SubeAlan", "SubeAlan")
-                        .WithMany()
-                        .HasForeignKey("SubeAlanId");
-
                     b.HasOne("IsBasvuru.Domain.Entities.SirketYapisi.SirketTanimYapisi.Sube", "Sube")
                         .WithMany()
                         .HasForeignKey("SubeId");
 
-                    b.Navigation("Departman");
+                    b.Navigation("MasterAlan");
+
+                    b.Navigation("MasterDepartman");
 
                     b.Navigation("Rol");
 
                     b.Navigation("Sube");
-
-                    b.Navigation("SubeAlan");
                 });
 
             modelBuilder.Entity("IsBasvuru.Domain.Entities.Log.BasvuruIslemLog", b =>
@@ -1309,9 +1347,7 @@ namespace IsBasvuru.Persistence.Migrations
                 {
                     b.HasOne("IsBasvuru.Domain.Entities.MasterBasvuru", "MasterBasvuru")
                         .WithMany()
-                        .HasForeignKey("MasterBasvuruId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MasterBasvuruId");
 
                     b.HasOne("IsBasvuru.Domain.Entities.Personel", "Personel")
                         .WithMany()
