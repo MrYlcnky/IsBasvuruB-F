@@ -113,14 +113,23 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<bool>> DeleteAsync(int id)
         {
-            bool departmanVarMi = await _context.Departmanlar.AnyAsync(x => x.SubeAlanId == id);
-            if (departmanVarMi) return ServiceResponse<bool>.FailureResult("Bu alana bağlı departmanlar var. Önce onları silmelisiniz.");
+            // 1. GÜVENLİK KONTROLÜ: 
+            bool basvuruVarMi = await _context.IsBasvuruDetayPozisyonlari
+           .AnyAsync(x => x.DepartmanPozisyon != null &&
+                   x.DepartmanPozisyon.Departman != null &&
+                   x.DepartmanPozisyon.Departman.SubeAlanId == id);
 
+            if (basvuruVarMi)
+                return ServiceResponse<bool>.FailureResult("Bu birime bağlı aktif personel veya başvurular mevcut. Silme işlemi yapılamaz.");
+
+            // 2. KAYIT KONTROLÜ
             var kayit = await _context.SubeAlanlar.FindAsync(id);
             if (kayit == null) return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
 
+            // 3. SİLME
             _context.SubeAlanlar.Remove(kayit);
             await _context.SaveChangesAsync();
+
             _cache.Remove(CacheKey);
 
             return ServiceResponse<bool>.SuccessResult(true);

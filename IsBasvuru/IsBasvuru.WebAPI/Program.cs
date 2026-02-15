@@ -60,6 +60,8 @@ try
     builder.Services.AddScoped<IOyunBilgisiService, OyunBilgisiService>();
     builder.Services.AddScoped<IProgramBilgisiService, ProgramBilgisiService>();
 
+ 
+
     // File & Image Services
     builder.Services.AddScoped<IImageService, ImageService>();
 
@@ -79,6 +81,14 @@ try
     builder.Services.AddScoped<IRolService, RolService>();
     builder.Services.AddScoped<ILogService, LogService>();
     builder.Services.AddScoped<IKimlikDogrulamaService, KimlikDogrulamaService>();
+
+    //Master-Alan Departman Pozisyon
+    builder.Services.AddScoped<IMasterAlanService, MasterAlanService>();
+    builder.Services.AddScoped<IMasterDepartmanService, MasterDepartmanService>();
+    builder.Services.AddScoped<IMasterPozisyonService, MasterPozisyonService>();
+    builder.Services.AddScoped<IMasterProgramService, MasterProgramService>();
+    builder.Services.AddScoped<IMasterOyunService, MasterOyunService>();
+
 
     //Rol
     builder.Services.AddScoped<IAuthService, AuthService>();
@@ -208,7 +218,8 @@ try
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
+            ClockSkew = TimeSpan.Zero,
+            RoleClaimType = System.Security.Claims.ClaimTypes.Role
         };
     });
 

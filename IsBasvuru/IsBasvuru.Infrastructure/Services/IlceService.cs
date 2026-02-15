@@ -3,6 +3,7 @@ using IsBasvuru.Domain.DTOs.TanimlamalarDtos.IlceDtos;
 using IsBasvuru.Domain.Entities.Tanimlamalar;
 using IsBasvuru.Domain.Interfaces;
 using IsBasvuru.Domain.Wrappers;
+using IsBasvuru.Infrastructure.Tools;
 using IsBasvuru.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -66,15 +67,22 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<IlceListDto>> CreateAsync(IlceCreateDto createDto)
         {
+            // 1. Gelen metni hemen normalize et
+            string normalizedName = createDto.IlceAdi.ToTurkishUpper();
+
             // Şehir kontrolü
             if (!await _context.Sehirler.AnyAsync(x => x.Id == createDto.SehirId))
                 return ServiceResponse<IlceListDto>.FailureResult("Seçilen şehir bulunamadı.");
 
-            // İsim çakışması
-            if (await _context.Ilceler.AnyAsync(x => x.SehirId == createDto.SehirId && x.IlceAdi == createDto.IlceAdi))
-                return ServiceResponse<IlceListDto>.FailureResult("Bu şehirde bu ilçe zaten kayıtlı.");
+            // 2. İsim çakışması kontrolünü büyük harf üzerinden yap
+            if (await _context.Ilceler.AnyAsync(x => x.SehirId == createDto.SehirId && x.IlceAdi == normalizedName))
+                return ServiceResponse<IlceListDto>.FailureResult($"'{normalizedName}' ilçesi bu şehirde zaten kayıtlı.");
 
             var entity = _mapper.Map<Ilce>(createDto);
+
+            // 3. Veritabanına büyük harf garantisiyle kaydet
+            entity.IlceAdi = normalizedName;
+
             await _context.Ilceler.AddAsync(entity);
             await _context.SaveChangesAsync();
 
@@ -90,13 +98,25 @@ namespace IsBasvuru.Infrastructure.Services
             if (entity == null)
                 return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
 
+            // 1. Yeni ismi normalize et
+            string normalizedName = updateDto.IlceAdi.ToTurkishUpper();
+
+            // Şehir değişikliği kontrolü
             if (entity.SehirId != updateDto.SehirId)
             {
                 if (!await _context.Sehirler.AnyAsync(x => x.Id == updateDto.SehirId))
                     return ServiceResponse<bool>.FailureResult("Yeni seçilen şehir geçersiz.");
             }
 
+            // 2. İsim çakışması kontrolü (Aynı şehirde başka bir ilçe bu ismi kullanıyor mu?)
+            if (await _context.Ilceler.AnyAsync(x => x.SehirId == updateDto.SehirId && x.IlceAdi == normalizedName && x.Id != updateDto.Id))
+                return ServiceResponse<bool>.FailureResult($"'{normalizedName}' ismi bu şehirdeki başka bir ilçe kaydında kullanılıyor.");
+
             _mapper.Map(updateDto, entity);
+
+            // 3. Update sonrası manuel set
+            entity.IlceAdi = normalizedName;
+
             _context.Ilceler.Update(entity);
             await _context.SaveChangesAsync();
 

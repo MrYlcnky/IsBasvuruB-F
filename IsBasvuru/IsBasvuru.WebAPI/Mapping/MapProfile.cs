@@ -17,7 +17,9 @@ using IsBasvuru.Domain.DTOs.PersonelBilgileriDtos.YabanciDilBilgisiDtos;
 using IsBasvuru.Domain.DTOs.PersonelDtos;
 using IsBasvuru.Domain.DTOs.SirketMasterYapisiDtos.MasterAlanDtos;
 using IsBasvuru.Domain.DTOs.SirketMasterYapisiDtos.MasterDepartmanDtos;
+using IsBasvuru.Domain.DTOs.SirketMasterYapisiDtos.MasterOyun;
 using IsBasvuru.Domain.DTOs.SirketMasterYapisiDtos.MasterPozisyonDtos;
+using IsBasvuru.Domain.DTOs.SirketMasterYapisiDtos.MasterProgram;
 using IsBasvuru.Domain.DTOs.SirketMasterYapisiDtos.MasterSubeAlan;
 using IsBasvuru.Domain.DTOs.SirketYapisiDtos.DepartmanDtos;
 using IsBasvuru.Domain.DTOs.SirketYapisiDtos.DepartmanPozisyonDtos;
@@ -39,6 +41,7 @@ using IsBasvuru.Domain.Entities.AdminBilgileri;
 using IsBasvuru.Domain.Entities.Log;
 using IsBasvuru.Domain.Entities.PersonelBilgileri;
 using IsBasvuru.Domain.Entities.SirketYapisi;
+using IsBasvuru.Domain.Entities.SirketYapisi.SirketMasterYapisi;
 using IsBasvuru.Domain.Entities.SirketYapisi.SirketTanimYapisi;
 using IsBasvuru.Domain.Entities.Tanimlamalar;
 using IsBasvuru.Domain.Enums;
@@ -92,8 +95,6 @@ namespace IsBasvuru.WebAPI.Mapping
                 .ForMember(dest => dest.IsBasvuruDetay, opt => opt.MapFrom(src => src.IsBasvuruDetay));
 
             // IsBasvuruDetay -> IsBasvuruDetayDto
-            // Burada listelerin null gelme ihtimaline karşı null check ekliyoruz.
-            // Ayrıca ilişkili nesnelerin (Sube, SubeAlan vb.) null olup olmadığını kontrol ediyoruz.
             CreateMap<IsBasvuruDetay, IsBasvuruDetayDto>()
                 .ForMember(dest => dest.LojmanTalebiVarMi, opt => opt.MapFrom(src => (int)src.LojmanTalebiVarMi))
                 .ForMember(dest => dest.NedenBiz, opt => opt.MapFrom(src => src.NedenBiz ?? string.Empty))
@@ -151,40 +152,32 @@ namespace IsBasvuru.WebAPI.Mapping
             // 3. EĞİTİM, İŞ, SERTİFİKA VB.
             // =======================================================
 
-
-
-
             // --- EĞİTİM BİLGİSİ ---
             CreateMap<EgitimBilgisiCreateDto, EgitimBilgisi>().ReverseMap();
             CreateMap<EgitimBilgisiUpdateDto, EgitimBilgisi>();
             CreateMap<EgitimBilgisi, EgitimBilgisiListDto>()
                 .ForMember(dest => dest.EgitimSeviyesi, opt => opt.MapFrom(src => (int)src.EgitimSeviyesi));
-            CreateMap<EgitimBilgisiListDto, EgitimBilgisi>(); 
-
+            CreateMap<EgitimBilgisiListDto, EgitimBilgisi>();
 
             // --- İŞ DENEYİMİ ---
             CreateMap<IsDeneyimiCreateDto, IsDeneyimi>().ReverseMap();
             CreateMap<IsDeneyimiListDto, IsDeneyimi>().ReverseMap();
             CreateMap<IsDeneyimiUpdateDto, IsDeneyimi>();
 
-
             // --- YABANCI DİL ---
             CreateMap<YabanciDilBilgisiCreateDto, YabanciDilBilgisi>().ReverseMap();
             CreateMap<YabanciDilBilgisiListDto, YabanciDilBilgisi>().ReverseMap();
             CreateMap<YabanciDilBilgisiUpdateDto, YabanciDilBilgisi>();
-
 
             // --- BİLGİSAYAR BİLGİSİ ---
             CreateMap<BilgisayarBilgisiCreateDto, BilgisayarBilgisi>().ReverseMap();
             CreateMap<BilgisayarBilgisiListDto, BilgisayarBilgisi>().ReverseMap();
             CreateMap<BilgisayarBilgisiUpdateDto, BilgisayarBilgisi>();
 
-
             // --- SERTİFİKA ---
             CreateMap<SertifikaBilgisiCreateDto, SertifikaBilgisi>().ReverseMap();
             CreateMap<SertifikaBilgisiListDto, SertifikaBilgisi>().ReverseMap();
             CreateMap<SertifikaBilgisiUpdateDto, SertifikaBilgisi>();
-
 
             // --- REFERANS ---
             CreateMap<ReferansBilgisiCreateDto, ReferansBilgisi>().ReverseMap();
@@ -216,12 +209,22 @@ namespace IsBasvuru.WebAPI.Mapping
             CreateMap<MasterPozisyonCreateDto, MasterPozisyon>();
             CreateMap<MasterPozisyonUpdateDto, MasterPozisyon>();
 
+            // MasterProgram
+            CreateMap<MasterProgram, MasterProgramDto>().ReverseMap();
+            CreateMap<MasterProgramCreateDto, MasterProgram>();
+            CreateMap<MasterProgramUpdateDto, MasterProgram>();
+
+            // MasterOyun
+            CreateMap<MasterOyun, MasterOyunDto>().ReverseMap();
+            CreateMap<MasterOyunCreateDto, MasterOyun>();
+            CreateMap<MasterOyunUpdateDto, MasterOyun>();
+
             // Sube
             CreateMap<Sube, SubeListDto>().ReverseMap();
             CreateMap<SubeCreateDto, Sube>();
             CreateMap<SubeUpdateDto, Sube>();
 
-            // SubeAlan (Null Conditional Operator `?.` kullanımı)
+            // SubeAlan
             CreateMap<SubeAlan, SubeAlanListDto>()
                 .ForMember(dest => dest.SubeAdi, opt => opt.MapFrom(src => src.Sube != null ? src.Sube.SubeAdi : string.Empty))
                 .ForMember(dest => dest.AlanAdi, opt => opt.MapFrom(src => src.MasterAlan != null ? src.MasterAlan.MasterAlanAdi : string.Empty));
@@ -245,16 +248,16 @@ namespace IsBasvuru.WebAPI.Mapping
             CreateMap<DepartmanPozisyonCreateDto, DepartmanPozisyon>();
             CreateMap<DepartmanPozisyonUpdateDto, DepartmanPozisyon>();
 
-           
-
-            // OyunBilgisi
+            // OyunBilgisi (Organizasyon)
             CreateMap<OyunBilgisi, OyunBilgisiListDto>()
+                .ForMember(dest => dest.MasterOyunAdi, opt => opt.MapFrom(src => src.MasterOyun != null ? src.MasterOyun.MasterOyunAdi : string.Empty))
                 .ForMember(dest => dest.DepartmanAdi, opt => opt.MapFrom(src => src.Departman != null && src.Departman.MasterDepartman != null ? src.Departman.MasterDepartman.MasterDepartmanAdi : string.Empty));
             CreateMap<OyunBilgisiCreateDto, OyunBilgisi>();
             CreateMap<OyunBilgisiUpdateDto, OyunBilgisi>();
 
-            // ProgramBilgisi
+            // ProgramBilgisi (Organizasyon)
             CreateMap<ProgramBilgisi, ProgramBilgisiListDto>()
+                .ForMember(dest => dest.MasterProgramAdi, opt => opt.MapFrom(src => src.MasterProgram != null ? src.MasterProgram.MasterProgramAdi : string.Empty))
                 .ForMember(dest => dest.DepartmanAdi, opt => opt.MapFrom(src => src.Departman != null && src.Departman.MasterDepartman != null ? src.Departman.MasterDepartman.MasterDepartmanAdi : string.Empty));
             CreateMap<ProgramBilgisiCreateDto, ProgramBilgisi>();
             CreateMap<ProgramBilgisiUpdateDto, ProgramBilgisi>();
@@ -302,12 +305,11 @@ namespace IsBasvuru.WebAPI.Mapping
             // 6. ADMIN, ROL, LOG
             // =======================================================
             CreateMap<Rol, RolListDto>().ReverseMap();
-            
 
             CreateMap<PanelKullanici, PanelKullaniciListDto>()
                 .ForMember(dest => dest.RolAdi, opt => opt.MapFrom(src => src.Rol != null ? src.Rol.RolAdi : string.Empty))
                 .ForMember(dest => dest.SubeAdi, opt => opt.MapFrom(src => src.Sube != null ? src.Sube.SubeAdi : string.Empty))
-                .ForMember(dest => dest.MasterAlanAdi, opt => opt.MapFrom(src => src.MasterAlan != null ? src.MasterAlan.MasterAlanAdi : string.Empty)) 
+                .ForMember(dest => dest.MasterAlanAdi, opt => opt.MapFrom(src => src.MasterAlan != null ? src.MasterAlan.MasterAlanAdi : string.Empty))
                 .ForMember(dest => dest.MasterDepartmanAdi, opt => opt.MapFrom(src => src.MasterDepartman != null ? src.MasterDepartman.MasterDepartmanAdi : string.Empty));
 
             CreateMap<PanelKullaniciCreateDto, PanelKullanici>();
@@ -316,8 +318,68 @@ namespace IsBasvuru.WebAPI.Mapping
 
             // Loglar
             CreateMap<BasvuruIslemLog, BasvuruIslemLogListDto>()
-                    .ForMember(dest => dest.IslemTipiAdi, opt => opt.MapFrom(src => src.IslemTipi.ToString()))
-                    .ForMember(dest => dest.PanelKullaniciAdSoyad, opt => opt.MapFrom(src => src.PanelKullanici != null ? $"{src.PanelKullanici.Adi} {src.PanelKullanici.Soyadi}" : ""));
+             .ForMember(dest => dest.IslemTipiAdi, opt => opt.MapFrom(src => src.IslemTipi.ToString()))
+             .ForMember(dest => dest.PanelKullaniciAdSoyad, opt => opt.MapFrom(src =>
+                 src.PanelKullanici != null ? $"{src.PanelKullanici.Adi} {src.PanelKullanici.Soyadi}" : "Sistem"))
+            
+             // Aday Bilgileri (Güvenli Erişim)
+             .ForMember(dest => dest.AdSoyad, opt => opt.MapFrom(src =>
+                 (src.MasterBasvuru != null && src.MasterBasvuru.Personel != null && src.MasterBasvuru.Personel.KisiselBilgiler != null)
+                 ? $"{src.MasterBasvuru.Personel.KisiselBilgiler.Ad} {src.MasterBasvuru.Personel.KisiselBilgiler.Soyadi}"
+                 : ""))
+            
+             .ForMember(dest => dest.FotoUrl, opt => opt.MapFrom(src =>
+                 (src.MasterBasvuru != null && src.MasterBasvuru.Personel != null && src.MasterBasvuru.Personel.KisiselBilgiler != null)
+                 ? src.MasterBasvuru.Personel.KisiselBilgiler.VesikalikFotograf
+                 : ""))
+            
+             .ForMember(dest => dest.BasvuruVersiyonNo, opt => opt.MapFrom(src =>
+                 src.MasterBasvuru != null ? src.MasterBasvuru.BasvuruVersiyonNo : "1.0"))
+            
+             // Kurumsal Tercihler (String.Join ile virgüllü liste haline getirme)
+             .ForMember(dest => dest.Subeler, opt => opt.MapFrom(src =>
+                 (src.MasterBasvuru != null && src.MasterBasvuru.Personel != null && src.MasterBasvuru.Personel.IsBasvuruDetay != null &&           src.MasterBasvuru.Personel.IsBasvuruDetay.BasvuruSubeler != null)
+                 ? string.Join(", ", src.MasterBasvuru.Personel.IsBasvuruDetay.BasvuruSubeler
+                     .Where(s => s.Sube != null)
+                     .Select(s => s.Sube!.SubeAdi))
+                 : ""))
+            
+             .ForMember(dest => dest.Alanlar, opt => opt.MapFrom(src =>
+                 (src.MasterBasvuru != null && src.MasterBasvuru.Personel != null && src.MasterBasvuru.Personel.IsBasvuruDetay != null &&           src.MasterBasvuru.Personel.IsBasvuruDetay.BasvuruAlanlar != null)
+                 ? string.Join(", ", src.MasterBasvuru.Personel.IsBasvuruDetay.BasvuruAlanlar
+                     .Where(a => a.SubeAlan != null && a.SubeAlan.MasterAlan != null)
+                     .Select(a => a.SubeAlan!.MasterAlan!.MasterAlanAdi))
+                 : ""))
+            
+             .ForMember(dest => dest.Departmanlar, opt => opt.MapFrom(src =>
+                 (src.MasterBasvuru != null && src.MasterBasvuru.Personel != null && src.MasterBasvuru.Personel.IsBasvuruDetay != null &&           src.MasterBasvuru.Personel.IsBasvuruDetay.BasvuruDepartmanlar != null)
+                 ? string.Join(", ", src.MasterBasvuru.Personel.IsBasvuruDetay.BasvuruDepartmanlar
+                     .Where(d => d.Departman != null && d.Departman.MasterDepartman != null)
+                     .Select(d => d.Departman!.MasterDepartman!.MasterDepartmanAdi))
+                 : ""))
+            
+             .ForMember(dest => dest.Pozisyonlar, opt => opt.MapFrom(src =>
+                 (src.MasterBasvuru != null && src.MasterBasvuru.Personel != null && src.MasterBasvuru.Personel.IsBasvuruDetay != null &&           src.MasterBasvuru.Personel.IsBasvuruDetay.BasvuruPozisyonlar != null)
+                 ? string.Join(", ", src.MasterBasvuru.Personel.IsBasvuruDetay.BasvuruPozisyonlar
+                     .Where(p => p.DepartmanPozisyon != null && p.DepartmanPozisyon.MasterPozisyon != null)
+                     .Select(p => p.DepartmanPozisyon!.MasterPozisyon!.MasterPozisyonAdi))
+                 : ""))
+            
+             // Rol Bazlı İşlem Ayrıştırma (İşlemi yapanın rolüne göre sütun doldurma)
+             .ForMember(dest => dest.DmIslemi, opt => opt.MapFrom(src =>
+                 (src.PanelKullanici != null && src.PanelKullanici.Rol != null && src.PanelKullanici.Rol.RolAdi == "DepartmanMudur")
+                 ? $"{src.PanelKullanici.Adi} {src.PanelKullanici.Soyadi}: {src.IslemAciklama}"
+                 : ""))
+            
+             .ForMember(dest => dest.GmIslemi, opt => opt.MapFrom(src =>
+                 (src.PanelKullanici != null && src.PanelKullanici.Rol != null && src.PanelKullanici.Rol.RolAdi == "GenelMudur")
+                 ? $"{src.PanelKullanici.Adi} {src.PanelKullanici.Soyadi}: {src.IslemAciklama}"
+                 : ""))
+            
+             .ForMember(dest => dest.IkIslemi, opt => opt.MapFrom(src =>
+                 (src.PanelKullanici != null && src.PanelKullanici.Rol != null && (new[] { "IK", "Admin", "SuperAdmin" }).Contains(src.PanelKullanici.Rol.RolAdi))
+                 ? $"{src.PanelKullanici.Adi} {src.PanelKullanici.Soyadi}: {src.IslemAciklama}"
+                 : ""));
 
             CreateMap<CvDegisiklikLog, CvDegisiklikLogListDto>()
                 .ForMember(dest => dest.DegisiklikTipiAdi, opt => opt.MapFrom(src => src.DegisiklikTipi.ToString()));

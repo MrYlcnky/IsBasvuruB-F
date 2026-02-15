@@ -1,56 +1,56 @@
 ﻿using IsBasvuru.Domain.DTOs.SirketYapisiDtos.ProgramBilgisiDtos;
 using IsBasvuru.Domain.Interfaces;
+using IsBasvuru.WebAPI.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
-namespace IsBasvuru.WebAPI.Controllers
+[Route("api/[controller]")]
+[ApiController]
+[Authorize]
+public class ProgramBilgisiController : BaseController
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [AllowAnonymous]
-    public class ProgramBilgisiController : BaseController // 1. BaseController'dan miras al
+    private readonly IProgramBilgisiService _service;
+    public ProgramBilgisiController(IProgramBilgisiService service) { _service = service; }
+
+    [HttpGet("GetAll")]
+    [AllowAnonymous] // Adayların listeyi görebilmesi için
+    public async Task<IActionResult> GetAll()
     {
-        private readonly IProgramBilgisiService _service;
+        var response = await _service.GetAllAsync();
+        return CreateActionResultInstance(response);
+    }
 
-        public ProgramBilgisiController(IProgramBilgisiService service)
-        {
-            _service = service;
-        }
+    [HttpGet("GetById/{id}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetById([FromRoute] int id)
+    {
+        if (id <= 0) return BadRequest("Geçersiz ID.");
+        var response = await _service.GetByIdAsync(id);
+        return CreateActionResultInstance(response);
+    }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var response = await _service.GetAllAsync();
-            return CreateActionResultInstance(response);
-        }
+    [HttpPost("Create")]
+    [Authorize(Roles = "SuperAdmin,Admin")]
+    public async Task<IActionResult> Create([FromBody] ProgramBilgisiCreateDto dto)
+    {
+        var response = await _service.CreateAsync(dto);
+        return CreateActionResultInstance(response);
+    }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var response = await _service.GetByIdAsync(id);
-            return CreateActionResultInstance(response);
-        }
+    [HttpPut("Update")]
+    [Authorize(Roles = "SuperAdmin,Admin")]
+    public async Task<IActionResult> Update([FromBody] ProgramBilgisiUpdateDto dto)
+    {
+        var response = await _service.UpdateAsync(dto);
+        return CreateActionResultInstance(response);
+    }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(ProgramBilgisiCreateDto dto)
-        {
-            var response = await _service.CreateAsync(dto);
-            return CreateActionResultInstance(response);
-        }
-
-        [HttpPut]
-        public async Task<IActionResult> Update(ProgramBilgisiUpdateDto dto)
-        {
-            var response = await _service.UpdateAsync(dto);
-            return CreateActionResultInstance(response);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var response = await _service.DeleteAsync(id);
-            return CreateActionResultInstance(response);
-        }
+    [HttpDelete("Delete/{id}")]
+    [Authorize(Roles = "SuperAdmin,Admin")]
+    public async Task<IActionResult> Delete([FromRoute] int id)
+    {
+        if (id <= 0) return BadRequest("Geçersiz ID.");
+        var response = await _service.DeleteAsync(id);
+        return CreateActionResultInstance(response);
     }
 }

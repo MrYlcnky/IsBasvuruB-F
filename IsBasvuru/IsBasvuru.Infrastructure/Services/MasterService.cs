@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
 using IsBasvuru.Domain.DTOs.SirketMasterYapisiDtos.MasterAlanDtos;
 using IsBasvuru.Domain.DTOs.SirketMasterYapisiDtos.MasterDepartmanDtos;
+using IsBasvuru.Domain.DTOs.SirketMasterYapisiDtos.MasterOyun;
 using IsBasvuru.Domain.DTOs.SirketMasterYapisiDtos.MasterPozisyonDtos;
+using IsBasvuru.Domain.DTOs.SirketMasterYapisiDtos.MasterProgram;
 using IsBasvuru.Domain.DTOs.SirketMasterYapisiDtos.MasterSubeAlan;
+using IsBasvuru.Domain.Entities.SirketYapisi.SirketMasterYapisi;
 using IsBasvuru.Domain.Entities.Tanimlamalar;
 using IsBasvuru.Domain.Interfaces;
 using IsBasvuru.Domain.Wrappers;
@@ -64,16 +67,31 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<bool>> DeleteAsync(int id)
         {
-            // Kullanılıyor mu?
+            // 1. ÖNCELİKLİ KONTROL (Kullanıcıya güzel mesaj vermek için)
             bool kullaniliyorMu = await _context.SubeAlanlar.AnyAsync(x => x.MasterAlanId == id);
-            if (kullaniliyorMu) return ServiceResponse<bool>.FailureResult("Bu alan bir şubede kullanıldığı için silinemez.");
+            if (kullaniliyorMu)
+                return ServiceResponse<bool>.FailureResult("Bu alan bir şubede kullanıldığı için silinemez.");
 
             var entity = await _context.MasterAlanlar.FindAsync(id);
-            if (entity == null) return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
+            if (entity == null)
+                return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
 
-            _context.MasterAlanlar.Remove(entity);
-            await _context.SaveChangesAsync();
-            return ServiceResponse<bool>.SuccessResult(true);
+            // 2. NİHAİ GÜVENLİK (Veritabanı kısıtlamaları için)
+            try
+            {
+                _context.MasterAlanlar.Remove(entity);
+                await _context.SaveChangesAsync();
+                return ServiceResponse<bool>.SuccessResult(true, "Kayıt başarıyla silindi.");
+            }
+            catch (DbUpdateException) // Veritabanı ilişkisel hatası (Foreign Key)
+            {
+                // AnyAsync ile yakalayamadığımız başka bir tablo varsa buraya düşer.
+                return ServiceResponse<bool>.FailureResult("Bu kayıt başka verilerle ilişkili olduğu için silinemiyor.");
+            }
+            catch (Exception ex)
+            {
+                return ServiceResponse<bool>.FailureResult($"Bir hata oluştu: {ex.Message}");
+            }
         }
     }
 
@@ -126,15 +144,28 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<bool>> DeleteAsync(int id)
         {
+            // 1. İLİŞKİ KONTROLÜ (Frontend'deki 500 hatasını engelleyen kısım burası)
             bool kullaniliyorMu = await _context.Departmanlar.AnyAsync(x => x.MasterDepartmanId == id);
-            if (kullaniliyorMu) return ServiceResponse<bool>.FailureResult("Bu departman kullanımda olduğu için silinemez.");
+            if (kullaniliyorMu)
+                return ServiceResponse<bool>.FailureResult("Bu departman kullanımda olduğu için silinemez.");
 
+            // 2. VARLIK KONTROLÜ
             var entity = await _context.MasterDepartmanlar.FindAsync(id);
-            if (entity == null) return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
+            if (entity == null)
+                return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
 
-            _context.MasterDepartmanlar.Remove(entity);
-            await _context.SaveChangesAsync();
-            return ServiceResponse<bool>.SuccessResult(true);
+            // 3. SİLME İŞLEMİ (Güvenli Blok)
+            try
+            {
+                _context.MasterDepartmanlar.Remove(entity);
+                await _context.SaveChangesAsync();
+                return ServiceResponse<bool>.SuccessResult(true, "Kayıt başarıyla silindi.");
+            }
+            catch (Exception ex)
+            {
+                // Beklenmedik bir veritabanı hatası olursa (Bağlantı kopması vb.)
+                return ServiceResponse<bool>.FailureResult($"İşlem sırasında bir hata oluştu: {ex.Message}");
+            }
         }
     }
 
@@ -187,15 +218,166 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<bool>> DeleteAsync(int id)
         {
+            // 1. İLİŞKİ KONTROLÜ
+            // Bu pozisyon herhangi bir departmana atanmış mı?
             bool kullaniliyorMu = await _context.DepartmanPozisyonlar.AnyAsync(x => x.MasterPozisyonId == id);
-            if (kullaniliyorMu) return ServiceResponse<bool>.FailureResult("Bu pozisyon kullanımda olduğu için silinemez.");
+            if (kullaniliyorMu)
+                return ServiceResponse<bool>.FailureResult("Bu pozisyon bir departmanda tanımlı olduğu için silinemez.");
 
+            // 2. VARLIK KONTROLÜ
             var entity = await _context.MasterPozisyonlar.FindAsync(id);
+            if (entity == null)
+                return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
+
+            // 3. SİLME İŞLEMİ (Güvenli Blok)
+            try
+            {
+                _context.MasterPozisyonlar.Remove(entity);
+                await _context.SaveChangesAsync();
+                return ServiceResponse<bool>.SuccessResult(true, "Pozisyon başarıyla silindi.");
+            }
+            catch (Exception ex)
+            {
+                return ServiceResponse<bool>.FailureResult($"Silme işlemi sırasında hata oluştu: {ex.Message}");
+            }
+        }
+    }
+
+    // ==========================================
+    // 4. MASTER PROGRAM SERVICE
+    // ==========================================
+    public class MasterProgramService(IsBasvuruContext context, IMapper mapper) : IMasterProgramService
+    {
+        private readonly IsBasvuruContext _context = context;
+        private readonly IMapper _mapper = mapper;
+
+        public async Task<ServiceResponse<List<MasterProgramDto>>> GetAllAsync()
+        {
+            var list = await _context.MasterProgramlar.AsNoTracking().ToListAsync();
+            var mapped = _mapper.Map<List<MasterProgramDto>>(list);
+            return ServiceResponse<List<MasterProgramDto>>.SuccessResult(mapped);
+        }
+
+        public async Task<ServiceResponse<MasterProgramDto>> CreateAsync(MasterProgramCreateDto dto)
+        {
+            bool varMi = await _context.MasterProgramlar.AnyAsync(x => x.MasterProgramAdi == dto.MasterProgramAdi);
+            if (varMi) return ServiceResponse<MasterProgramDto>.FailureResult("Bu isimde bir program zaten mevcut.");
+
+            var entity = _mapper.Map<MasterProgram>(dto);
+            await _context.MasterProgramlar.AddAsync(entity);
+            await _context.SaveChangesAsync();
+
+            var mapped = _mapper.Map<MasterProgramDto>(entity);
+            return ServiceResponse<MasterProgramDto>.SuccessResult(mapped);
+        }
+
+        public async Task<ServiceResponse<bool>> UpdateAsync(MasterProgramUpdateDto dto)
+        {
+            var entity = await _context.MasterProgramlar.FindAsync(dto.Id);
             if (entity == null) return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
 
-            _context.MasterPozisyonlar.Remove(entity);
+            bool cakisma = await _context.MasterProgramlar.AnyAsync(x => x.MasterProgramAdi == dto.MasterProgramAdi && x.Id != dto.Id);
+            if (cakisma) return ServiceResponse<bool>.FailureResult("Bu isimde başka bir program zaten var.");
+
+            _mapper.Map(dto, entity);
             await _context.SaveChangesAsync();
             return ServiceResponse<bool>.SuccessResult(true);
         }
+
+        public async Task<ServiceResponse<bool>> DeleteAsync(int id)
+        {
+            // 1. İLİŞKİ KONTROLÜ
+            // Bu program herhangi bir departmana atanmış mı?
+            bool kullaniliyorMu = await _context.ProgramBilgileri.AnyAsync(x => x.MasterProgramId == id);
+            if (kullaniliyorMu)
+                return ServiceResponse<bool>.FailureResult("Bu program departman eşleşmelerinde kullanıldığı için silinemez.");
+
+            // 2. VARLIK KONTROLÜ
+            var entity = await _context.MasterProgramlar.FindAsync(id);
+            if (entity == null)
+                return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
+
+            // 3. SİLME İŞLEMİ (Güvenli Blok)
+            try
+            {
+                _context.MasterProgramlar.Remove(entity);
+                await _context.SaveChangesAsync();
+                return ServiceResponse<bool>.SuccessResult(true, "Program başarıyla silindi.");
+            }
+            catch (Exception ex)
+            {
+                return ServiceResponse<bool>.FailureResult($"Silme işlemi sırasında hata oluştu: {ex.Message}");
+            }
+        }
     }
+
+    // ==========================================
+    // 5. MASTER OYUN SERVICE
+    // ==========================================
+    public class MasterOyunService(IsBasvuruContext context, IMapper mapper) : IMasterOyunService
+    {
+        private readonly IsBasvuruContext _context = context;
+        private readonly IMapper _mapper = mapper;
+
+        public async Task<ServiceResponse<List<MasterOyunDto>>> GetAllAsync()
+        {
+            var list = await _context.MasterOyunlar.AsNoTracking().ToListAsync();
+            var mapped = _mapper.Map<List<MasterOyunDto>>(list);
+            return ServiceResponse<List<MasterOyunDto>>.SuccessResult(mapped);
+        }
+
+        public async Task<ServiceResponse<MasterOyunDto>> CreateAsync(MasterOyunCreateDto dto)
+        {
+            bool varMi = await _context.MasterOyunlar.AnyAsync(x => x.MasterOyunAdi == dto.MasterOyunAdi);
+            if (varMi) return ServiceResponse<MasterOyunDto>.FailureResult("Bu isimde bir oyun zaten mevcut.");
+
+            var entity = _mapper.Map<MasterOyun>(dto);
+            await _context.MasterOyunlar.AddAsync(entity);
+            await _context.SaveChangesAsync();
+
+            var mapped = _mapper.Map<MasterOyunDto>(entity);
+            return ServiceResponse<MasterOyunDto>.SuccessResult(mapped);
+        }
+
+        public async Task<ServiceResponse<bool>> UpdateAsync(MasterOyunUpdateDto dto)
+        {
+            var entity = await _context.MasterOyunlar.FindAsync(dto.Id);
+            if (entity == null) return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
+
+            bool cakisma = await _context.MasterOyunlar.AnyAsync(x => x.MasterOyunAdi == dto.MasterOyunAdi && x.Id != dto.Id);
+            if (cakisma) return ServiceResponse<bool>.FailureResult("Bu isimde başka bir oyun zaten var.");
+
+            _mapper.Map(dto, entity);
+            await _context.SaveChangesAsync();
+            return ServiceResponse<bool>.SuccessResult(true);
+        }
+
+        public async Task<ServiceResponse<bool>> DeleteAsync(int id)
+        {
+            // 1. İLİŞKİ KONTROLÜ
+            // Bu oyun herhangi bir departmana atanmış mı?
+            bool kullaniliyorMu = await _context.OyunBilgileri.AnyAsync(x => x.MasterOyunId == id);
+            if (kullaniliyorMu)
+                return ServiceResponse<bool>.FailureResult("Bu oyun departman eşleşmelerinde kullanıldığı için silinemez.");
+
+            // 2. VARLIK KONTROLÜ
+            var entity = await _context.MasterOyunlar.FindAsync(id);
+            if (entity == null)
+                return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
+
+            // 3. SİLME İŞLEMİ (Güvenli Blok)
+            try
+            {
+                _context.MasterOyunlar.Remove(entity);
+                await _context.SaveChangesAsync();
+                return ServiceResponse<bool>.SuccessResult(true, "Oyun başarıyla silindi.");
+            }
+            catch (Exception ex)
+            {
+                return ServiceResponse<bool>.FailureResult($"Silme işlemi sırasında hata oluştu: {ex.Message}");
+            }
+        }
+    }
+
+
 }

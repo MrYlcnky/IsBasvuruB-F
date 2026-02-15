@@ -8,6 +8,7 @@ namespace IsBasvuru.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class MasterPozisyonController : BaseController
     {
         private readonly IMasterPozisyonService _service;
@@ -17,31 +18,36 @@ namespace IsBasvuru.WebAPI.Controllers
             _service = service;
         }
 
-        [HttpGet]
-        [AllowAnonymous]
+        [HttpGet("GetAll")]
+        [AllowAnonymous] // Adayların başvuru formunda pozisyonları seçebilmesi için
         public async Task<IActionResult> GetAll()
         {
             var response = await _service.GetAllAsync();
             return CreateActionResultInstance(response);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(MasterPozisyonCreateDto dto)
+
+        [HttpPost("Create")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
+        public async Task<IActionResult> Create([FromBody] MasterPozisyonCreateDto dto)
         {
             var response = await _service.CreateAsync(dto);
             return CreateActionResultInstance(response);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update(MasterPozisyonUpdateDto dto)
+        [HttpPut("Update")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
+        public async Task<IActionResult> Update([FromBody] MasterPozisyonUpdateDto dto)
         {
             var response = await _service.UpdateAsync(dto);
             return CreateActionResultInstance(response);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("Delete/{id}")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
+            if (id <= 0) return BadRequest("Geçersiz ID.");
             var response = await _service.DeleteAsync(id);
             return CreateActionResultInstance(response);
         }

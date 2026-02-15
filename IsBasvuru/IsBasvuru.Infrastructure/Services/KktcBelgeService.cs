@@ -3,6 +3,7 @@ using IsBasvuru.Domain.DTOs.TanimlamalarDtos.KktcBelgeDtos;
 using IsBasvuru.Domain.Entities.Tanimlamalar;
 using IsBasvuru.Domain.Interfaces;
 using IsBasvuru.Domain.Wrappers;
+using IsBasvuru.Infrastructure.Tools;
 using IsBasvuru.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -59,11 +60,18 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<KktcBelgeListDto>> CreateAsync(KktcBelgeCreateDto dto)
         {
-            // Aynı isimde belge var mı kontrolü
-            if (await _context.KktcBelgeler.AnyAsync(x => x.BelgeAdi == dto.BelgeAdi))
-                return ServiceResponse<KktcBelgeListDto>.FailureResult($"'{dto.BelgeAdi}' isimli belge zaten kayıtlı.");
+            // 1. Gelen belge adını normalize et (Büyük harf ve boşluk temizliği)
+            string normalizedName = dto.BelgeAdi.ToTurkishUpper();
+
+            // 2. Mükerrer kontrolünü normalize edilmiş isimle yap
+            if (await _context.KktcBelgeler.AnyAsync(x => x.BelgeAdi == normalizedName))
+                return ServiceResponse<KktcBelgeListDto>.FailureResult($"'{normalizedName}' isimli belge zaten kayıtlı.");
 
             var entity = _mapper.Map<KktcBelge>(dto);
+
+            // 3. Veritabanına büyük harfli halini kaydet
+            entity.BelgeAdi = normalizedName;
+
             await _context.KktcBelgeler.AddAsync(entity);
             await _context.SaveChangesAsync();
 
@@ -79,14 +87,21 @@ namespace IsBasvuru.Infrastructure.Services
             if (entity == null)
                 return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
 
-            // İsim çakışması kontrolü 
+            // 1. Yeni ismi normalize et
+            string normalizedName = dto.BelgeAdi.ToTurkishUpper();
+
+            // 2. İsim Çakışma Kontrolü (Kendisi hariç kontrol)
             bool cakisma = await _context.KktcBelgeler
-                .AnyAsync(x => x.BelgeAdi == dto.BelgeAdi && x.Id != dto.Id);
+                .AnyAsync(x => x.BelgeAdi == normalizedName && x.Id != dto.Id);
 
             if (cakisma)
-                return ServiceResponse<bool>.FailureResult($"'{dto.BelgeAdi}' isimli başka bir belge zaten var.");
+                return ServiceResponse<bool>.FailureResult($"'{normalizedName}' isimli başka bir belge zaten var.");
 
             _mapper.Map(dto, entity);
+
+            // 3. Update sonrası büyük harf garantisi
+            entity.BelgeAdi = normalizedName;
+
             _context.KktcBelgeler.Update(entity);
             await _context.SaveChangesAsync();
 

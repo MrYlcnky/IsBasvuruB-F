@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 
 namespace IsBasvuru.Infrastructure.Services
 {
-    // Fix 1: Use Primary Constructor (C# 12)
     public class OyunBilgisiService(IsBasvuruContext context, IMapper mapper, IMemoryCache cache) : IOyunBilgisiService
     {
         private readonly IsBasvuruContext _context = context;
@@ -30,11 +29,11 @@ namespace IsBasvuru.Infrastructure.Services
 
             var list = await _context.OyunBilgileri
                 .Include(x => x.Departman)
-                .ThenInclude(x => x!.MasterDepartman!) // Nullable warning suppression added
+                    .ThenInclude(x => x!.MasterDepartman!)
+                .Include(x => x.MasterOyun) // Master Oyun dahil edildi
                 .AsNoTracking()
                 .ToListAsync();
 
-            // Fix 2: Simplified collection initialization (Collection Expression)
             var mappedList = _mapper.Map<List<OyunBilgisiListDto>>(list) ?? [];
 
             var cacheOptions = new MemoryCacheEntryOptions()
@@ -48,7 +47,12 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<OyunBilgisiListDto>> GetByIdAsync(int id)
         {
-            var entity = await _context.OyunBilgileri.FindAsync(id);
+            // FindAsync yerine FirstOrDefaultAsync ile Include yapıyoruz
+            var entity = await _context.OyunBilgileri
+                .Include(x => x.Departman)
+                .Include(x => x.MasterOyun)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
             if (entity == null)
                 return ServiceResponse<OyunBilgisiListDto>.FailureResult("Kayıt bulunamadı.");
 
@@ -58,9 +62,17 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<OyunBilgisiListDto>> CreateAsync(OyunBilgisiCreateDto dto)
         {
-            // Aynı isimde oyun var mı?
-            if (await _context.OyunBilgileri.AnyAsync(x => x.OyunAdi == dto.OyunAdi))
-                return ServiceResponse<OyunBilgisiListDto>.FailureResult($"'{dto.OyunAdi}' isimli oyun zaten kayıtlı.");
+            // 1. Departman kontrolü
+            if (!await _context.Departmanlar.AnyAsync(x => x.Id == dto.DepartmanId))
+                return ServiceResponse<OyunBilgisiListDto>.FailureResult("Seçilen departman bulunamadı.");
+
+            // 2. Master Oyun kontrolü
+            if (!await _context.MasterOyunlar.AnyAsync(x => x.Id == dto.MasterOyunId))
+                return ServiceResponse<OyunBilgisiListDto>.FailureResult("Seçilen ana oyun (Master) bulunamadı.");
+
+            // 3. Mükerrer kayıt kontrolü (Aynı departman, aynı master oyun)
+            if (await _context.OyunBilgileri.AnyAsync(x => x.DepartmanId == dto.DepartmanId && x.MasterOyunId == dto.MasterOyunId))
+                return ServiceResponse<OyunBilgisiListDto>.FailureResult("Bu departmana bu oyun zaten atanmış.");
 
             var entity = _mapper.Map<OyunBilgisi>(dto);
             await _context.OyunBilgileri.AddAsync(entity);
@@ -68,8 +80,8 @@ namespace IsBasvuru.Infrastructure.Services
 
             _cache.Remove(CacheKey);
 
-            var mapped = _mapper.Map<OyunBilgisiListDto>(entity);
-            return ServiceResponse<OyunBilgisiListDto>.SuccessResult(mapped);
+            // Mapper'ın isimleri doldurabilmesi için detaylı getiriyoruz
+            return await GetByIdAsync(entity.Id);
         }
 
         public async Task<ServiceResponse<bool>> UpdateAsync(OyunBilgisiUpdateDto dto)
@@ -78,8 +90,28 @@ namespace IsBasvuru.Infrastructure.Services
             if (entity == null)
                 return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
 
-            if (await _context.OyunBilgileri.AnyAsync(x => x.OyunAdi == dto.OyunAdi && x.Id != dto.Id))
-                return ServiceResponse<bool>.FailureResult($"'{dto.OyunAdi}' isimli başka bir oyun zaten var.");
+            // Eğer departman değiştirildiyse kontrol et
+            if (entity.DepartmanId != dto.DepartmanId)
+            {
+                if (!await _context.Departmanlar.AnyAsync(x => x.Id == dto.DepartmanId))
+                    return ServiceResponse<bool>.FailureResult("Yeni seçilen departman geçersiz.");
+            }
+
+            // Eğer master oyun değiştirildiyse kontrol et
+            if (entity.MasterOyunId != dto.MasterOyunId)
+            {
+                if (!await _context.MasterOyunlar.AnyAsync(x => x.Id == dto.MasterOyunId))
+                    return ServiceResponse<bool>.FailureResult("Yeni seçilen ana oyun geçersiz.");
+            }
+
+            // Çakışma kontrolü
+            bool cakisma = await _context.OyunBilgileri.AnyAsync(x =>
+                x.DepartmanId == dto.DepartmanId &&
+                x.MasterOyunId == dto.MasterOyunId &&
+                x.Id != dto.Id);
+
+            if (cakisma)
+                return ServiceResponse<bool>.FailureResult("Bu departmanda bu oyun zaten tanımlı.");
 
             _mapper.Map(dto, entity);
             _context.OyunBilgileri.Update(entity);
@@ -92,7 +124,6 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<bool>> DeleteAsync(int id)
         {
-            // IsBasvuruDetayOyunlari
             bool kullanimdaMi = await _context.IsBasvuruDetayOyunlari.AnyAsync(x => x.OyunBilgisiId == id);
 
             if (kullanimdaMi)

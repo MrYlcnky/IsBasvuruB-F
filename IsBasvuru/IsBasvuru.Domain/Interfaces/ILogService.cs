@@ -9,6 +9,7 @@ namespace IsBasvuru.Domain.Interfaces
 {
     public interface ILogService
     {
+        Task<ServiceResponse<List<BasvuruIslemLogListDto>>> GetAllBasvuruLogsAsync();
         Task<ServiceResponse<List<BasvuruIslemLogListDto>>> GetBasvuruLogsAsync(int masterBasvuruId);
         Task<ServiceResponse<List<CvDegisiklikLogListDto>>> GetCvLogsAsync(int personelId);
         Task<ServiceResponse<bool>> LogBasvuruIslemAsync(int masterBasvuruId, int? panelKullaniciId, LogIslemTipi islemTipi, string islemAciklama);

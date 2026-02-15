@@ -3,6 +3,7 @@ using IsBasvuru.Domain.DTOs.TanimlamalarDtos.UyrukDtos;
 using IsBasvuru.Domain.Entities.Tanimlamalar;
 using IsBasvuru.Domain.Interfaces;
 using IsBasvuru.Domain.Wrappers;
+using IsBasvuru.Infrastructure.Tools;
 using IsBasvuru.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -58,13 +59,26 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<UyrukListDto>> CreateAsync(UyrukCreateDto createDto)
         {
+            // 1. Gelen metni hemen normalize et (Büyük harfe çevir)
+            string normalizedName = createDto.UyrukAdi.ToTurkishUpper();
+
+            // Ülke varlık kontrolü
             if (!await _context.Ulkeler.AnyAsync(x => x.Id == createDto.UlkeId))
                 return ServiceResponse<UyrukListDto>.FailureResult("Seçilen ülke bulunamadı.");
 
-            if (await _context.Uyruklar.AnyAsync(x => x.UyrukAdi == createDto.UyrukAdi))
-                return ServiceResponse<UyrukListDto>.FailureResult("Bu uyruk zaten tanımlı.");
+            // 2. Mükerrer kontrolünü normalleştirilmiş isim üzerinden yap
+            if (await _context.Uyruklar.AnyAsync(x => x.UyrukAdi == normalizedName))
+                return ServiceResponse<UyrukListDto>.FailureResult($"'{normalizedName}' uyruğu zaten sistemde tanımlı.");
+
+            // 3. Ülkeye ait başka bir uyruk kaydı var mı kontrolü (1-1 ilişki kuralı)
+            if (await _context.Uyruklar.AnyAsync(x => x.UlkeId == createDto.UlkeId))
+                return ServiceResponse<UyrukListDto>.FailureResult("Bu ülkeye ait bir uyruk zaten tanımlanmış. Lütfen mevcut kaydı düzenleyin.");
 
             var entity = _mapper.Map<Uyruk>(createDto);
+
+            // 4. Veritabanına büyük harfli halini kaydet
+            entity.UyrukAdi = normalizedName;
+
             await _context.Uyruklar.AddAsync(entity);
             await _context.SaveChangesAsync();
 
@@ -80,13 +94,28 @@ namespace IsBasvuru.Infrastructure.Services
             if (entity == null)
                 return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
 
+            string normalizedName = updateDto.UyrukAdi.ToTurkishUpper();
+
+            // Ülke değişikliği varsa yeni ülkeyi doğrula
             if (entity.UlkeId != updateDto.UlkeId)
             {
                 if (!await _context.Ulkeler.AnyAsync(x => x.Id == updateDto.UlkeId))
                     return ServiceResponse<bool>.FailureResult("Yeni seçilen ülke geçersiz.");
+
+                // Yeni seçilen ülkenin zaten başka bir uyruk kaydı var mı?
+                if (await _context.Uyruklar.AnyAsync(x => x.UlkeId == updateDto.UlkeId && x.Id != updateDto.Id))
+                    return ServiceResponse<bool>.FailureResult("Seçtiğiniz ülkenin zaten tanımlı bir uyruğu bulunuyor.");
             }
 
+            // İsim çakışması kontrolü (Kendisi hariç başka bir kayıt bu ismi kullanıyor mu?)
+            if (await _context.Uyruklar.AnyAsync(x => x.UyrukAdi == normalizedName && x.Id != updateDto.Id))
+                return ServiceResponse<bool>.FailureResult($"'{normalizedName}' ismi zaten başka bir uyruk kaydında kullanılıyor.");
+
             _mapper.Map(updateDto, entity);
+
+            // Update işlemi sonrası manuel büyük harf garantisi
+            entity.UyrukAdi = normalizedName;
+
             _context.Uyruklar.Update(entity);
             await _context.SaveChangesAsync();
 

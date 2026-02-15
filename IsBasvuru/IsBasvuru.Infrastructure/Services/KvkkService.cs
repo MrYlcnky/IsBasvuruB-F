@@ -58,10 +58,17 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<KvkkListDto>> CreateAsync(KvkkCreateDto dto)
         {
-            if (await _context.Kvkklar.AnyAsync(x => x.KvkkVersiyon == dto.KvkkVersiyon))
-                return ServiceResponse<KvkkListDto>.FailureResult($"'{dto.KvkkVersiyon}' versiyon numarası zaten kullanılıyor.");
+            // Tekil Kayıt Kontrolü
+            bool kayitVarMi = await _context.Kvkklar.AnyAsync();
+            if (kayitVarMi)
+            {
+                return ServiceResponse<KvkkListDto>.FailureResult("Sistemde zaten bir KVKK metni var. Güncelleme yapınız.");
+            }
 
             var entity = _mapper.Map<Kvkk>(dto);
+
+            // OTOMATİK VERSİYONLAMA: İlk kayıt her zaman 1
+            entity.KvkkVersiyon = "1";
             entity.GuncellemeTarihi = DateTime.Now;
 
             await _context.Kvkklar.AddAsync(entity);
@@ -79,11 +86,22 @@ namespace IsBasvuru.Infrastructure.Services
             if (entity == null)
                 return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
 
-            if (await _context.Kvkklar.AnyAsync(x => x.KvkkVersiyon == dto.KvkkVersiyon && x.Id != dto.Id))
-                return ServiceResponse<bool>.FailureResult($"'{dto.KvkkVersiyon}' versiyon numarası başka bir kayıtta kullanılıyor.");
-
-            _mapper.Map(dto, entity);
+            // DTO'dan gelen alanları güncelle (Mapper kullanmak yerine manuel set edelim ki versiyonu koruyalım veya mapper config ayarlıysa o da olur)
+            entity.KvkkAciklama = dto.KvkkAciklama;
+            entity.DogrulukAciklama = dto.DogrulukAciklama;
+            entity.ReferansAciklama = dto.ReferansAciklama;
             entity.GuncellemeTarihi = DateTime.Now;
+
+            // OTOMATİK VERSİYON ARTIRMA
+            if (int.TryParse(entity.KvkkVersiyon, out int mevcutVersiyon))
+            {
+                entity.KvkkVersiyon = (mevcutVersiyon + 1).ToString();
+            }
+            else
+            {
+                // Eğer veritabanındaki eski veri "v1.0" gibi string ise ve parse edilemezse sıfırlayıp 1 yapalım veya hata vermemesi için 2'den başlatalım.
+                entity.KvkkVersiyon = "1";
+            }
 
             _context.Kvkklar.Update(entity);
             await _context.SaveChangesAsync();
@@ -95,16 +113,27 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<bool>> DeleteAsync(int id)
         {
+            // NOT: Eğer KVKK metinleri personeller tarafından onaylanıyorsa, 
+            // burada _context.PersonelKvkkOnaylari.AnyAsync(...) gibi bir kontrol yapmalısınız.
+
             var entity = await _context.Kvkklar.FindAsync(id);
             if (entity == null)
                 return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
 
-            _context.Kvkklar.Remove(entity);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.Kvkklar.Remove(entity);
+                await _context.SaveChangesAsync();
 
-            _cache.Remove(CacheKey);
+                _cache.Remove(CacheKey);
 
-            return ServiceResponse<bool>.SuccessResult(true);
+                return ServiceResponse<bool>.SuccessResult(true, "KVKK metni başarıyla silindi.");
+            }
+            catch (Exception ex)
+            {
+                // İlişkisel bir hata varsa burada yakalanır ve frontend'e 200 OK içinde hata mesajı döner.
+                return ServiceResponse<bool>.FailureResult($"Silme işlemi sırasında hata oluştu (Muhtemelen bu metin kullanımda): {ex.Message}");
+            }
         }
     }
 }

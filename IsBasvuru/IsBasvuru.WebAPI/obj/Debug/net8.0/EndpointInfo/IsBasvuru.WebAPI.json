@@ -36,7 +36,7 @@
         }
       }
     },
-    "/api/BilgisayarBilgisi": {
+    "/api/BilgisayarBilgisi/GetAll": {
       "get": {
         "tags": [
           "BilgisayarBilgisi"
@@ -46,7 +46,55 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/BilgisayarBilgisi/GetByPersonelId/{personelId}": {
+      "get": {
+        "tags": [
+          "BilgisayarBilgisi"
+        ],
+        "parameters": [
+          {
+            "name": "personelId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/BilgisayarBilgisi/GetById/{id}": {
+      "get": {
+        "tags": [
+          "BilgisayarBilgisi"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/BilgisayarBilgisi/Create": {
       "post": {
         "tags": [
           "BilgisayarBilgisi"
@@ -75,7 +123,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/BilgisayarBilgisi/Update": {
       "put": {
         "tags": [
           "BilgisayarBilgisi"
@@ -106,51 +156,7 @@
         }
       }
     },
-    "/api/BilgisayarBilgisi/Personel/{personelId}": {
-      "get": {
-        "tags": [
-          "BilgisayarBilgisi"
-        ],
-        "parameters": [
-          {
-            "name": "personelId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/BilgisayarBilgisi/{id}": {
-      "get": {
-        "tags": [
-          "BilgisayarBilgisi"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/BilgisayarBilgisi/Delete/{id}": {
       "delete": {
         "tags": [
           "BilgisayarBilgisi"
@@ -173,7 +179,7 @@
         }
       }
     },
-    "/api/Departman": {
+    "/api/Departman/GetAll": {
       "get": {
         "tags": [
           "Departman"
@@ -183,7 +189,32 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/Departman/GetById/{id}": {
+      "get": {
+        "tags": [
+          "Departman"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Departman/Create": {
       "post": {
         "tags": [
           "Departman"
@@ -212,7 +243,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/Departman/Update": {
       "put": {
         "tags": [
           "Departman"
@@ -243,28 +276,7 @@
         }
       }
     },
-    "/api/Departman/{id}": {
-      "get": {
-        "tags": [
-          "Departman"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/Departman/Delete/{id}": {
       "delete": {
         "tags": [
           "Departman"
@@ -287,7 +299,7 @@
         }
       }
     },
-    "/api/DepartmanPozisyon": {
+    "/api/DepartmanPozisyon/GetAll": {
       "get": {
         "tags": [
           "DepartmanPozisyon"
@@ -297,7 +309,32 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/DepartmanPozisyon/GetById/{id}": {
+      "get": {
+        "tags": [
+          "DepartmanPozisyon"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DepartmanPozisyon/Create": {
       "post": {
         "tags": [
           "DepartmanPozisyon"
@@ -326,7 +363,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/DepartmanPozisyon/Update": {
       "put": {
         "tags": [
           "DepartmanPozisyon"
@@ -357,28 +396,7 @@
         }
       }
     },
-    "/api/DepartmanPozisyon/{id}": {
-      "get": {
-        "tags": [
-          "DepartmanPozisyon"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/DepartmanPozisyon/Delete/{id}": {
       "delete": {
         "tags": [
           "DepartmanPozisyon"
@@ -401,7 +419,7 @@
         }
       }
     },
-    "/api/DigerKisiselBilgiler": {
+    "/api/DigerKisiselBilgiler/GetAll": {
       "get": {
         "tags": [
           "DigerKisiselBilgiler"
@@ -411,7 +429,32 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/DigerKisiselBilgiler/GetByPersonelId/{personelId}": {
+      "get": {
+        "tags": [
+          "DigerKisiselBilgiler"
+        ],
+        "parameters": [
+          {
+            "name": "personelId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/DigerKisiselBilgiler/Create": {
       "post": {
         "tags": [
           "DigerKisiselBilgiler"
@@ -440,7 +483,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/DigerKisiselBilgiler/Update": {
       "put": {
         "tags": [
           "DigerKisiselBilgiler"
@@ -471,51 +516,7 @@
         }
       }
     },
-    "/api/DigerKisiselBilgiler/Personel/{personelId}": {
-      "get": {
-        "tags": [
-          "DigerKisiselBilgiler"
-        ],
-        "parameters": [
-          {
-            "name": "personelId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/DigerKisiselBilgiler/{id}": {
-      "get": {
-        "tags": [
-          "DigerKisiselBilgiler"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/DigerKisiselBilgiler/Delete/{id}": {
       "delete": {
         "tags": [
           "DigerKisiselBilgiler"
@@ -538,7 +539,7 @@
         }
       }
     },
-    "/api/Dil": {
+    "/api/Dil/GetAll": {
       "get": {
         "tags": [
           "Dil"
@@ -548,7 +549,32 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/Dil/GetById/{id}": {
+      "get": {
+        "tags": [
+          "Dil"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Dil/Create": {
       "post": {
         "tags": [
           "Dil"
@@ -577,7 +603,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/Dil/Update": {
       "put": {
         "tags": [
           "Dil"
@@ -608,28 +636,7 @@
         }
       }
     },
-    "/api/Dil/{id}": {
-      "get": {
-        "tags": [
-          "Dil"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/Dil/Delete/{id}": {
       "delete": {
         "tags": [
           "Dil"
@@ -652,7 +659,7 @@
         }
       }
     },
-    "/api/EgitimBilgisi": {
+    "/api/EgitimBilgisi/GetAll": {
       "get": {
         "tags": [
           "EgitimBilgisi"
@@ -662,67 +669,9 @@
             "description": "OK"
           }
         }
-      },
-      "post": {
-        "tags": [
-          "EgitimBilgisi"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EgitimBilgisiCreateDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EgitimBilgisiCreateDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/EgitimBilgisiCreateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "EgitimBilgisi"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EgitimBilgisiUpdateDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/EgitimBilgisiUpdateDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/EgitimBilgisiUpdateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
       }
     },
-    "/api/EgitimBilgisi/Personel/{personelId}": {
+    "/api/EgitimBilgisi/GetByPersonelId/{personelId}": {
       "get": {
         "tags": [
           "EgitimBilgisi"
@@ -745,8 +694,70 @@
         }
       }
     },
-    "/api/EgitimBilgisi/{id}": {
-      "get": {
+    "/api/EgitimBilgisi/Create": {
+      "post": {
+        "tags": [
+          "EgitimBilgisi"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EgitimBilgisiCreateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EgitimBilgisiCreateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EgitimBilgisiCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/EgitimBilgisi/Update": {
+      "put": {
+        "tags": [
+          "EgitimBilgisi"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EgitimBilgisiUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EgitimBilgisiUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EgitimBilgisiUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/EgitimBilgisi/Delete/{id}": {
+      "delete": {
         "tags": [
           "EgitimBilgisi"
         ],
@@ -766,10 +777,24 @@
             "description": "OK"
           }
         }
-      },
-      "delete": {
+      }
+    },
+    "/api/EhliyetTuru/GetAll": {
+      "get": {
         "tags": [
-          "EgitimBilgisi"
+          "EhliyetTuru"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/EhliyetTuru/GetById/{id}": {
+      "get": {
+        "tags": [
+          "EhliyetTuru"
         ],
         "parameters": [
           {
@@ -789,17 +814,7 @@
         }
       }
     },
-    "/api/EhliyetTuru": {
-      "get": {
-        "tags": [
-          "EhliyetTuru"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/EhliyetTuru/Create": {
       "post": {
         "tags": [
           "EhliyetTuru"
@@ -828,7 +843,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/EhliyetTuru/Update": {
       "put": {
         "tags": [
           "EhliyetTuru"
@@ -859,28 +876,7 @@
         }
       }
     },
-    "/api/EhliyetTuru/{id}": {
-      "get": {
-        "tags": [
-          "EhliyetTuru"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/EhliyetTuru/Delete/{id}": {
       "delete": {
         "tags": [
           "EhliyetTuru"
@@ -903,7 +899,7 @@
         }
       }
     },
-    "/api/Ilce": {
+    "/api/Ilce/GetAll": {
       "get": {
         "tags": [
           "Ilce"
@@ -913,7 +909,32 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/Ilce/GetById/{id}": {
+      "get": {
+        "tags": [
+          "Ilce"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Ilce/Create": {
       "post": {
         "tags": [
           "Ilce"
@@ -942,7 +963,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/Ilce/Update": {
       "put": {
         "tags": [
           "Ilce"
@@ -973,28 +996,7 @@
         }
       }
     },
-    "/api/Ilce/{id}": {
-      "get": {
-        "tags": [
-          "Ilce"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/Ilce/Delete/{id}": {
       "delete": {
         "tags": [
           "Ilce"
@@ -1017,7 +1019,7 @@
         }
       }
     },
-    "/api/IsDeneyimi": {
+    "/api/IsDeneyimi/GetAll": {
       "get": {
         "tags": [
           "IsDeneyimi"
@@ -1027,67 +1029,9 @@
             "description": "OK"
           }
         }
-      },
-      "post": {
-        "tags": [
-          "IsDeneyimi"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IsDeneyimiCreateDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IsDeneyimiCreateDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/IsDeneyimiCreateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "IsDeneyimi"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IsDeneyimiUpdateDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/IsDeneyimiUpdateDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/IsDeneyimiUpdateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
       }
     },
-    "/api/IsDeneyimi/Personel/{personelId}": {
+    "/api/IsDeneyimi/GetByPersonelId/{personelId}": {
       "get": {
         "tags": [
           "IsDeneyimi"
@@ -1110,7 +1054,7 @@
         }
       }
     },
-    "/api/IsDeneyimi/{id}": {
+    "/api/IsDeneyimi/GetById/{id}": {
       "get": {
         "tags": [
           "IsDeneyimi"
@@ -1131,7 +1075,71 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/IsDeneyimi/Create": {
+      "post": {
+        "tags": [
+          "IsDeneyimi"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IsDeneyimiCreateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IsDeneyimiCreateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/IsDeneyimiCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/IsDeneyimi/Update": {
+      "put": {
+        "tags": [
+          "IsDeneyimi"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IsDeneyimiUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IsDeneyimiUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/IsDeneyimiUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/IsDeneyimi/Delete/{id}": {
       "delete": {
         "tags": [
           "IsDeneyimi"
@@ -1247,7 +1255,7 @@
         }
       }
     },
-    "/api/KktcBelge": {
+    "/api/KktcBelge/GetAll": {
       "get": {
         "tags": [
           "KktcBelge"
@@ -1257,7 +1265,32 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/KktcBelge/GetById/{id}": {
+      "get": {
+        "tags": [
+          "KktcBelge"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/KktcBelge/Create": {
       "post": {
         "tags": [
           "KktcBelge"
@@ -1286,7 +1319,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/KktcBelge/Update": {
       "put": {
         "tags": [
           "KktcBelge"
@@ -1317,28 +1352,7 @@
         }
       }
     },
-    "/api/KktcBelge/{id}": {
-      "get": {
-        "tags": [
-          "KktcBelge"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/KktcBelge/Delete/{id}": {
       "delete": {
         "tags": [
           "KktcBelge"
@@ -1361,7 +1375,7 @@
         }
       }
     },
-    "/api/Kvkk": {
+    "/api/Kvkk/GetAll": {
       "get": {
         "tags": [
           "Kvkk"
@@ -1371,7 +1385,32 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/Kvkk/GetById/{id}": {
+      "get": {
+        "tags": [
+          "Kvkk"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Kvkk/Create": {
       "post": {
         "tags": [
           "Kvkk"
@@ -1400,7 +1439,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/Kvkk/Update": {
       "put": {
         "tags": [
           "Kvkk"
@@ -1431,28 +1472,7 @@
         }
       }
     },
-    "/api/Kvkk/{id}": {
-      "get": {
-        "tags": [
-          "Kvkk"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/Kvkk/Delete/{id}": {
       "delete": {
         "tags": [
           "Kvkk"
@@ -1475,7 +1495,19 @@
         }
       }
     },
-    "/api/Log/basvuru-logs/{masterBasvuruId}": {
+    "/api/Log/GetAllLogs": {
+      "get": {
+        "tags": [
+          "Log"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Log/GetBasvuruLogs/{masterBasvuruId}": {
       "get": {
         "tags": [
           "Log"
@@ -1498,7 +1530,7 @@
         }
       }
     },
-    "/api/Log/cv-logs/{personelId}": {
+    "/api/Log/GetCvLogs/{personelId}": {
       "get": {
         "tags": [
           "Log"
@@ -1521,7 +1553,7 @@
         }
       }
     },
-    "/api/MasterAlan": {
+    "/api/MasterAlan/GetAll": {
       "get": {
         "tags": [
           "MasterAlan"
@@ -1531,7 +1563,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/MasterAlan/Create": {
       "post": {
         "tags": [
           "MasterAlan"
@@ -1560,7 +1594,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/MasterAlan/Update": {
       "put": {
         "tags": [
           "MasterAlan"
@@ -1591,7 +1627,7 @@
         }
       }
     },
-    "/api/MasterAlan/{id}": {
+    "/api/MasterAlan/Delete/{id}": {
       "delete": {
         "tags": [
           "MasterAlan"
@@ -1614,69 +1650,11 @@
         }
       }
     },
-    "/api/MasterBasvuru": {
+    "/api/MasterBasvuru/GetAll": {
       "get": {
         "tags": [
           "MasterBasvuru"
         ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "MasterBasvuru"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MasterBasvuruCreateDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MasterBasvuruCreateDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/MasterBasvuruCreateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "MasterBasvuru"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MasterBasvuruUpdateDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MasterBasvuruUpdateDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/MasterBasvuruUpdateDto"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "OK"
@@ -1684,29 +1662,8 @@
         }
       }
     },
-    "/api/MasterBasvuru/{id}": {
+    "/api/MasterBasvuru/GetById/{id}": {
       "get": {
-        "tags": [
-          "MasterBasvuru"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "delete": {
         "tags": [
           "MasterBasvuru"
         ],
@@ -1728,7 +1685,7 @@
         }
       }
     },
-    "/api/MasterBasvuru/Personel/{personelId}": {
+    "/api/MasterBasvuru/GetByPersonelId/{personelId}": {
       "get": {
         "tags": [
           "MasterBasvuru"
@@ -1751,7 +1708,92 @@
         }
       }
     },
-    "/api/MasterDepartman": {
+    "/api/MasterBasvuru/Create": {
+      "post": {
+        "tags": [
+          "MasterBasvuru"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterBasvuruCreateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterBasvuruCreateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterBasvuruCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterBasvuru/Update": {
+      "put": {
+        "tags": [
+          "MasterBasvuru"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterBasvuruUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterBasvuruUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterBasvuruUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterBasvuru/Delete/{id}": {
+      "delete": {
+        "tags": [
+          "MasterBasvuru"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterDepartman/GetAll": {
       "get": {
         "tags": [
           "MasterDepartman"
@@ -1761,7 +1803,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/MasterDepartman/Create": {
       "post": {
         "tags": [
           "MasterDepartman"
@@ -1790,7 +1834,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/MasterDepartman/Update": {
       "put": {
         "tags": [
           "MasterDepartman"
@@ -1821,7 +1867,7 @@
         }
       }
     },
-    "/api/MasterDepartman/{id}": {
+    "/api/MasterDepartman/Delete/{id}": {
       "delete": {
         "tags": [
           "MasterDepartman"
@@ -1844,7 +1890,104 @@
         }
       }
     },
-    "/api/MasterPozisyon": {
+    "/api/MasterOyun/GetAll": {
+      "get": {
+        "tags": [
+          "MasterOyun"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterOyun/Create": {
+      "post": {
+        "tags": [
+          "MasterOyun"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterOyunCreateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterOyunCreateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterOyunCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterOyun/Update": {
+      "put": {
+        "tags": [
+          "MasterOyun"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterOyunUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterOyunUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterOyunUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterOyun/Delete/{id}": {
+      "delete": {
+        "tags": [
+          "MasterOyun"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterPozisyon/GetAll": {
       "get": {
         "tags": [
           "MasterPozisyon"
@@ -1854,7 +1997,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/MasterPozisyon/Create": {
       "post": {
         "tags": [
           "MasterPozisyon"
@@ -1883,7 +2028,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/MasterPozisyon/Update": {
       "put": {
         "tags": [
           "MasterPozisyon"
@@ -1914,7 +2061,7 @@
         }
       }
     },
-    "/api/MasterPozisyon/{id}": {
+    "/api/MasterPozisyon/Delete/{id}": {
       "delete": {
         "tags": [
           "MasterPozisyon"
@@ -1937,7 +2084,104 @@
         }
       }
     },
-    "/api/OyunBilgisi": {
+    "/api/MasterProgram/GetAll": {
+      "get": {
+        "tags": [
+          "MasterProgram"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterProgram/Create": {
+      "post": {
+        "tags": [
+          "MasterProgram"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterProgramCreateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterProgramCreateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterProgramCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterProgram/Update": {
+      "put": {
+        "tags": [
+          "MasterProgram"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterProgramUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterProgramUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MasterProgramUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterProgram/Delete/{id}": {
+      "delete": {
+        "tags": [
+          "MasterProgram"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/OyunBilgisi/GetAll": {
       "get": {
         "tags": [
           "OyunBilgisi"
@@ -1947,7 +2191,32 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/OyunBilgisi/GetById/{id}": {
+      "get": {
+        "tags": [
+          "OyunBilgisi"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/OyunBilgisi/Create": {
       "post": {
         "tags": [
           "OyunBilgisi"
@@ -1976,7 +2245,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/OyunBilgisi/Update": {
       "put": {
         "tags": [
           "OyunBilgisi"
@@ -2007,28 +2278,7 @@
         }
       }
     },
-    "/api/OyunBilgisi/{id}": {
-      "get": {
-        "tags": [
-          "OyunBilgisi"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/OyunBilgisi/Delete/{id}": {
       "delete": {
         "tags": [
           "OyunBilgisi"
@@ -2051,7 +2301,7 @@
         }
       }
     },
-    "/api/PanelKullanici/getall": {
+    "/api/PanelKullanici/GetAll": {
       "get": {
         "tags": [
           "PanelKullanici"
@@ -2063,29 +2313,8 @@
         }
       }
     },
-    "/api/PanelKullanici/{id}": {
+    "/api/PanelKullanici/GetById/{id}": {
       "get": {
-        "tags": [
-          "PanelKullanici"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "delete": {
         "tags": [
           "PanelKullanici"
         ],
@@ -2107,7 +2336,7 @@
         }
       }
     },
-    "/api/PanelKullanici/create": {
+    "/api/PanelKullanici/Create": {
       "post": {
         "tags": [
           "PanelKullanici"
@@ -2138,7 +2367,7 @@
         }
       }
     },
-    "/api/PanelKullanici/update": {
+    "/api/PanelKullanici/Update": {
       "put": {
         "tags": [
           "PanelKullanici"
@@ -2169,418 +2398,22 @@
         }
       }
     },
-    "/api/Personel/test-personal": {
-      "post": {
+    "/api/PanelKullanici/Delete/{id}": {
+      "delete": {
         "tags": [
-          "Personel"
+          "PanelKullanici"
         ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "required": [
-                  "KisiselBilgiler.Ad",
-                  "KisiselBilgiler.Adres",
-                  "KisiselBilgiler.Email",
-                  "KisiselBilgiler.Soyadi",
-                  "KisiselBilgiler.Telefon",
-                  "KisiselBilgiler.TelefonWhatsapp",
-                  "NedenBiz"
-                ],
-                "type": "object",
-                "properties": {
-                  "SubeIds": {
-                    "type": "array",
-                    "items": {
-                      "type": "integer",
-                      "format": "int32"
-                    }
-                  },
-                  "SubeAlanIds": {
-                    "type": "array",
-                    "items": {
-                      "type": "integer",
-                      "format": "int32"
-                    }
-                  },
-                  "DepartmanIds": {
-                    "type": "array",
-                    "items": {
-                      "type": "integer",
-                      "format": "int32"
-                    }
-                  },
-                  "DepartmanPozisyonIds": {
-                    "type": "array",
-                    "items": {
-                      "type": "integer",
-                      "format": "int32"
-                    }
-                  },
-                  "ProgramIds": {
-                    "type": "array",
-                    "items": {
-                      "type": "integer",
-                      "format": "int32"
-                    }
-                  },
-                  "OyunIds": {
-                    "type": "array",
-                    "items": {
-                      "type": "integer",
-                      "format": "int32"
-                    }
-                  },
-                  "NedenBiz": {
-                    "type": "string"
-                  },
-                  "LojmanTalebi": {
-                    "$ref": "#/components/schemas/SecimDurumu"
-                  },
-                  "VesikalikDosyasi": {
-                    "type": "string",
-                    "format": "binary"
-                  },
-                  "KisiselBilgiler.Id": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "KisiselBilgiler.PersonelId": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "KisiselBilgiler.Ad": {
-                    "type": "string"
-                  },
-                  "KisiselBilgiler.Soyadi": {
-                    "type": "string"
-                  },
-                  "KisiselBilgiler.Email": {
-                    "type": "string"
-                  },
-                  "KisiselBilgiler.Telefon": {
-                    "type": "string"
-                  },
-                  "KisiselBilgiler.TelefonWhatsapp": {
-                    "type": "string"
-                  },
-                  "KisiselBilgiler.Adres": {
-                    "type": "string"
-                  },
-                  "KisiselBilgiler.DogumTarihi": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "KisiselBilgiler.Cinsiyet": {
-                    "$ref": "#/components/schemas/Cinsiyet"
-                  },
-                  "KisiselBilgiler.MedeniDurum": {
-                    "$ref": "#/components/schemas/MedeniDurum"
-                  },
-                  "KisiselBilgiler.CocukSayisi": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "KisiselBilgiler.VesikalikFotograf": {
-                    "type": "string"
-                  },
-                  "KisiselBilgiler.DogumUlkeId": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "KisiselBilgiler.DogumUlkeAdi": {
-                    "type": "string"
-                  },
-                  "KisiselBilgiler.DogumSehirId": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "KisiselBilgiler.DogumSehirAdi": {
-                    "type": "string"
-                  },
-                  "KisiselBilgiler.DogumIlceId": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "KisiselBilgiler.DogumIlceAdi": {
-                    "type": "string"
-                  },
-                  "KisiselBilgiler.IkametgahUlkeId": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "KisiselBilgiler.IkametgahUlkeAdi": {
-                    "type": "string"
-                  },
-                  "KisiselBilgiler.IkametgahSehirId": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "KisiselBilgiler.IkametgahSehirAdi": {
-                    "type": "string"
-                  },
-                  "KisiselBilgiler.IkametgahIlceId": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "KisiselBilgiler.IkametgahIlceAdi": {
-                    "type": "string"
-                  },
-                  "KisiselBilgiler.UyrukId": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "KisiselBilgiler.UyrukAdi": {
-                    "type": "string"
-                  },
-                  "DigerKisiselBilgiler.PersonelId": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "DigerKisiselBilgiler.KktcBelgeId": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "DigerKisiselBilgiler.DavaDurumu": {
-                    "$ref": "#/components/schemas/SecimDurumu"
-                  },
-                  "DigerKisiselBilgiler.DavaNedeni": {
-                    "type": "string"
-                  },
-                  "DigerKisiselBilgiler.SigaraKullanimi": {
-                    "$ref": "#/components/schemas/SecimDurumu"
-                  },
-                  "DigerKisiselBilgiler.AskerlikDurumu": {
-                    "$ref": "#/components/schemas/AskerlikDurumu"
-                  },
-                  "DigerKisiselBilgiler.KaliciRahatsizlik": {
-                    "$ref": "#/components/schemas/SecimDurumu"
-                  },
-                  "DigerKisiselBilgiler.KaliciRahatsizlikAciklama": {
-                    "type": "string"
-                  },
-                  "DigerKisiselBilgiler.EhliyetDurumu": {
-                    "$ref": "#/components/schemas/SecimDurumu"
-                  },
-                  "DigerKisiselBilgiler.Boy": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "DigerKisiselBilgiler.Kilo": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "EgitimBilgileri": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/EgitimBilgisiCreateDto"
-                    }
-                  },
-                  "IsDeneyimleri": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/IsDeneyimiCreateDto"
-                    }
-                  },
-                  "YabanciDilBilgileri": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/YabanciDilBilgisiCreateDto"
-                    }
-                  },
-                  "BilgisayarBilgileri": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/BilgisayarBilgisiCreateDto"
-                    }
-                  },
-                  "SertifikaBilgileri": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/SertifikaBilgisiCreateDto"
-                    }
-                  },
-                  "ReferansBilgileri": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/ReferansBilgisiCreateDto"
-                    }
-                  },
-                  "PersonelEhliyetler": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/PersonelEhliyetCreateDto"
-                    }
-                  }
-                }
-              },
-              "encoding": {
-                "SubeIds": {
-                  "style": "form"
-                },
-                "SubeAlanIds": {
-                  "style": "form"
-                },
-                "DepartmanIds": {
-                  "style": "form"
-                },
-                "DepartmanPozisyonIds": {
-                  "style": "form"
-                },
-                "ProgramIds": {
-                  "style": "form"
-                },
-                "OyunIds": {
-                  "style": "form"
-                },
-                "NedenBiz": {
-                  "style": "form"
-                },
-                "LojmanTalebi": {
-                  "style": "form"
-                },
-                "VesikalikDosyasi": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.Id": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.PersonelId": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.Ad": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.Soyadi": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.Email": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.Telefon": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.TelefonWhatsapp": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.Adres": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.DogumTarihi": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.Cinsiyet": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.MedeniDurum": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.CocukSayisi": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.VesikalikFotograf": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.DogumUlkeId": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.DogumUlkeAdi": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.DogumSehirId": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.DogumSehirAdi": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.DogumIlceId": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.DogumIlceAdi": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.IkametgahUlkeId": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.IkametgahUlkeAdi": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.IkametgahSehirId": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.IkametgahSehirAdi": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.IkametgahIlceId": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.IkametgahIlceAdi": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.UyrukId": {
-                  "style": "form"
-                },
-                "KisiselBilgiler.UyrukAdi": {
-                  "style": "form"
-                },
-                "DigerKisiselBilgiler.PersonelId": {
-                  "style": "form"
-                },
-                "DigerKisiselBilgiler.KktcBelgeId": {
-                  "style": "form"
-                },
-                "DigerKisiselBilgiler.DavaDurumu": {
-                  "style": "form"
-                },
-                "DigerKisiselBilgiler.DavaNedeni": {
-                  "style": "form"
-                },
-                "DigerKisiselBilgiler.SigaraKullanimi": {
-                  "style": "form"
-                },
-                "DigerKisiselBilgiler.AskerlikDurumu": {
-                  "style": "form"
-                },
-                "DigerKisiselBilgiler.KaliciRahatsizlik": {
-                  "style": "form"
-                },
-                "DigerKisiselBilgiler.KaliciRahatsizlikAciklama": {
-                  "style": "form"
-                },
-                "DigerKisiselBilgiler.EhliyetDurumu": {
-                  "style": "form"
-                },
-                "DigerKisiselBilgiler.Boy": {
-                  "style": "form"
-                },
-                "DigerKisiselBilgiler.Kilo": {
-                  "style": "form"
-                },
-                "EgitimBilgileri": {
-                  "style": "form"
-                },
-                "IsDeneyimleri": {
-                  "style": "form"
-                },
-                "YabanciDilBilgileri": {
-                  "style": "form"
-                },
-                "BilgisayarBilgileri": {
-                  "style": "form"
-                },
-                "SertifikaBilgileri": {
-                  "style": "form"
-                },
-                "ReferansBilgileri": {
-                  "style": "form"
-                },
-                "PersonelEhliyetler": {
-                  "style": "form"
-                }
-              }
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -2588,7 +2421,7 @@
         }
       }
     },
-    "/api/Personel": {
+    "/api/Personel/GetAll": {
       "get": {
         "tags": [
           "Personel"
@@ -2616,7 +2449,32 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/Personel/GetById/{id}": {
+      "get": {
+        "tags": [
+          "Personel"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Personel/Create": {
       "post": {
         "tags": [
           "Personel"
@@ -3033,7 +2891,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/Personel/Update": {
       "put": {
         "tags": [
           "Personel"
@@ -3472,28 +3332,7 @@
         }
       }
     },
-    "/api/Personel/{id}": {
-      "get": {
-        "tags": [
-          "Personel"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/Personel/Delete/{id}": {
       "delete": {
         "tags": [
           "Personel"
@@ -3537,7 +3376,7 @@
         }
       }
     },
-    "/api/PersonelEhliyet": {
+    "/api/PersonelEhliyet/GetAll": {
       "get": {
         "tags": [
           "PersonelEhliyet"
@@ -3547,67 +3386,9 @@
             "description": "OK"
           }
         }
-      },
-      "post": {
-        "tags": [
-          "PersonelEhliyet"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PersonelEhliyetCreateDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PersonelEhliyetCreateDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/PersonelEhliyetCreateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "PersonelEhliyet"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PersonelEhliyetUpdateDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PersonelEhliyetUpdateDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/PersonelEhliyetUpdateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
       }
     },
-    "/api/PersonelEhliyet/Personel/{personelId}": {
+    "/api/PersonelEhliyet/GetByPersonelId/{personelId}": {
       "get": {
         "tags": [
           "PersonelEhliyet"
@@ -3630,7 +3411,7 @@
         }
       }
     },
-    "/api/PersonelEhliyet/{id}": {
+    "/api/PersonelEhliyet/GetById/{id}": {
       "get": {
         "tags": [
           "PersonelEhliyet"
@@ -3651,7 +3432,71 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/PersonelEhliyet/Create": {
+      "post": {
+        "tags": [
+          "PersonelEhliyet"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonelEhliyetCreateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonelEhliyetCreateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonelEhliyetCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PersonelEhliyet/Update": {
+      "put": {
+        "tags": [
+          "PersonelEhliyet"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonelEhliyetUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonelEhliyetUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PersonelEhliyetUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/PersonelEhliyet/Delete/{id}": {
       "delete": {
         "tags": [
           "PersonelEhliyet"
@@ -3674,7 +3519,7 @@
         }
       }
     },
-    "/api/ProgramBilgisi": {
+    "/api/ProgramBilgisi/GetAll": {
       "get": {
         "tags": [
           "ProgramBilgisi"
@@ -3684,7 +3529,32 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/ProgramBilgisi/GetById/{id}": {
+      "get": {
+        "tags": [
+          "ProgramBilgisi"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ProgramBilgisi/Create": {
       "post": {
         "tags": [
           "ProgramBilgisi"
@@ -3713,7 +3583,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/ProgramBilgisi/Update": {
       "put": {
         "tags": [
           "ProgramBilgisi"
@@ -3744,28 +3616,7 @@
         }
       }
     },
-    "/api/ProgramBilgisi/{id}": {
-      "get": {
-        "tags": [
-          "ProgramBilgisi"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/ProgramBilgisi/Delete/{id}": {
       "delete": {
         "tags": [
           "ProgramBilgisi"
@@ -3788,7 +3639,7 @@
         }
       }
     },
-    "/api/ReferansBilgisi": {
+    "/api/ReferansBilgisi/GetAll": {
       "get": {
         "tags": [
           "ReferansBilgisi"
@@ -3798,67 +3649,9 @@
             "description": "OK"
           }
         }
-      },
-      "post": {
-        "tags": [
-          "ReferansBilgisi"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ReferansBilgisiCreateDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ReferansBilgisiCreateDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/ReferansBilgisiCreateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "ReferansBilgisi"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ReferansBilgisiUpdateDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ReferansBilgisiUpdateDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/ReferansBilgisiUpdateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
       }
     },
-    "/api/ReferansBilgisi/Personel/{personelId}": {
+    "/api/ReferansBilgisi/GetByPersonelId/{personelId}": {
       "get": {
         "tags": [
           "ReferansBilgisi"
@@ -3881,7 +3674,7 @@
         }
       }
     },
-    "/api/ReferansBilgisi/{id}": {
+    "/api/ReferansBilgisi/GetById/{id}": {
       "get": {
         "tags": [
           "ReferansBilgisi"
@@ -3902,144 +3695,28 @@
             "description": "OK"
           }
         }
-      },
-      "delete": {
-        "tags": [
-          "ReferansBilgisi"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
       }
     },
-    "/api/Rol": {
-      "get": {
-        "tags": [
-          "Rol"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/Rol/{id}": {
-      "get": {
-        "tags": [
-          "Rol"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Rol"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      }
-    },
-    "/api/Sehir": {
-      "get": {
-        "tags": [
-          "Sehir"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/ReferansBilgisi/Create": {
       "post": {
         "tags": [
-          "Sehir"
+          "ReferansBilgisi"
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SehirCreateDto"
+                "$ref": "#/components/schemas/ReferansBilgisiCreateDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/SehirCreateDto"
+                "$ref": "#/components/schemas/ReferansBilgisiCreateDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/SehirCreateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Sehir"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SehirUpdateDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SehirUpdateDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/SehirUpdateDto"
+                "$ref": "#/components/schemas/ReferansBilgisiCreateDto"
               }
             }
           }
@@ -4051,7 +3728,131 @@
         }
       }
     },
-    "/api/Sehir/{id}": {
+    "/api/ReferansBilgisi/Update": {
+      "put": {
+        "tags": [
+          "ReferansBilgisi"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReferansBilgisiUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReferansBilgisiUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReferansBilgisiUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/ReferansBilgisi/Delete/{id}": {
+      "delete": {
+        "tags": [
+          "ReferansBilgisi"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Rol/GetAll": {
+      "get": {
+        "tags": [
+          "Rol"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Rol/GetById/{id}": {
+      "get": {
+        "tags": [
+          "Rol"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Rol/Delete/{id}": {
+      "delete": {
+        "tags": [
+          "Rol"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Sehir/GetAll": {
+      "get": {
+        "tags": [
+          "Sehir"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Sehir/GetById/{id}": {
       "get": {
         "tags": [
           "Sehir"
@@ -4072,30 +3873,9 @@
             "description": "OK"
           }
         }
-      },
-      "delete": {
-        "tags": [
-          "Sehir"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
       }
     },
-    "/api/Sehir/ulke/{ulkeId}": {
+    "/api/Sehir/GetByUlkeId/{ulkeId}": {
       "get": {
         "tags": [
           "Sehir"
@@ -4118,65 +3898,26 @@
         }
       }
     },
-    "/api/SertifikaBilgisi": {
-      "get": {
-        "tags": [
-          "SertifikaBilgisi"
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/Sehir/Create": {
       "post": {
         "tags": [
-          "SertifikaBilgisi"
+          "Sehir"
         ],
         "requestBody": {
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SertifikaBilgisiCreateDto"
+                "$ref": "#/components/schemas/SehirCreateDto"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/SertifikaBilgisiCreateDto"
+                "$ref": "#/components/schemas/SehirCreateDto"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/SertifikaBilgisiCreateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "SertifikaBilgisi"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SertifikaBilgisiUpdateDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SertifikaBilgisiUpdateDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/SertifikaBilgisiUpdateDto"
+                "$ref": "#/components/schemas/SehirCreateDto"
               }
             }
           }
@@ -4188,7 +3929,73 @@
         }
       }
     },
-    "/api/SertifikaBilgisi/Personel/{personelId}": {
+    "/api/Sehir/Update": {
+      "put": {
+        "tags": [
+          "Sehir"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SehirUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SehirUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SehirUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Sehir/Delete/{id}": {
+      "delete": {
+        "tags": [
+          "Sehir"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SertifikaBilgisi/GetAll": {
+      "get": {
+        "tags": [
+          "SertifikaBilgisi"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SertifikaBilgisi/GetByPersonelId/{personelId}": {
       "get": {
         "tags": [
           "SertifikaBilgisi"
@@ -4211,7 +4018,7 @@
         }
       }
     },
-    "/api/SertifikaBilgisi/{id}": {
+    "/api/SertifikaBilgisi/GetById/{id}": {
       "get": {
         "tags": [
           "SertifikaBilgisi"
@@ -4232,7 +4039,71 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/SertifikaBilgisi/Create": {
+      "post": {
+        "tags": [
+          "SertifikaBilgisi"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SertifikaBilgisiCreateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SertifikaBilgisiCreateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SertifikaBilgisiCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SertifikaBilgisi/Update": {
+      "put": {
+        "tags": [
+          "SertifikaBilgisi"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SertifikaBilgisiUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SertifikaBilgisiUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SertifikaBilgisiUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SertifikaBilgisi/Delete/{id}": {
       "delete": {
         "tags": [
           "SertifikaBilgisi"
@@ -4255,7 +4126,7 @@
         }
       }
     },
-    "/api/Sube": {
+    "/api/Sube/GetAll": {
       "get": {
         "tags": [
           "Sube"
@@ -4265,7 +4136,32 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/Sube/GetById/{id}": {
+      "get": {
+        "tags": [
+          "Sube"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Sube/Create": {
       "post": {
         "tags": [
           "Sube"
@@ -4294,7 +4190,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/Sube/Update": {
       "put": {
         "tags": [
           "Sube"
@@ -4325,28 +4223,7 @@
         }
       }
     },
-    "/api/Sube/{id}": {
-      "get": {
-        "tags": [
-          "Sube"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/Sube/Delete/{id}": {
       "delete": {
         "tags": [
           "Sube"
@@ -4369,7 +4246,7 @@
         }
       }
     },
-    "/api/SubeAlan": {
+    "/api/SubeAlan/GetAll": {
       "get": {
         "tags": [
           "SubeAlan"
@@ -4379,7 +4256,32 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/SubeAlan/GetById/{id}": {
+      "get": {
+        "tags": [
+          "SubeAlan"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/SubeAlan/Create": {
       "post": {
         "tags": [
           "SubeAlan"
@@ -4408,7 +4310,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/SubeAlan/Update": {
       "put": {
         "tags": [
           "SubeAlan"
@@ -4439,28 +4343,7 @@
         }
       }
     },
-    "/api/SubeAlan/{id}": {
-      "get": {
-        "tags": [
-          "SubeAlan"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/SubeAlan/Delete/{id}": {
       "delete": {
         "tags": [
           "SubeAlan"
@@ -4483,7 +4366,7 @@
         }
       }
     },
-    "/api/Ulke": {
+    "/api/Ulke/GetAll": {
       "get": {
         "tags": [
           "Ulke"
@@ -4493,7 +4376,32 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/Ulke/GetById/{id}": {
+      "get": {
+        "tags": [
+          "Ulke"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Ulke/Create": {
       "post": {
         "tags": [
           "Ulke"
@@ -4522,7 +4430,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/Ulke/Update": {
       "put": {
         "tags": [
           "Ulke"
@@ -4553,28 +4463,7 @@
         }
       }
     },
-    "/api/Ulke/{id}": {
-      "get": {
-        "tags": [
-          "Ulke"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/Ulke/Delete/{id}": {
       "delete": {
         "tags": [
           "Ulke"
@@ -4597,7 +4486,7 @@
         }
       }
     },
-    "/api/Uyruk": {
+    "/api/Uyruk/GetAll": {
       "get": {
         "tags": [
           "Uyruk"
@@ -4607,7 +4496,32 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/Uyruk/GetById/{id}": {
+      "get": {
+        "tags": [
+          "Uyruk"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Uyruk/Create": {
       "post": {
         "tags": [
           "Uyruk"
@@ -4636,7 +4550,9 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/Uyruk/Update": {
       "put": {
         "tags": [
           "Uyruk"
@@ -4667,28 +4583,7 @@
         }
       }
     },
-    "/api/Uyruk/{id}": {
-      "get": {
-        "tags": [
-          "Uyruk"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
+    "/api/Uyruk/Delete/{id}": {
       "delete": {
         "tags": [
           "Uyruk"
@@ -4711,7 +4606,7 @@
         }
       }
     },
-    "/api/YabanciDilBilgisi": {
+    "/api/YabanciDilBilgisi/GetAll": {
       "get": {
         "tags": [
           "YabanciDilBilgisi"
@@ -4721,67 +4616,9 @@
             "description": "OK"
           }
         }
-      },
-      "post": {
-        "tags": [
-          "YabanciDilBilgisi"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/YabanciDilBilgisiCreateDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/YabanciDilBilgisiCreateDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/YabanciDilBilgisiCreateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "YabanciDilBilgisi"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/YabanciDilBilgisiUpdateDto"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/YabanciDilBilgisiUpdateDto"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/YabanciDilBilgisiUpdateDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
       }
     },
-    "/api/YabanciDilBilgisi/Personel/{personelId}": {
+    "/api/YabanciDilBilgisi/GetByPersonelId/{personelId}": {
       "get": {
         "tags": [
           "YabanciDilBilgisi"
@@ -4804,7 +4641,7 @@
         }
       }
     },
-    "/api/YabanciDilBilgisi/{id}": {
+    "/api/YabanciDilBilgisi/GetById/{id}": {
       "get": {
         "tags": [
           "YabanciDilBilgisi"
@@ -4825,7 +4662,71 @@
             "description": "OK"
           }
         }
-      },
+      }
+    },
+    "/api/YabanciDilBilgisi/Create": {
+      "post": {
+        "tags": [
+          "YabanciDilBilgisi"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/YabanciDilBilgisiCreateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/YabanciDilBilgisiCreateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/YabanciDilBilgisiCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/YabanciDilBilgisi/Update": {
+      "put": {
+        "tags": [
+          "YabanciDilBilgisi"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/YabanciDilBilgisiUpdateDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/YabanciDilBilgisiUpdateDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/YabanciDilBilgisiUpdateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/YabanciDilBilgisi/Delete/{id}": {
       "delete": {
         "tags": [
           "YabanciDilBilgisi"
@@ -5556,7 +5457,6 @@
         "required": [
           "dogrulukAciklama",
           "kvkkAciklama",
-          "kvkkVersiyon",
           "referansAciklama"
         ],
         "type": "object",
@@ -5572,10 +5472,6 @@
           "referansAciklama": {
             "type": "string",
             "nullable": true
-          },
-          "kvkkVersiyon": {
-            "type": "string",
-            "nullable": true
           }
         },
         "additionalProperties": false
@@ -5584,7 +5480,6 @@
         "required": [
           "dogrulukAciklama",
           "kvkkAciklama",
-          "kvkkVersiyon",
           "referansAciklama"
         ],
         "type": "object",
@@ -5602,10 +5497,6 @@
             "nullable": true
           },
           "referansAciklama": {
-            "type": "string",
-            "nullable": true
-          },
-          "kvkkVersiyon": {
             "type": "string",
             "nullable": true
           }
@@ -5706,6 +5597,36 @@
         },
         "additionalProperties": false
       },
+      "MasterOyunCreateDto": {
+        "required": [
+          "masterOyunAdi"
+        ],
+        "type": "object",
+        "properties": {
+          "masterOyunAdi": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MasterOyunUpdateDto": {
+        "required": [
+          "masterOyunAdi"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "masterOyunAdi": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "MasterPozisyonCreateDto": {
         "required": [
           "masterPozisyonAdi"
@@ -5730,6 +5651,36 @@
             "format": "int32"
           },
           "masterPozisyonAdi": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MasterProgramCreateDto": {
+        "required": [
+          "masterProgramAdi"
+        ],
+        "type": "object",
+        "properties": {
+          "masterProgramAdi": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MasterProgramUpdateDto": {
+        "required": [
+          "masterProgramAdi"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "masterProgramAdi": {
             "type": "string",
             "nullable": true
           }
@@ -5769,6 +5720,17 @@
           "oyunAdi": {
             "type": "string",
             "nullable": true
+          },
+          "masterOyunId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "masterOyunAdi": {
+            "type": "string",
+            "nullable": true
+          },
+          "oyunAktifMi": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -5790,6 +5752,17 @@
           "departmanId": {
             "type": "integer",
             "format": "int32"
+          },
+          "masterOyunId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "masterOyunAdi": {
+            "type": "string",
+            "nullable": true
+          },
+          "oyunAktifMi": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -5933,9 +5906,16 @@
             "type": "integer",
             "format": "int32"
           },
+          "masterProgramId": {
+            "type": "integer",
+            "format": "int32"
+          },
           "programAdi": {
             "type": "string",
             "nullable": true
+          },
+          "programAktifMi": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -5954,9 +5934,16 @@
             "type": "integer",
             "format": "int32"
           },
+          "masterProgramId": {
+            "type": "integer",
+            "format": "int32"
+          },
           "programAdi": {
             "type": "string",
             "nullable": true
+          },
+          "programAktifMi": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false

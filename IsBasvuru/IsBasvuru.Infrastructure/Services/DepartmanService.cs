@@ -93,20 +93,15 @@ namespace IsBasvuru.Infrastructure.Services
             var mevcut = await _context.Departmanlar.FindAsync(updateDto.Id);
             if (mevcut == null) return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
 
-            if (mevcut.SubeAlanId != updateDto.SubeAlanId)
-            {
-                bool alanVarMi = await _context.SubeAlanlar.AnyAsync(x => x.Id == updateDto.SubeAlanId);
-                if (!alanVarMi) return ServiceResponse<bool>.FailureResult("Yeni seçilen ofis bulunamadı.");
-            }
-
-            // ✅ ID üzerinden kontrol
+            // Çakışma kontrolü
             bool cakisma = await _context.Departmanlar
-                .AnyAsync(x => x.SubeAlanId == updateDto.SubeAlanId && x.MasterDepartmanId == updateDto.MasterDepartmanId && x.Id != updateDto.Id);
+                .AnyAsync(x => x.SubeAlanId == updateDto.SubeAlanId &&
+                               x.MasterDepartmanId == updateDto.MasterDepartmanId &&
+                               x.Id != updateDto.Id);
 
-            if (cakisma) return ServiceResponse<bool>.FailureResult("Aynı isimde departman zaten var.");
+            if (cakisma) return ServiceResponse<bool>.FailureResult("Bu alanda aynı isimde departman zaten var.");
 
             _mapper.Map(updateDto, mevcut);
-            _context.Departmanlar.Update(mevcut);
             await _context.SaveChangesAsync();
             _cache.Remove(CacheKey);
 
@@ -115,17 +110,25 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<bool>> DeleteAsync(int id)
         {
-            bool pozisyonVarMi = await _context.DepartmanPozisyonlar.AnyAsync(x => x.DepartmanId == id);
-            if (pozisyonVarMi) return ServiceResponse<bool>.FailureResult("Bu departmana bağlı pozisyonlar var. Önce onları silmelisiniz.");
+            // GÜVENLİK: Bu departmanın altındaki herhangi bir pozisyonda personel var mı?
+            // Null uyarısını önlemek için bağlantıları kontrol ederek ilerliyoruz.
+            bool basvuruVarMi = await _context.IsBasvuruDetayPozisyonlari
+                .AnyAsync(x => x.DepartmanPozisyon != null && x.DepartmanPozisyon.DepartmanId == id);
+
+            if (basvuruVarMi)
+                return ServiceResponse<bool>.FailureResult("Bu departmana bağlı personeller veya başvurular olduğu için silme işlemi yapılamaz.");
 
             var kayit = await _context.Departmanlar.FindAsync(id);
             if (kayit == null) return ServiceResponse<bool>.FailureResult("Silinecek kayıt bulunamadı.");
 
+            // Cascade Delete yapılandırması sayesinde altındaki pozisyonlar da SQL tarafından silinecek.
             _context.Departmanlar.Remove(kayit);
-            await _context.SaveChangesAsync();
+            var result = await _context.SaveChangesAsync();
             _cache.Remove(CacheKey);
 
-            return ServiceResponse<bool>.SuccessResult(true);
+            return result > 0
+                ? ServiceResponse<bool>.SuccessResult(true)
+                : ServiceResponse<bool>.FailureResult("Silme işlemi gerçekleştirilemedi.");
         }
     }
 }

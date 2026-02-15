@@ -3,6 +3,7 @@ using IsBasvuru.Domain.DTOs.TanimlamalarDtos.SehirDtos;
 using IsBasvuru.Domain.Entities.Tanimlamalar;
 using IsBasvuru.Domain.Interfaces;
 using IsBasvuru.Domain.Wrappers;
+using IsBasvuru.Infrastructure.Tools;
 using IsBasvuru.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -69,14 +70,21 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<SehirListDto>> CreateAsync(SehirCreateDto createDto)
         {
+            // 1. Gelen ismi hemen normalize et (Büyük harfe çevir)
+            string normalizedName = createDto.SehirAdi.ToTurkishUpper();
+
             if (!await _context.Ulkeler.AnyAsync(x => x.Id == createDto.UlkeId))
                 return ServiceResponse<SehirListDto>.FailureResult("Seçilen ülke bulunamadı.");
 
-            // İsim çakışması
-            if (await _context.Sehirler.AnyAsync(x => x.UlkeId == createDto.UlkeId && x.SehirAdi == createDto.SehirAdi))
-                return ServiceResponse<SehirListDto>.FailureResult("Bu ülkede bu şehir zaten kayıtlı.");
+            // 2. Kontrolü büyük harf üzerinden yap (Mükerrer kaydı önler)
+            if (await _context.Sehirler.AnyAsync(x => x.UlkeId == createDto.UlkeId && x.SehirAdi == normalizedName))
+                return ServiceResponse<SehirListDto>.FailureResult($"'{normalizedName}' şehri bu ülkede zaten kayıtlı.");
 
             var entity = _mapper.Map<Sehir>(createDto);
+
+            // 3. Veritabanına büyük harfli halini set et
+            entity.SehirAdi = normalizedName;
+
             await _context.Sehirler.AddAsync(entity);
             await _context.SaveChangesAsync();
 
@@ -92,13 +100,24 @@ namespace IsBasvuru.Infrastructure.Services
             if (entity == null)
                 return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
 
+            string normalizedName = updateDto.SehirAdi.ToTurkishUpper();
+
+            // Ülke değişikliği kontrolü
             if (entity.UlkeId != updateDto.UlkeId)
             {
                 if (!await _context.Ulkeler.AnyAsync(x => x.Id == updateDto.UlkeId))
                     return ServiceResponse<bool>.FailureResult("Yeni seçilen ülke geçersiz.");
             }
 
+            // İsim çakışması kontrolü (Kendisi hariç başka bir kayıt var mı?)
+            if (await _context.Sehirler.AnyAsync(x => x.UlkeId == updateDto.UlkeId && x.SehirAdi == normalizedName && x.Id != updateDto.Id))
+                return ServiceResponse<bool>.FailureResult($"'{normalizedName}' ismi bu ülkede başka bir şehirde kullanılıyor.");
+
             _mapper.Map(updateDto, entity);
+
+            // Update sırasında da büyük harf garantisi
+            entity.SehirAdi = normalizedName;
+
             _context.Sehirler.Update(entity);
             await _context.SaveChangesAsync();
 
@@ -106,7 +125,6 @@ namespace IsBasvuru.Infrastructure.Services
 
             return ServiceResponse<bool>.SuccessResult(true);
         }
-
         public async Task<ServiceResponse<bool>> DeleteAsync(int id)
         {
             // İlçe var mı

@@ -27,6 +27,37 @@ namespace IsBasvuru.Infrastructure.Services
 
         // OKUMA
 
+        public async Task<ServiceResponse<List<BasvuruIslemLogListDto>>> GetAllBasvuruLogsAsync()
+        {
+            var logs = await _context.BasvuruIslemLoglari
+                .Include(x => x.PanelKullanici)
+                    .ThenInclude(u => u.Rol) // İşlemi yapanın rolünü notları ayırmak için çektik
+                .Include(x => x.MasterBasvuru)
+                    .ThenInclude(m => m.Personel)
+                        .ThenInclude(p => p.KisiselBilgiler) // Fotoğraf, Ad, Soyad
+                .Include(x => x.MasterBasvuru)
+                    .ThenInclude(m => m.Personel)
+                        .ThenInclude(p => p.IsBasvuruDetay) // Kurumsal detaylara buradan giriyoruz
+                            .ThenInclude(d => d.BasvuruSubeler).ThenInclude(s => s.Sube)
+                .Include(x => x.MasterBasvuru)
+                    .ThenInclude(m => m.Personel)
+                        .ThenInclude(p => p.IsBasvuruDetay)
+                            .ThenInclude(d => d.BasvuruAlanlar).ThenInclude(a => a.SubeAlan).ThenInclude(ma => ma.MasterAlan)
+                .Include(x => x.MasterBasvuru)
+                    .ThenInclude(m => m.Personel)
+                        .ThenInclude(p => p.IsBasvuruDetay)
+                            .ThenInclude(d => d.BasvuruDepartmanlar).ThenInclude(dep => dep.Departman).ThenInclude(md => md.MasterDepartman)
+                .Include(x => x.MasterBasvuru)
+                    .ThenInclude(m => m.Personel)
+                        .ThenInclude(p => p.IsBasvuruDetay)
+                            .ThenInclude(d => d.BasvuruPozisyonlar).ThenInclude(p => p.DepartmanPozisyon).ThenInclude(mp => mp.MasterPozisyon)
+                .OrderByDescending(x => x.IslemTarihi)
+                .ToListAsync();
+
+            var mappedLogs = _mapper.Map<List<BasvuruIslemLogListDto>>(logs);
+            return ServiceResponse<List<BasvuruIslemLogListDto>>.SuccessResult(mappedLogs);
+        }
+        // Belirli bir başvuruya ait logları getirir (Interface ismiyle eşitlendi)
         public async Task<ServiceResponse<List<BasvuruIslemLogListDto>>> GetBasvuruLogsAsync(int masterBasvuruId)
         {
             var logs = await _context.BasvuruIslemLoglari

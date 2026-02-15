@@ -3,6 +3,7 @@ using IsBasvuru.Domain.DTOs.TanimlamalarDtos.UlkeDtos;
 using IsBasvuru.Domain.Entities.Tanimlamalar;
 using IsBasvuru.Domain.Interfaces;
 using IsBasvuru.Domain.Wrappers;
+using IsBasvuru.Infrastructure.Tools;
 using IsBasvuru.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -58,10 +59,18 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<UlkeListDto>> CreateAsync(UlkeCreateDto createDto)
         {
-            if (await _context.Ulkeler.AnyAsync(x => x.UlkeAdi == createDto.UlkeAdi))
-                return ServiceResponse<UlkeListDto>.FailureResult("Bu ülke zaten kayıtlı.");
+            // 1. Gelen metni hemen normalize et (Büyük harfe çevir ve boşlukları temizle)
+            string normalizedName = createDto.UlkeAdi.ToTurkishUpper();
+
+            // 2. Mükerrer kontrolünü normalleştirilmiş isim üzerinden yap
+            if (await _context.Ulkeler.AnyAsync(x => x.UlkeAdi == normalizedName))
+                return ServiceResponse<UlkeListDto>.FailureResult($"'{normalizedName}' isimli ülke zaten sistemde kayıtlı.");
 
             var entity = _mapper.Map<Ulke>(createDto);
+
+            // 3. Veritabanına büyük harfli halini kaydet
+            entity.UlkeAdi = normalizedName;
+
             await _context.Ulkeler.AddAsync(entity);
             await _context.SaveChangesAsync();
 
@@ -77,10 +86,18 @@ namespace IsBasvuru.Infrastructure.Services
             if (entity == null)
                 return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
 
-            if (await _context.Ulkeler.AnyAsync(x => x.UlkeAdi == updateDto.UlkeAdi && x.Id != updateDto.Id))
-                return ServiceResponse<bool>.FailureResult("Bu isimde başka bir ülke zaten var.");
+            // 1. Yeni ismi normalize et
+            string normalizedName = updateDto.UlkeAdi.ToTurkishUpper();
+
+            // 2. İsim çakışması kontrolü (Kendisi hariç başka bir kayıt bu ismi kullanıyor mu?)
+            if (await _context.Ulkeler.AnyAsync(x => x.UlkeAdi == normalizedName && x.Id != updateDto.Id))
+                return ServiceResponse<bool>.FailureResult($"'{normalizedName}' ismi zaten başka bir ülke kaydında kullanılıyor.");
 
             _mapper.Map(updateDto, entity);
+
+            // 3. Update işlemi sonrası manuel büyük harf garantisi
+            entity.UlkeAdi = normalizedName;
+
             _context.Ulkeler.Update(entity);
             await _context.SaveChangesAsync();
 

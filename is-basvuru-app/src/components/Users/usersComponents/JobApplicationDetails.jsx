@@ -1,8 +1,9 @@
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { useFormContext, Controller, useWatch } from "react-hook-form";
 import Select from "react-select";
 import { useTranslation } from "react-i18next";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import tanimlamalarService from "../../../services/tanimlamalarService";
 import {
   faEye,
   faBuilding,
@@ -94,6 +95,27 @@ export default function JobApplicationDetails({ definitions }) {
   } = useFormContext();
   const portalTarget = typeof document !== "undefined" ? document.body : null;
 
+  const [departmanPozisyonApi, setDepartmanPozisyonApi] = useState([]);
+
+  useEffect(() => {
+    let alive = true;
+
+    (async () => {
+      try {
+        const res = await tanimlamalarService.getDepartmanPozisyonlar();
+        if (!alive) return;
+        setDepartmanPozisyonApi(res?.data ?? []);
+      } catch (e) {
+        console.error("DepartmanPozisyon verisi yüklenirken hata:", e);
+        setDepartmanPozisyonApi([]);
+      }
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   // --- API Verileri (Memoized) ---
   const apiSubeler = useMemo(() => definitions?.subeler ?? [], [definitions]);
   const apiSubeAlanlar = useMemo(
@@ -105,8 +127,8 @@ export default function JobApplicationDetails({ definitions }) {
     [definitions],
   );
   const apiPozisyonlar = useMemo(
-    () => definitions?.pozisyonlar ?? [],
-    [definitions],
+    () => departmanPozisyonApi ?? [],
+    [departmanPozisyonApi],
   );
   const apiProgramlar = useMemo(
     () => definitions?.programlar ?? [],
@@ -178,12 +200,10 @@ export default function JobApplicationDetails({ definitions }) {
 
   const departmanOptions = useMemo(() => {
     if (!alanlar || alanlar.length === 0) return [];
-    // İsim bazlı filtreleme için label kullanıyoruz
     const selectedAlanLabels = alanlar
       .map((a) => a.label || "")
       .filter(Boolean);
 
-    // Eğer label yoksa (profil yükleme anı), ID ile API'den isim bulup ekle
     if (selectedAlanLabels.length === 0 && alanlar.length > 0) {
       alanlar.forEach((a) => {
         const raw = apiSubeAlanlar.find(
@@ -212,38 +232,32 @@ export default function JobApplicationDetails({ definitions }) {
 
   const pozisyonOptions = useMemo(() => {
     if (!departmanlar || departmanlar.length === 0) return [];
-    const selectedDepartmanLabels = departmanlar
-      .map((d) => d.label || "")
-      .filter(Boolean);
-
-    if (selectedDepartmanLabels.length === 0 && departmanlar.length > 0) {
-      departmanlar.forEach((d) => {
-        const raw = apiDepartmanlar.find(
-          (r) => String(safeGet(r, "id", "Id")) === String(d.value),
-        );
-        if (raw)
-          selectedDepartmanLabels.push(
-            safeGet(raw, "departmanAdi", "DepartmanAdi"),
-          );
-      });
-    }
+    const selectedDeptIds = departmanlar.map((d) => String(d.value));
 
     const opts = apiPozisyonlar
-      .filter((p) => {
-        const relatedDept = apiDepartmanlar.find(
-          (d) =>
-            String(safeGet(d, "id", "Id")) ===
-            String(safeGet(p, "departmanId", "DepartmanId")),
-        );
-        const deptName = safeGet(relatedDept, "departmanAdi", "DepartmanAdi");
-        return selectedDepartmanLabels.includes(deptName);
+      .filter((dp) => {
+        const deptId = safeGet(dp, "departmanId", "DepartmanId");
+        return deptId && selectedDeptIds.includes(String(deptId));
       })
-      .map((p) => ({
-        value: String(safeGet(p, "id", "Id")),
-        label: safeGet(p, "pozisyonAdi", "PozisyonAdi"),
-      }));
+      .map((dp) => {
+        const nestedPos = dp.pozisyon || dp.Pozisyon;
+
+        const value = String(
+          safeGet(dp, "pozisyonId", "PozisyonId") ??
+            safeGet(nestedPos, "id", "Id") ??
+            safeGet(dp, "id", "Id"),
+        );
+
+        const label =
+          safeGet(nestedPos, "pozisyonAdi", "PozisyonAdi") ??
+          safeGet(dp, "pozisyonAdi", "PozisyonAdi");
+
+        return { value, label };
+      })
+      .filter((x) => x.value && x.label);
+
     return getUniqueOptionsByLabel(opts);
-  }, [apiPozisyonlar, departmanlar, apiDepartmanlar]);
+  }, [apiPozisyonlar, departmanlar]);
 
   const programOptions = useMemo(() => {
     if (!departmanlar || departmanlar.length === 0) return [];
@@ -287,10 +301,6 @@ export default function JobApplicationDetails({ definitions }) {
     }));
     return getUniqueOptionsByLabel(opts);
   }, [apiOyunlar]);
-
-  // --- HYDRATION (Seçili Verileri Gösterme) ---
-  // 🔥 DÜZELTME: "getUniqueOptionsByLabel" kullanarak, seçili gelen verilerdeki
-  // çift kayıtları (Örn: 2 tane Casino) görsel olarak teke indiriyoruz.
 
   const selectedSubelerHydrated = useMemo(() => {
     const raw = getValueObjects(subeler, subeOptions, apiSubeler, "subeAdi");

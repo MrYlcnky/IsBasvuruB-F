@@ -4,6 +4,7 @@ using IsBasvuru.Domain.Entities.KimlikDogrulama;
 using IsBasvuru.Domain.Entities.Log;
 using IsBasvuru.Domain.Entities.PersonelBilgileri;
 using IsBasvuru.Domain.Entities.SirketYapisi;
+using IsBasvuru.Domain.Entities.SirketYapisi.SirketMasterYapisi;
 using IsBasvuru.Domain.Entities.SirketYapisi.SirketTanimYapisi;
 using IsBasvuru.Domain.Entities.Tanimlamalar;
 using IsBasvuru.Domain.Enums;
@@ -62,6 +63,8 @@ namespace IsBasvuru.Persistence.Context
         public DbSet<MasterAlan> MasterAlanlar { get; set; }
         public DbSet<MasterDepartman> MasterDepartmanlar { get; set; }
         public DbSet<MasterPozisyon> MasterPozisyonlar { get; set; }
+        public DbSet<MasterProgram> MasterProgramlar { get; set; }
+        public DbSet<MasterOyun> MasterOyunlar { get; set; }
 
         // 5-Tanimlamalar
         public DbSet<Dil> Diller { get; set; }
@@ -160,13 +163,31 @@ namespace IsBasvuru.Persistence.Context
                 .HasIndex(e => new { e.IsBasvuruDetayId, e.DepartmanId }).IsUnique();
 
             modelBuilder.Entity<IsBasvuruDetayPozisyon>()
-                .HasIndex(e => new { e.IsBasvuruDetayId, e.DepartmanPozisyonId }).IsUnique();
+         .HasOne(x => x.DepartmanPozisyon)
+         .WithMany()
+         .HasForeignKey(x => x.DepartmanPozisyonId)
+         .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<IsBasvuruDetayProgram>()
                 .HasIndex(e => new { e.IsBasvuruDetayId, e.ProgramBilgisiId }).IsUnique();
 
             modelBuilder.Entity<IsBasvuruDetayOyun>()
                 .HasIndex(e => new { e.IsBasvuruDetayId, e.OyunBilgisiId }).IsUnique();
+
+            // 1. ŞubeAlan silinince bağlı Departmanlar silinsin
+            modelBuilder.Entity<Departman>()
+                .HasOne(d => d.SubeAlan)
+                .WithMany(sa => sa.Departmanlar)
+                .HasForeignKey(d => d.SubeAlanId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // 2. Departman silinince bağlı Pozisyonlar silinsin
+            modelBuilder.Entity<DepartmanPozisyon>()
+                .HasOne(dp => dp.Departman)
+                .WithMany(d => d.DepartmanPozisyonlar)
+                .HasForeignKey(dp => dp.DepartmanId)
+                .OnDelete(DeleteBehavior.Cascade);
+
 
             // Roller
             modelBuilder.Entity<Rol>().HasData(
@@ -207,6 +228,20 @@ namespace IsBasvuru.Persistence.Context
                     RolTanimi = "İlgili departmana gelen başvuruları değerlendirme mercii."
                 }
             );
+
+            modelBuilder.Entity<PanelKullanici>().HasData(new PanelKullanici
+            {
+                Id = 1,
+                KullaniciAdi = "SuperAdmin", 
+                Adi = "Sistem",
+                Soyadi = "Yöneticisi",
+                KullaniciSifre = "$2a$11$v7tUh0sfE41ZtdoAuuEO.emlTQzkMKgnygwNaRnBYJTkbaSDJETsK",//superadmin
+                RolId = 1, 
+                SonGirisTarihi = new DateTime(2026, 1, 1),
+                SubeId = null,
+                MasterAlanId = null,
+                MasterDepartmanId = null
+            });
         }
     }
 }

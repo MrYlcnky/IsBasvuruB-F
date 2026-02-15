@@ -1,0 +1,6 @@
+2026-02-14 20:59:10.813 +02:00 [INF] Now listening on: https://localhost:7000
+2026-02-14 20:59:10.924 +02:00 [INF] Now listening on: http://localhost:5054
+2026-02-14 20:59:11.058 +02:00 [INF] Application started. Press Ctrl+C to shut down.
+2026-02-14 20:59:11.061 +02:00 [INF] Hosting environment: Development
+2026-02-14 20:59:11.063 +02:00 [INF] Content root path: \\172.16.0.27\Casino\It\Kişisel\MehmetYalcinkaya\MehmetYalcinkaya\Udemy\Proje\React\IsBasvuru\IsBasvuru.WebAPI
+2026-02-14 21:24:19.884 +02:00 [INF] Starting application...

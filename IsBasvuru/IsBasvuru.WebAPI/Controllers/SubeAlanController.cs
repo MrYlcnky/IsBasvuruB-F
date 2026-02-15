@@ -1,57 +1,55 @@
 ﻿using IsBasvuru.Domain.DTOs.SirketYapisiDtos.SubeAlanDtos;
 using IsBasvuru.Domain.Interfaces;
+using IsBasvuru.WebAPI.Controllers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
-namespace IsBasvuru.WebAPI.Controllers
+[Route("api/[controller]")]
+[ApiController]
+[Authorize]
+public class SubeAlanController : BaseController
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class SubeAlanController : BaseController // 1. BaseController'dan miras al
+    private readonly ISubeAlanService _service;
+    public SubeAlanController(ISubeAlanService service) { _service = service; }
+
+    [HttpGet("GetAll")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetAll()
     {
-        private readonly ISubeAlanService _service;
+        var response = await _service.GetAllAsync();
+        return CreateActionResultInstance(response);
+    }
 
-        public SubeAlanController(ISubeAlanService service)
-        {
-            _service = service;
-        }
+    [HttpGet("GetById/{id}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetById([FromRoute] int id)
+    {
+        var response = await _service.GetByIdAsync(id);
+        return CreateActionResultInstance(response);
+    }
 
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetAll()
-        {
-            var response = await _service.GetAllAsync();
-            return CreateActionResultInstance(response);
-        }
+    [HttpPost("Create")]
+    [Authorize(Roles = "SuperAdmin,Admin")]
+   
+    public async Task<IActionResult> Create([FromBody] SubeAlanCreateDto dto)
+    {
+        var response = await _service.CreateAsync(dto);
+        return CreateActionResultInstance(response);
+    }
 
-        [HttpGet("{id}")]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var response = await _service.GetByIdAsync(id);
-            return CreateActionResultInstance(response);
-        }
+    [HttpPut("Update")]
+    [Authorize(Roles = "SuperAdmin,Admin")]
+    public async Task<IActionResult> Update([FromBody] SubeAlanUpdateDto dto)
+    {
+        var response = await _service.UpdateAsync(dto);
+        return CreateActionResultInstance(response);
+    }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(SubeAlanCreateDto dto)
-        {
-            var response = await _service.CreateAsync(dto);
-            return CreateActionResultInstance(response);
-        }
-
-        [HttpPut]
-        public async Task<IActionResult> Update(SubeAlanUpdateDto dto)
-        {
-            var response = await _service.UpdateAsync(dto);
-            return CreateActionResultInstance(response);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var response = await _service.DeleteAsync(id);
-            return CreateActionResultInstance(response);
-        }
+    [HttpDelete("Delete/{id}")]
+    [Authorize(Roles = "SuperAdmin,Admin")]
+    public async Task<IActionResult> Delete([FromRoute] int id)
+    {
+        var response = await _service.DeleteAsync(id);
+        return CreateActionResultInstance(response);
     }
 }

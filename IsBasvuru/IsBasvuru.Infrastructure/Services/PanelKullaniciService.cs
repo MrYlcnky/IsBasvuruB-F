@@ -4,6 +4,7 @@ using IsBasvuru.Domain.DTOs.AdminDtos.PanelKullaniciDtos;
 using IsBasvuru.Domain.Entities.AdminBilgileri;
 using IsBasvuru.Domain.Interfaces;
 using IsBasvuru.Domain.Wrappers;
+using IsBasvuru.Infrastructure.Tools;
 using IsBasvuru.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -25,28 +26,75 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<PanelKullaniciListDto>> CreateAsync(PanelKullaniciCreateDto dto)
         {
-            // Aynı kullanıcı adı var mı kontrolü
-            var exist = await _context.PanelKullanicilari.AnyAsync(x => x.KullaniciAdi == dto.KullaniciAdi);
+            // 1. Kullanıcı Adı: Sadece boşluk temizliği
+            string normalizedUsername = dto.KullaniciAdi?.Trim() ?? string.Empty;
+
+            // 2. Aynı kullanıcı adı kontrolü
+            var exist = await _context.PanelKullanicilari.AnyAsync(x => x.KullaniciAdi == normalizedUsername);
             if (exist)
                 return ServiceResponse<PanelKullaniciListDto>.FailureResult("Bu kullanıcı adı zaten kullanılıyor.");
 
             var entity = _mapper.Map<PanelKullanici>(dto);
 
-            // Yeni Yapı Kontrolü: AutoMapper, DTO'daki MasterDepartmanId'yi Entity'ye eşleyecektir.
-            // Ancak manuel kontrol etmek istersen buraya bakabilirsin.
-            // entity.MasterDepartmanId = dto.MasterDepartmanId; (AutoMapper yapıyorsa gerek yok)
+            // 3. Entity değerlerini atıyoruz (Kullanıcının girdiği gibi)
+            entity.KullaniciAdi = normalizedUsername;
+            entity.Adi = dto.Adi?.Trim();
+            entity.Soyadi = dto.Soyadi?.Trim();
 
-            // Şifre Hashleme
+            // 4. Şifre Hashleme
             entity.KullaniciSifre = BCrypt.Net.BCrypt.HashPassword(dto.KullaniciSifre);
-            entity.SonGirisTarihi = System.DateTime.Now; // İlk kayıt tarihi olarak atayabiliriz
+
+            // 5. Tarih
+            entity.SonGirisTarihi = DateTime.Now;
 
             await _context.PanelKullanicilari.AddAsync(entity);
             await _context.SaveChangesAsync();
 
             var responseDto = _mapper.Map<PanelKullaniciListDto>(entity);
-            return ServiceResponse<PanelKullaniciListDto>.SuccessResult(responseDto);
+            return ServiceResponse<PanelKullaniciListDto>.SuccessResult(responseDto, "Kullanıcı başarıyla oluşturuldu.");
         }
 
+        public async Task<ServiceResponse<bool>> UpdateAsync(PanelKullaniciUpdateDto dto)
+        {
+            var entity = await _context.PanelKullanicilari.FindAsync(dto.Id);
+            if (entity == null)
+                return ServiceResponse<bool>.FailureResult("Kullanıcı bulunamadı.");
+
+            // 1. Kullanıcı Adı: Sadece boşlukları temizliyoruz, olduğu gibi bırakıyoruz.
+            string normalizedUsername = dto.KullaniciAdi?.Trim() ?? string.Empty;
+
+            // 2. Çakışma Kontrolü
+            if (entity.KullaniciAdi != normalizedUsername)
+            {
+                bool isTaken = await _context.PanelKullanicilari
+                    .AnyAsync(x => x.KullaniciAdi == normalizedUsername && x.Id != dto.Id);
+
+                if (isTaken)
+                    return ServiceResponse<bool>.FailureResult($"'{normalizedUsername}' kullanıcı adı zaten başkası tarafından kullanılıyor.");
+            }
+
+            // 3. Bilgileri Güncelle (Olduğu gibi)
+            entity.Adi = dto.Adi?.Trim();
+            entity.Soyadi = dto.Soyadi?.Trim();
+            entity.KullaniciAdi = normalizedUsername;
+            entity.RolId = dto.RolId;
+            entity.SubeId = dto.SubeId;
+
+            // 4. Master Alanlar
+            entity.MasterAlanId = dto.MasterAlanId;
+            entity.MasterDepartmanId = dto.MasterDepartmanId;
+
+            // 5. Şifre Güncelleme
+            if (!string.IsNullOrEmpty(dto.YeniKullaniciSifre))
+            {
+                entity.KullaniciSifre = BCrypt.Net.BCrypt.HashPassword(dto.YeniKullaniciSifre);
+            }
+
+            _context.PanelKullanicilari.Update(entity);
+            await _context.SaveChangesAsync();
+
+            return ServiceResponse<bool>.SuccessResult(true, "Kullanıcı başarıyla güncellendi.");
+        }
         public async Task<ServiceResponse<List<PanelKullaniciListDto>>> GetAllAsync()
         {
             var list = await _context.PanelKullanicilari
@@ -79,34 +127,7 @@ namespace IsBasvuru.Infrastructure.Services
             return ServiceResponse<PanelKullaniciListDto>.SuccessResult(map);
         }
 
-        public async Task<ServiceResponse<bool>> UpdateAsync(PanelKullaniciUpdateDto dto)
-        {
-            var entity = await _context.PanelKullanicilari.FindAsync(dto.Id);
-            if (entity == null)
-                return ServiceResponse<bool>.FailureResult("Kullanıcı bulunamadı.");
-
-            // Bilgileri Güncelle
-            entity.Adi = dto.Adi;
-            entity.Soyadi = dto.Soyadi;
-            entity.KullaniciAdi = dto.KullaniciAdi;
-            entity.RolId = dto.RolId;
-            entity.SubeId = dto.SubeId;
-
-            // Yeni Master alanların güncellenmesi
-            entity.MasterAlanId = dto.MasterAlanId;
-            entity.MasterDepartmanId = dto.MasterDepartmanId;
-
-            // Şifre güncelleme isteği varsa
-            if (!string.IsNullOrEmpty(dto.YeniKullaniciSifre))
-            {
-                entity.KullaniciSifre = BCrypt.Net.BCrypt.HashPassword(dto.YeniKullaniciSifre);
-            }
-
-            _context.PanelKullanicilari.Update(entity);
-            await _context.SaveChangesAsync();
-
-            return ServiceResponse<bool>.SuccessResult(true, "Kullanıcı başarıyla güncellendi.");
-        }
+       
 
         public async Task<ServiceResponse<bool>> DeleteAsync(int id)
         {

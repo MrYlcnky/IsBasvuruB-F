@@ -1,6 +1,5 @@
 import axios from "axios";
 
-// Postman'de doğruladığımız çalışan adres
 const BASE_URL = import.meta.env.VITE_API_BASE_URL_API;
 
 const axiosClient = axios.create({
@@ -9,39 +8,36 @@ const axiosClient = axios.create({
     "Content-Type": "application/json",
     Accept: "application/json",
   },
-  // Geliştirme ortamında SSL sertifika hatalarını yok saymak için (Gerekirse)
-  // httpsAgent: new https.Agent({ rejectUnauthorized: false })
 });
 
-// REQUEST INTERCEPTOR (İstek Atılırken)
-// Her giden isteğin çantasına (header) Token koyuyoruz.
+// İSTEK KONTROLÜ (INTERCEPTOR)
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = sessionStorage.getItem("authToken");
+    // KRİTİK DÜZELTME: authService'de localStorage.setItem("token", ...) kullanmıştık.
+    // Burayı da localStorage ve "token" anahtarına göre güncelledik.
+    const token = localStorage.getItem("token");
+
     if (token) {
+      // Token varsa Authorization header'ına ekle
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
   (error) => Promise.reject(error),
 );
 
-// RESPONSE INTERCEPTOR (Yanıt Gelince)
-// Backend'den dönen yanıtı veya hatayı standartlaştırıyoruz.
+// YANIT KONTROLÜ (INTERCEPTOR)
 axiosClient.interceptors.response.use(
-  (response) => {
-    // Backend standardına göre "success" true ise datayı dön, değilse hata fırlat
-    // Sizin backend yapınızda: response.data.data içinde asıl veri var.
-    return response;
-  },
+  (response) => response,
   (error) => {
-    if (error.response) {
-      // 401: Yetkisiz Giriş -> Kullanıcıyı login'e atabiliriz
-      if (error.response.status === 401) {
-        // sessionStorage.clear();
-        // window.location.href = '/login';
-      }
-      console.error("API Error:", error.response.data);
+    // Eğer backend 401 (Yetkisiz) dönerse
+    if (error.response && error.response.status === 401) {
+      console.warn("Yetkisiz erişim: Oturumunuz sonlanmış olabilir (401).");
+
+      // Opsiyonel: Oturumu temizleyip login'e yönlendirmek istersen burayı açabilirsin:
+      // localStorage.removeItem("token");
+      // window.location.href = "/login";
     }
     return Promise.reject(error);
   },

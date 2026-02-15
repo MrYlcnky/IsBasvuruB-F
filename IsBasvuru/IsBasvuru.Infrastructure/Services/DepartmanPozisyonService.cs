@@ -53,7 +53,7 @@ namespace IsBasvuru.Infrastructure.Services
         public async Task<ServiceResponse<DepartmanPozisyonListDto>> GetByIdAsync(int id)
         {
             var entity = await _context.DepartmanPozisyonlar
-                .Include(x => x.MasterPozisyon) // ✅
+                .Include(x => x.MasterPozisyon) 
                 .Include(x => x.Departman).ThenInclude(d => d!.MasterDepartman)
                 .Include(x => x.Departman).ThenInclude(d => d!.SubeAlan).ThenInclude(sa => sa!.Sube)
                 .Include(x => x.Departman).ThenInclude(d => d!.SubeAlan).ThenInclude(sa => sa!.MasterAlan)
@@ -94,19 +94,15 @@ namespace IsBasvuru.Infrastructure.Services
             var mevcut = await _context.DepartmanPozisyonlar.FindAsync(updateDto.Id);
             if (mevcut == null) return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
 
-            if (mevcut.DepartmanId != updateDto.DepartmanId)
-            {
-                bool depVarMi = await _context.Departmanlar.AnyAsync(x => x.Id == updateDto.DepartmanId);
-                if (!depVarMi) return ServiceResponse<bool>.FailureResult("Yeni seçilen departman bulunamadı.");
-            }
-
+            // Çakışma kontrolü
             bool cakisma = await _context.DepartmanPozisyonlar
-               .AnyAsync(x => x.DepartmanId == updateDto.DepartmanId && x.MasterPozisyonId == updateDto.MasterPozisyonId && x.Id != updateDto.Id);
+                .AnyAsync(x => x.DepartmanId == updateDto.DepartmanId &&
+                               x.MasterPozisyonId == updateDto.MasterPozisyonId &&
+                               x.Id != updateDto.Id);
 
-            if (cakisma) return ServiceResponse<bool>.FailureResult("Bu departmanda bu pozisyon zaten var.");
+            if (cakisma) return ServiceResponse<bool>.FailureResult("Bu departmanda bu pozisyon zaten tanımlı.");
 
             _mapper.Map(updateDto, mevcut);
-            _context.DepartmanPozisyonlar.Update(mevcut);
             await _context.SaveChangesAsync();
             _cache.Remove(CacheKey);
 
@@ -115,17 +111,21 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<bool>> DeleteAsync(int id)
         {
+            // Güvenlik: Bu pozisyona atanmış başvuru/personel var mı?
             bool personelVarMi = await _context.IsBasvuruDetayPozisyonlari.AnyAsync(x => x.DepartmanPozisyonId == id);
-            if (personelVarMi) return ServiceResponse<bool>.FailureResult("Bu pozisyonda görevli personel bulunduğu için silme işlemi yapılamaz.");
+            if (personelVarMi)
+                return ServiceResponse<bool>.FailureResult("Bu pozisyonda kayıtlı personel/başvuru bulunduğu için silme işlemi yapılamaz.");
 
             var kayit = await _context.DepartmanPozisyonlar.FindAsync(id);
             if (kayit == null) return ServiceResponse<bool>.FailureResult("Silinecek kayıt bulunamadı.");
 
             _context.DepartmanPozisyonlar.Remove(kayit);
-            await _context.SaveChangesAsync();
+            var result = await _context.SaveChangesAsync();
             _cache.Remove(CacheKey);
 
-            return ServiceResponse<bool>.SuccessResult(true);
+            return result > 0
+                ? ServiceResponse<bool>.SuccessResult(true)
+                : ServiceResponse<bool>.FailureResult("Veritabanı silme işlemini onaylamadı.");
         }
     }
 }

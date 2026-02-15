@@ -8,8 +8,8 @@ namespace IsBasvuru.WebAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [AllowAnonymous]
-    public class DilController : BaseController // 1. BaseController'dan miras aldık
+    [Authorize] 
+    public class DilController : BaseController
     {
         private readonly IDilService _service;
 
@@ -18,37 +18,46 @@ namespace IsBasvuru.WebAPI.Controllers
             _service = service;
         }
 
-        [HttpGet]
+        [HttpGet("GetAll")]
+        [AllowAnonymous] // Adaylar dil seçeneklerini görebilmeli
         public async Task<IActionResult> GetAll()
         {
             var response = await _service.GetAllAsync();
             return CreateActionResultInstance(response);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        [HttpGet("GetById/{id}")]
+        [Authorize(Roles = "SuperAdmin,Admin")] // Detay sadece yöneticilere özel olabilir
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
+            if (id <= 0) return BadRequest("Geçersiz ID.");
+
             var response = await _service.GetByIdAsync(id);
             return CreateActionResultInstance(response);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(DilCreateDto dto)
+        [HttpPost("Create")]
+        [Authorize(Roles = "SuperAdmin,Admin")] // Yeni dil ekleme sadece yöneticilere açık
+        public async Task<IActionResult> Create([FromBody] DilCreateDto dto)
         {
             var response = await _service.CreateAsync(dto);
             return CreateActionResultInstance(response);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update(DilUpdateDto dto)
+        [HttpPut("Update")]
+        [Authorize(Roles = "SuperAdmin,Admin")] // Güncelleme sadece yöneticilere açık
+        public async Task<IActionResult> Update([FromBody] DilUpdateDto dto)
         {
             var response = await _service.UpdateAsync(dto);
             return CreateActionResultInstance(response);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("Delete/{id}")]
+        [Authorize(Roles = "SuperAdmin,Admin")] // Silme işlemi en yüksek yetkiyi gerektirir
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
+            if (id <= 0) return BadRequest("Geçersiz ID.");
+
             var response = await _service.DeleteAsync(id);
             return CreateActionResultInstance(response);
         }

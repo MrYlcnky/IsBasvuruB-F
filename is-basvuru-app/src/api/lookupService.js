@@ -1,17 +1,32 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+import axiosClient from "../api/axiosClient";
 
-const fetchLookup = async (path) => {
-  const response = await fetch(`${API_BASE_URL}${path}`);
-  if (!response.ok) {
-    throw new Error(`Lookup request failed: ${path}`);
-  }
-  const payload = await response.json();
-  return payload?.data ?? [];
+// Ortak unwrap fonksiyonu
+const unwrap = (response) => response?.data?.data ?? [];
+
+export const getCountries = async () => {
+  // Yeni URL: /api/Ulke/GetAll
+  const response = await axiosClient.get("/Ulke/GetAll");
+  return unwrap(response);
 };
 
-export const getCountries = async () => fetchLookup("/api/Ulke");
+export const getNationalities = async () => {
+  // Yeni URL: /api/Uyruk/GetAll
+  const response = await axiosClient.get("/Uyruk/GetAll");
+  return unwrap(response);
+};
 
-export const getNationalities = async () => fetchLookup("/api/Uyruk");
+export const getCitiesByCountry = async (countryId) => {
+  if (!countryId) return [];
+  // Yeni URL: /api/Sehir/GetByUlkeId/{id}
+  const response = await axiosClient.get(`/Sehir/GetByUlkeId/${countryId}`);
+  return unwrap(response);
+};
 
-export const getCitiesByCountry = async (countryId) =>
-  fetchLookup(`/api/Sehir/ulke/${countryId}`);
+export const getDistrictsByCity = async (cityId) => {
+  if (!cityId) return [];
+  // Yeni URL: /api/Ilce/GetAll (Filtreleme gerekirse backend'e GetByCityId eklenebilir)
+  // Şimdilik swagger'daki GetAll'a göre:
+  const response = await axiosClient.get("/Ilce/GetAll");
+  const allDistricts = unwrap(response);
+  return allDistricts.filter((d) => d.sehirId === Number(cityId));
+};

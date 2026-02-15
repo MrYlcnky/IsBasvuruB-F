@@ -5,7 +5,7 @@ export default function Footer() {
   return (
     // Navbar ile uyumlu modern koyu tema
     <footer className="mt-auto py-4 px-4 sm:px-6 lg:px-8 border-t border-gray-800 bg-gray-800">
-      <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+      <div className="max-w-400 mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
         <p className="text-sm text-gray-400">
           © {new Date().getFullYear()}{" "}
           <span className="font-semibold text-gray-200">Chamada Group</span>.

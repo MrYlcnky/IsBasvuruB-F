@@ -1,72 +1,80 @@
 import axiosClient from "../api/axiosClient";
 
 export const authService = {
-  // --- BÖLÜM 1: ADMİN PANEL GİRİŞ İŞLEMLERİ ---
   /**
-   * Admin Login İşlemi
-   * Backend DTO: AdminLoginDto { kullaniciAdi, kullaniciSifre }
+   * Kullanıcı Giriş İşlemi
+   * @param {string} username - Kullanıcı Adı
+   * @param {string} password - Şifre
    */
   login: async (username, password) => {
+    // Backend AdminLoginDto ile eşleşen payload
     const loginPayload = {
       kullaniciAdi: username,
       kullaniciSifre: password,
     };
 
     try {
-      const response = await axiosClient.post(
-        "/KimlikDogrulama/login",
-        loginPayload,
-      );
+      const response = await axiosClient.post("/Auth/login", loginPayload);
       const apiResponse = response.data;
 
-      if (apiResponse.success && apiResponse.data) {
+      // Yanıt başarılıysa ve data içeriği varsa
+      if (apiResponse && apiResponse.success && apiResponse.data) {
         const { token, userInfo } = apiResponse.data;
 
         if (token) {
-          sessionStorage.setItem("authToken", token);
+          // 1. Token'ı localStorage'a kaydediyoruz (axiosClient her istekte buradan okuyacak)
+          localStorage.setItem("token", token);
+
+          // 2. Kullanıcı bilgilerini saklıyoruz (JSON string olarak)
           sessionStorage.setItem("authUser", JSON.stringify(userInfo));
-          return userInfo;
+
+          // 3. Rol bilgisini kolay erişim için ayrıca saklıyoruz
+          if (userInfo && userInfo.rolAdi) {
+            localStorage.setItem("role", userInfo.rolAdi);
+          }
         }
       }
 
-      throw new Error(apiResponse.message || "Giriş başarısız oldu.");
+      // Login.jsx içindeki 'if (response.success)' kontrolü için tüm apiResponse'u döndürüyoruz
+      return apiResponse;
     } catch (error) {
       console.error("AuthService Login Error:", error);
+      // Hatanın Login.jsx içindeki catch bloğuna düşmesi için fırlatıyoruz
       throw error;
     }
   },
 
+  /**
+   * Çıkış İşlemi
+   */
   logout: () => {
-    sessionStorage.removeItem("authToken");
+    // Kaydedilen tüm oturum verilerini temizle
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
     sessionStorage.removeItem("authUser");
+
+    // Kullanıcıyı giriş sayfasına yönlendir ve sayfayı yenile (State temizliği için)
     window.location.href = "/login";
   },
 
-  // --- BÖLÜM 2: ADAY BAŞVURU DOĞRULAMA İŞLEMLERİ (YENİ) ---
-
   /**
-   * Doğrulama Kodu Gönder (Backend: /api/KimlikDogrulama/kod-gonder)
-   * @param {string} eposta
+   * Şifre Sıfırlama Kodu Gönder
    */
   sendCode: async (eposta) => {
-    // Backend, KodGonderDto { Eposta } bekliyor
     const response = await axiosClient.post("/KimlikDogrulama/kod-gonder", {
       Eposta: eposta,
     });
-    return response.data; // { success: true, message: "..." } döner
+    return response.data;
   },
 
   /**
-   * Kodu Doğrula (Backend: /api/KimlikDogrulama/kod-dogrula)
-   * @param {string} eposta
-   * @param {string} kod
+   * Gönderilen Kodu Doğrula
    */
   verifyCode: async (eposta, kod) => {
-    // Backend, KodDogrulaDto { Eposta, Kod } bekliyor
     const response = await axiosClient.post("/KimlikDogrulama/kod-dogrula", {
       Eposta: eposta,
       Kod: kod,
     });
-    return response.data; // { success: true, data: { token: ... } } döner
+    return response.data;
   },
 };

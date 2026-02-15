@@ -86,9 +86,8 @@ namespace IsBasvuru.Infrastructure.Services
                 return ServiceResponse<bool>.FailureResult($"'{updateDto.SubeAdi}' isminde başka bir şube zaten var!");
 
             _mapper.Map(updateDto, mevcutSube);
-            _context.Subeler.Update(mevcutSube);
+            // Takip edilen (tracked) nesne olduğu için Update demeye gerek yok, SaveChanges yeterli.
             await _context.SaveChangesAsync();
-
             _cache.Remove(CacheKey);
 
             return ServiceResponse<bool>.SuccessResult(true);
@@ -96,20 +95,43 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<bool>> DeleteAsync(int id)
         {
-            bool bagliAlanVarMi = await _context.SubeAlanlar.AnyAsync(x => x.SubeId == id);
-            if (bagliAlanVarMi)
-                return ServiceResponse<bool>.FailureResult("Bu şubeye bağlı alanlar var. Önce onları silmelisiniz.");
-
+            // 1. ADIM: Kayıt Var mı Kontrolü
             var silinecek = await _context.Subeler.FindAsync(id);
             if (silinecek == null)
-                return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
+                return ServiceResponse<bool>.FailureResult("Silinmek istenen şube bulunamadı.");
 
-            _context.Subeler.Remove(silinecek);
-            await _context.SaveChangesAsync();
+            // 2. ADIM: Derinlemesine Kontrol (Senin yazdığın kısım - Personel/Başvuru var mı?)
+            bool basvuruVarMi = await _context.IsBasvuruDetayPozisyonlari
+                .AnyAsync(x => x.DepartmanPozisyon.Departman.SubeAlan.SubeId == id);
 
-            _cache.Remove(CacheKey);
+            if (basvuruVarMi)
+                return ServiceResponse<bool>.FailureResult("Bu şubeye bağlı personeller veya başvurular olduğu için silinemez.");
 
-            return ServiceResponse<bool>.SuccessResult(true);
+            // 3. ADIM: Doğrudan Bağlı Tablo Kontrolü (KRİTİK EKSİK BURASIYDI)
+            // Başvuru olmasa bile, şubeye tanımlanmış bir 'Alan' varsa SQL FK hatası verir.
+            bool altAlanVarMi = await _context.SubeAlanlar.AnyAsync(x => x.SubeId == id);
+            if (altAlanVarMi)
+                return ServiceResponse<bool>.FailureResult("Bu şubeye tanımlanmış Sektörel Alanlar var. Silmeden önce lütfen bu alanları kaldırın.");
+
+            // 4. ADIM: Silme İşlemi (Güvenli Blok)
+            try
+            {
+                _context.Subeler.Remove(silinecek);
+                await _context.SaveChangesAsync();
+
+                _cache.Remove(CacheKey); // Cache temizle
+
+                return ServiceResponse<bool>.SuccessResult(true, "Şube başarıyla silindi.");
+            }
+            catch (DbUpdateException ex) // Veritabanı kısıtlama hatalarını yakalar
+            {
+                // Loglama yapılabilir: _logger.LogError(ex, "Şube silinirken hata");
+                return ServiceResponse<bool>.FailureResult("Bu kayıt silinemiyor çünkü veritabanında başka tablolarla ilişkisi var (FK Constraint).");
+            }
+            catch (Exception ex) // Diğer hatalar
+            {
+                return ServiceResponse<bool>.FailureResult($"Beklenmedik bir hata oluştu: {ex.Message}");
+            }
         }
     }
 }

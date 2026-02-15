@@ -3,6 +3,7 @@ using IsBasvuru.Domain.DTOs.TanimlamalarDtos.DilDtos;
 using IsBasvuru.Domain.Entities.Tanimlamalar;
 using IsBasvuru.Domain.Interfaces;
 using IsBasvuru.Domain.Wrappers;
+using IsBasvuru.Infrastructure.Tools;
 using IsBasvuru.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
@@ -58,11 +59,18 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<DilListDto>> CreateAsync(DilCreateDto dto)
         {
-            // Aynı isimde dil var mı?
-            if (await _context.Diller.AnyAsync(x => x.DilAdi == dto.DilAdi))
-                return ServiceResponse<DilListDto>.FailureResult($"'{dto.DilAdi}' isimli dil zaten kayıtlı.");
+            // 1. Gelen metni normalize et (Büyük harf ve boşluk temizliği)
+            string normalizedName = dto.DilAdi.ToTurkishUpper();
+
+            // 2. Mükerrer kontrolünü normalize edilmiş isimle yap
+            if (await _context.Diller.AnyAsync(x => x.DilAdi == normalizedName))
+                return ServiceResponse<DilListDto>.FailureResult($"'{normalizedName}' isimli dil zaten kayıtlı.");
 
             var entity = _mapper.Map<Dil>(dto);
+
+            // 3. Veritabanına büyük harfli halini kaydet
+            entity.DilAdi = normalizedName;
+
             await _context.Diller.AddAsync(entity);
             await _context.SaveChangesAsync();
 
@@ -78,14 +86,21 @@ namespace IsBasvuru.Infrastructure.Services
             if (entity == null)
                 return ServiceResponse<bool>.FailureResult("Kayıt bulunamadı.");
 
-            // İsim Çakışma Kontrolü
+            // 1. Yeni ismi normalize et
+            string normalizedName = dto.DilAdi.ToTurkishUpper();
+
+            // 2. İsim Çakışma Kontrolü (Kendisi hariç kontrol)
             bool cakisma = await _context.Diller
-                .AnyAsync(x => x.DilAdi == dto.DilAdi && x.Id != dto.Id);
+                .AnyAsync(x => x.DilAdi == normalizedName && x.Id != dto.Id);
 
             if (cakisma)
-                return ServiceResponse<bool>.FailureResult($"'{dto.DilAdi}' isimli başka bir dil zaten var.");
+                return ServiceResponse<bool>.FailureResult($"'{normalizedName}' isimli başka bir dil zaten var.");
 
             _mapper.Map(dto, entity);
+
+            // 3. Update sonrası büyük harf garantisi
+            entity.DilAdi = normalizedName;
+
             _context.Diller.Update(entity);
             await _context.SaveChangesAsync();
 

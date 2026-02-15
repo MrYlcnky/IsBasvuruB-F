@@ -31,29 +31,43 @@ namespace IsBasvuru.Infrastructure.Services
 
         public async Task<ServiceResponse<LoginResponseDto>> LoginAsync(AdminLoginDto dto)
         {
-            // 1. Kullanıcıyı Bul (Rol Bilgisiyle Beraber)
+            // 1. Kullanıcıyı Bul (Include ile Rol bilgisini de çekiyoruz)
+            // AsNoTracking KULLANMIYORUZ çünkü SonGirisTarihi'ni güncelleyeceğiz.
             var kullanici = await _context.PanelKullanicilari
                 .Include(x => x.Rol)
-                .AsNoTracking() // Login sadece okuma işlemidir
                 .FirstOrDefaultAsync(x => x.KullaniciAdi == dto.KullaniciAdi);
 
             // 2. Kullanıcı Yoksa Hata Dön
             if (kullanici == null)
                 return ServiceResponse<LoginResponseDto>.FailureResult("Kullanıcı adı veya şifre hatalı.");
 
-            // 3. Şifre Kontrolü (BCrypt)
+            // 3. Şifre Kontrolü (BCrypt Verify)
             bool passwordValid = BCrypt.Net.BCrypt.Verify(dto.KullaniciSifre, kullanici.KullaniciSifre);
             if (!passwordValid)
                 return ServiceResponse<LoginResponseDto>.FailureResult("Kullanıcı adı veya şifre hatalı.");
 
-            // 4. Token Üret (Özel Claim'ler ile)
+            // 4. Son Giriş Tarihini Güncelle ve Kaydet
+            try
+            {
+                kullanici.SonGirisTarihi = DateTime.UtcNow; // Global standart için UtcNow önerilir
+                _context.PanelKullanicilari.Update(kullanici);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Loglama yapılabilir ama kullanıcıya giriş engel olmasın diye devam edebiliriz
+                // veya hata fırlatabiliriz. Şimdilik kritik hata verelim.
+                return ServiceResponse<LoginResponseDto>.FailureResult("Giriş işlemi sırasında veritabanı hatası oluştu.");
+            }
+
+            // 5. Token Üretimi
             var token = GenerateJwtToken(kullanici);
 
-            // 5. Token Süresini Al (AppSettings'den)
+            // 6. Token Süresini Config'den Al
             var durationStr = _configuration["JwtSettings:DurationInMinutes"];
             double duration = double.TryParse(durationStr, out var d) ? d : 60; // Varsayılan 60 dk
 
-            // 6. Response Hazırla
+            // 7. Response Hazırla (Token + Kullanıcı Bilgileri)
             var response = new LoginResponseDto
             {
                 Token = token,
@@ -108,13 +122,13 @@ namespace IsBasvuru.Infrastructure.Services
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securityKey));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expiryDays = Convert.ToDouble(_configuration["JwtSettings:DurationInMinutes"]);
+            var expiryMinutes = Convert.ToDouble(_configuration["JwtSettings:DurationInMinutes"]);
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["JwtSettings:Issuer"],
                 audience: _configuration["JwtSettings:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(expiryDays),
+                expires: DateTime.UtcNow.AddMinutes(expiryMinutes),
                 signingCredentials: creds
             );
 
